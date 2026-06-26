@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SystemRole {
+  USER      @map("user")
+  MODERATOR @map("moderator")
+  ADMIN     @map("admin")
+
+  @@map("system_role")
+}
+
+enum UserStatus {
+  PENDING @map("pending")
+  ACTIVE  @map("active")
+  BLOCKED @map("blocked")
+  DELETED @map("deleted")
+
+  @@map("user_status")
+}
+
+model User {
+  id              String      @id @default(uuid()) @db.Uuid
+
+  email           String      @unique @db.VarChar(255)
+  phone           String?     @unique @db.VarChar(32)
+  passwordHash    String      @map("password_hash") @db.VarChar(255)
+
+  systemRole      SystemRole  @default(USER) @map("system_role")
+  status          UserStatus  @default(PENDING)
+
+  emailVerifiedAt DateTime?   @map("email_verified_at") @db.Timestamptz
+  lastLoginAt     DateTime?   @map("last_login_at") @db.Timestamptz
+  deletedAt       DateTime?   @map("deleted_at") @db.Timestamptz
+
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("users")
+}
