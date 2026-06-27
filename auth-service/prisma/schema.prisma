@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SystemRole {
+  USER      @map("user")
+  MODERATOR @map("moderator")
+  ADMIN     @map("admin")
+
+  @@map("system_role")
+}
+
+enum UserStatus {
+  PENDING @map("pending")
+  ACTIVE  @map("active")
+  BLOCKED @map("blocked")
+  DELETED @map("deleted")
+
+  @@map("user_status")
+}
+
+model User {
+  id              String      @id @default(uuid()) @db.Uuid
+
+  email           String      @unique @db.VarChar(255)
+  phone           String?     @unique @db.VarChar(32)
+
+  passwordHash    String      @map("password_hash") @db.VarChar(255)
+
+  systemRole      SystemRole? @map("system_role")
+  status          UserStatus  @default(PENDING)
+
+  emailVerifiedAt DateTime?   @map("email_verified_at") @db.Timestamptz
+  lastLoginAt     DateTime?   @map("last_login_at") @db.Timestamptz
+  deletedAt       DateTime?   @map("deleted_at") @db.Timestamptz
+
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  refreshTokens           RefreshToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens     PasswordResetToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id          String    @id @default(uuid()) @db.Uuid
+
+  userId      String    @map("user_id") @db.Uuid
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash   String    @map("token_hash") @db.VarChar(255)
+
+  deviceName  String?   @map("device_name") @db.VarChar(255)
+  ipAddress   String?   @map("ip_address") @db.Inet
+  userAgent   String?   @map("user_agent") @db.Text
+
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz
+  revokedAt   DateTime? @map("revoked_at") @db.Timestamptz
+
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+
+  @@map("refresh_tokens")
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(uuid()) @db.Uuid
+
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash String    @map("token_hash") @db.VarChar(255)
+
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz
+  usedAt    DateTime? @map("used_at") @db.Timestamptz
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+
+  @@map("email_verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash String    @unique @map("token_hash") @db.VarChar(255)
+
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz
+  usedAt    DateTime? @map("used_at") @db.Timestamptz
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId])
+  @@index([expiresAt])
+
+  @@map("password_reset_tokens")
+}
