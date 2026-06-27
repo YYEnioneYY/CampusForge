@@ -1,0 +1,116 @@
+services:
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: campusforge-kafka
+    environment:
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: broker,controller
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      ALLOW_PLAINTEXT_LISTENER: yes
+    networks:
+      - campusforge-network
+
+  postgres-auth:
+    image: postgres:16
+    container_name: campusforge-postgres-auth
+    environment:
+      POSTGRES_USER: ${POSTGRES_AUTH_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_AUTH_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_AUTH_DB}
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+    networks:
+      - campusforge-network
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: campusforge-api-gateway
+    environment:
+      PORT: ${API_GATEWAY_PORT}
+      KAFKA_BROKER: ${KAFKA_BROKER}
+      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID_API_GATEWAY}
+    depends_on:
+      - kafka
+    ports:
+      - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+    networks:
+      - campusforge-network
+
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: campusforge-auth-service
+    environment:
+      KAFKA_BROKER: ${KAFKA_BROKER}
+      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID_AUTH_SERVICE}
+      KAFKA_GROUP_ID: ${KAFKA_GROUP_ID_AUTH_SERVICE}
+
+      DATABASE_URL: ${AUTH_DATABASE_URL}
+
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN}
+
+      ARGON2_TYPE: ${ARGON2_TYPE}
+      ARGON2_MEMORY_COST: ${ARGON2_MEMORY_COST}
+      ARGON2_TIME_COST: ${ARGON2_TIME_COST}
+      ARGON2_PARALLELISM: ${ARGON2_PARALLELISM}
+
+      EMAIL_VERIFICATION_SECRET: ${EMAIL_VERIFICATION_SECRET}
+      EMAIL_VERIFICATION_EXPIRES_IN: ${EMAIL_VERIFICATION_EXPIRES_IN}
+      EMAIL_VERIFICATION_URL: ${EMAIL_VERIFICATION_URL}
+    depends_on:
+      - kafka
+      - postgres-auth
+    networks:
+      - campusforge-network
+
+  postgres-notification:
+    image: postgres:16
+    container_name: campusforge-postgres-notification
+    environment:
+      POSTGRES_USER: ${POSTGRES_NOTIFICATION_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_NOTIFICATION_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_NOTIFICATION_DB}
+    volumes:
+      - postgres_notification_data:/var/lib/postgresql/data
+    networks:
+      - campusforge-network
+
+  notification-service:
+    build:
+      context: ./notification-service
+    container_name: campusforge-notification-service
+    environment:
+      KAFKA_BROKER: ${KAFKA_BROKER}
+      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID_NOTIFICATION_SERVICE}
+      KAFKA_GROUP_ID: ${KAFKA_GROUP_ID_NOTIFICATION_SERVICE}
+
+      DATABASE_URL: ${NOTIFICATION_DATABASE_URL}
+
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM}
+    depends_on:
+      - kafka
+      - postgres-notification
+    networks:
+      - campusforge-network
+
+volumes:
+  postgres_auth_data:
+  postgres_notification_data:
+
+networks:
+  campusforge-network:
+    driver: bridge
