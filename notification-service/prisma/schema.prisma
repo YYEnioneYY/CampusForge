@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum NotificationType {
+  PROJECT_APPLICATION           @map("project_application")
+  PROJECT_INVITATION            @map("project_invitation")
+  PROJECT_APPLICATION_STATUS    @map("project_application_status")
+  TASK_ASSIGNED                 @map("task_assigned")
+  TASK_COMMENT                  @map("task_comment")
+  DEADLINE_REMINDER             @map("deadline_reminder")
+  PROJECT_STATUS_CHANGED        @map("project_status_changed")
+  EVALUATION_RECEIVED           @map("evaluation_received")
+  ORGANIZATION_INVITATION       @map("organization_invitation")
+  SYSTEM_MESSAGE                @map("system_message")
+
+  @@map("notification_type")
+}
+
+model Notification {
+  id         String           @id @default(uuid()) @db.Uuid
+
+  userId     String           @map("user_id") @db.Uuid
+  type       NotificationType
+
+  title      String           @db.VarChar(255)
+  message    String?          @db.Text
+
+  entityType String?          @map("entity_type") @db.VarChar(255)
+  entityId   String?          @map("entity_id") @db.Uuid
+
+  isRead     Boolean          @default(false) @map("is_read")
+  readAt     DateTime?        @map("read_at") @db.Timestamptz
+
+  createdAt  DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  deletedAt  DateTime?        @map("deleted_at") @db.Timestamptz
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@index([type])
+  @@index([entityType, entityId])
+
+  @@map("notifications")
+}
+
+model NotificationSettings {
+  id                              String   @id @default(uuid()) @db.Uuid
+
+  userId                          String   @unique @map("user_id") @db.Uuid
+
+  inAppEnabled                    Boolean  @default(true) @map("in_app_enabled")
+  emailEnabled                    Boolean  @default(true) @map("email_enabled")
+  telegramEnabled                 Boolean  @default(false) @map("telegram_enabled")
+  pushEnabled                     Boolean  @default(false) @map("push_enabled")
+
+  projectUpdatesEnabled           Boolean  @default(true) @map("project_updates_enabled")
+  taskUpdatesEnabled              Boolean  @default(true) @map("task_updates_enabled")
+  deadlineRemindersEnabled        Boolean  @default(true) @map("deadline_reminders_enabled")
+  evaluationNotificationsEnabled  Boolean  @default(true) @map("evaluation_notifications_enabled")
+  marketingEnabled                Boolean  @default(false) @map("marketing_enabled")
+
+  createdAt                       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                       DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("notification_settings")
+}
