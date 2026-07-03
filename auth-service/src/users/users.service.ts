@@ -1,12 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserStatus } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-
-type CreateUserInput = {
-  email: string;
-  phone?: string | null;
-  passwordHash: string;
-};
+import { CreateUserInput } from './types/create-user.input';
 
 @Injectable()
 export class UsersService {
@@ -34,6 +29,33 @@ export class UsersService {
         status: true,
         emailVerifiedAt: true,
         createdAt: true,
+      },
+    });
+  }
+
+  async findByEmailForAuth(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        passwordHash: true,
+        systemRole: true,
+        status: true,
+        emailVerifiedAt: true,
+        deletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
+  async updateLastLoginAt(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        lastLoginAt: new Date(),
       },
     });
   }
