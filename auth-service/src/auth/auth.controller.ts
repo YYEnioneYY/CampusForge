@@ -7,6 +7,7 @@ import { RefreshDto } from './dto/refresh.dto';
 import { LogoutAllDto } from './dto/logout-all.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { LogoutSessionDto } from './dto/logout-session.dto';
+import { GetSessionsDto } from './dto/get-sessions.dto';
 
 @Controller()
 export class AuthController {
@@ -36,9 +37,14 @@ export class AuthController {
   logout(@Payload() dto: LogoutDto) {
     return this.authService.logout(dto);
   }
-  
+
   @MessagePattern('auth.logout_session')
   logoutSession(@Payload() dto: LogoutSessionDto) {
     return this.authService.logoutSession(dto);
+  }
+
+  @MessagePattern('auth.get_sessions')
+  getSessions(@Payload() dto: GetSessionsDto) {
+    return this.authService.getSessions(dto);
   }
 }

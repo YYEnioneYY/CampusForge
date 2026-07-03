@@ -7,6 +7,8 @@ import { PasswordModule } from './password/password.module';
 import { UsersModule } from './users/users.module';
 
 import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationProducerModule } from './notification-producer/notification-producer.module';
+import { EmailVerificationModule } from './email-verification/email-verification.module';
 
 
 @Module({
@@ -21,6 +23,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     RefreshTokenModule,
     PasswordModule,
     UsersModule,
+    NotificationProducerModule,
+    EmailVerificationModule,
   ],
 })
 export class AppModule {}

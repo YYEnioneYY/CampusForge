@@ -9,11 +9,13 @@ import { RefreshDto } from './dto/refresh.dto';
 import { LogoutAllDto } from './dto/logout-all.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { LogoutSessionDto } from './dto/logout-session.dto';
+import { GetSessionsDto } from './dto/get-sessions.dto';
 
 import { UsersService } from '../users/users.service';
 import { PasswordService } from '../password/password.service';
 import { TokenService } from '../token/token.service';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
+import { EmailVerificationService } from 'src/email-verification/email-verification.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,7 @@ export class AuthService {
     private readonly passwordService: PasswordService,
     private readonly tokenService: TokenService,
     private readonly refreshTokenService: RefreshTokenService,
+    private readonly emailVerificationService: EmailVerificationService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -50,6 +53,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.systemRole,
+      sid: sessionId,
     });
 
     const refreshToken = await this.tokenService.generateRefreshToken({
@@ -65,6 +69,12 @@ export class AuthService {
       deviceName: dto.deviceName,
       ipAddress: dto.ipAddress,
       userAgent: dto.userAgent,
+    });
+
+    await this.emailVerificationService.sendVerificationEmail({
+      userId: user.id,
+      email: user.email,
+      name: 'Друг',
     });
 
     return {
@@ -127,6 +137,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.systemRole,
+      sid: sessionId,
     });
 
     const refreshToken = await this.tokenService.generateRefreshToken({
@@ -208,6 +219,7 @@ export class AuthService {
       sub: session.user.id,
       email: session.user.email,
       role: session.user.systemRole,
+      sid: newSessionId
     });
 
     const refreshToken = await this.tokenService.generateRefreshToken({
@@ -321,16 +333,27 @@ export class AuthService {
       dto.userId,
       dto.sessionId,
     );
-  
+
     if (!wasRevoked) {
       throwRpcError(
         RpcErrorCode.SESSION_NOT_FOUND,
         'Active session was not found',
       );
     }
-  
+
     return {
       success: true,
+    };
+  }
+
+  async getSessions(dto: GetSessionsDto) {
+    const sessions = await this.refreshTokenService.getUserSessions({
+      userId: dto.userId,
+      currentSessionId: dto.currentSessionId,
+    });
+
+    return {
+      sessions,
     };
   }
 }

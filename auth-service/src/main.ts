@@ -4,6 +4,13 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { rpcValidationExceptionFactory } from './common/rpc/rpc-validation-exception-factory';
 
+function getKafkaBrokers(): string[] {
+  return (process.env.KAFKA_BROKERS ?? 'localhost:9092')
+    .split(',')
+    .map((broker) => broker.trim())
+    .filter(Boolean);
+}
+
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
@@ -11,11 +18,11 @@ async function bootstrap() {
       transport: Transport.KAFKA,
       options: {
         client: {
-          clientId: 'auth-service',
-          brokers: ['localhost:9092'],
+          clientId: process.env.KAFKA_CLIENT_ID ?? 'notification-service',
+          brokers: getKafkaBrokers(),
         },
         consumer: {
-          groupId: 'auth-service-consumer',
+          groupId: process.env.KAFKA_GROUP_ID ?? 'notification-service-consumer',
         },
       },
     },

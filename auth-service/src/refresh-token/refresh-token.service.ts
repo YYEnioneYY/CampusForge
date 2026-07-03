@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateRefreshTokenSessionInput } from './types/create-refresh-token-session.input';
 import { FindActiveRefreshTokenSessionInput } from './types/find-active-refresh-token-session.input';
 import { RotateRefreshTokenSessionInput } from './types/rotate-refresh-token-session.input';
+import { GetUserSessionsInput } from './types/get-user-sessions.input';
 
 @Injectable()
 export class RefreshTokenService {
@@ -205,8 +206,38 @@ export class RefreshTokenService {
         revokedAt: new Date(),
       },
     });
-  
+
     return result.count > 0;
+  }
+
+  async getUserSessions(input: GetUserSessionsInput) {
+    const sessions = await this.prisma.refreshToken.findMany({
+      where: {
+        userId: input.userId,
+        revokedAt: null,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        deviceName: true,
+        ipAddress: true,
+        userAgent: true,
+        expiresAt: true,
+        createdAt: true,
+      },
+    });
+  
+    return sessions.map((session) => ({
+      ...session,
+      isCurrent: input.currentSessionId
+        ? session.id === input.currentSessionId
+        : false,
+    }));
   }
 
   private areHashesEqual(firstHash: string, secondHash: string): boolean {
