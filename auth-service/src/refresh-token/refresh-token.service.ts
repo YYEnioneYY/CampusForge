@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createHmac } from 'node:crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRefreshTokenSessionInput } from './types/create-refresh-token-session.input';
 import { FindActiveRefreshTokenSessionInput } from './types/find-active-refresh-token-session.input';
+import { RotateRefreshTokenSessionInput } from './types/rotate-refresh-token-session.input';
 
 @Injectable()
 export class RefreshTokenService {
@@ -49,6 +50,9 @@ export class RefreshTokenService {
         id: true,
         userId: true,
         tokenHash: true,
+        deviceName: true,
+        ipAddress: true,
+        userAgent: true,
         expiresAt: true,
         revokedAt: true,
         createdAt: true,
@@ -72,7 +76,7 @@ export class RefreshTokenService {
       return null;
     }
   
-    if (token.tokenHash !== tokenHash) {
+    if (!this.areHashesEqual(token.tokenHash, tokenHash)) {
       return null;
     }
   
@@ -150,5 +154,69 @@ export class RefreshTokenService {
         revokedAt: new Date(),
       },
     });
+  }
+
+  async rotateSession(input: RotateRefreshTokenSessionInput) {
+    const tokenHash = this.hashToken(input.newSession.refreshToken);
+    
+    return this.prisma.$transaction(async (tx) => {
+      await tx.refreshToken.updateMany({
+        where: {
+          id: input.oldSessionId,
+          revokedAt: null,
+        },
+        data: {
+          revokedAt: new Date(),
+        },
+      });
+    
+      return tx.refreshToken.create({
+        data: {
+          id: input.newSession.id,
+          userId: input.newSession.userId,
+          tokenHash,
+          deviceName: input.newSession.deviceName,
+          ipAddress: input.newSession.ipAddress,
+          userAgent: input.newSession.userAgent,
+          expiresAt: input.newSession.expiresAt,
+        },
+        select: {
+          id: true,
+          userId: true,
+          deviceName: true,
+          ipAddress: true,
+          userAgent: true,
+          expiresAt: true,
+          revokedAt: true,
+          createdAt: true,
+        },
+      });
+    });
+  }
+
+  async revokeUserSession(userId: string, sessionId: string): Promise<boolean> {
+    const result = await this.prisma.refreshToken.updateMany({
+      where: {
+        id: sessionId,
+        userId,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+  
+    return result.count > 0;
+  }
+
+  private areHashesEqual(firstHash: string, secondHash: string): boolean {
+    const firstBuffer = Buffer.from(firstHash, 'hex');
+    const secondBuffer = Buffer.from(secondHash, 'hex');
+
+    if (firstBuffer.length !== secondBuffer.length) {
+      return false;
+    }
+
+    return timingSafeEqual(firstBuffer, secondBuffer);
   }
 }
