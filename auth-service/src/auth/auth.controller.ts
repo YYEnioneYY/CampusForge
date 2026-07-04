@@ -8,6 +8,8 @@ import { LogoutAllDto } from './dto/logout-all.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { LogoutSessionDto } from './dto/logout-session.dto';
 import { GetSessionsDto } from './dto/get-sessions.dto';
+import { ResendEmailVerificationDto } from './dto/resend-email-verification.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller()
 export class AuthController {
@@ -46,5 +48,15 @@ export class AuthController {
   @MessagePattern('auth.get_sessions')
   getSessions(@Payload() dto: GetSessionsDto) {
     return this.authService.getSessions(dto);
+  }
+
+  @MessagePattern('auth.resend_email_verification')
+  resendEmailVerification(@Payload() dto: ResendEmailVerificationDto) {
+    return this.authService.resendEmailVerification(dto);
+  }
+
+  @MessagePattern('auth.verify_email')
+  verifyEmail(@Payload() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { RpcErrorCode } from '../common/rpc/rpc-error-code';
 import { throwRpcError } from '../common/rpc/throw-rpc-error';
 import { randomUUID } from 'node:crypto';
@@ -10,6 +10,8 @@ import { LogoutAllDto } from './dto/logout-all.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { LogoutSessionDto } from './dto/logout-session.dto';
 import { GetSessionsDto } from './dto/get-sessions.dto';
+import { ResendEmailVerificationDto } from './dto/resend-email-verification.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 import { UsersService } from '../users/users.service';
 import { PasswordService } from '../password/password.service';
@@ -19,6 +21,8 @@ import { EmailVerificationService } from 'src/email-verification/email-verificat
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly passwordService: PasswordService,
@@ -71,8 +75,8 @@ export class AuthService {
       userAgent: dto.userAgent,
     });
 
-    await this.emailVerificationService.sendVerificationEmail({
-      userId: user.id,
+    this.sendVerificationEmailInBackground({
+      id: user.id,
       email: user.email,
       name: 'Друг',
     });
@@ -355,5 +359,92 @@ export class AuthService {
     return {
       sessions,
     };
+  }
+
+  async resendEmailVerification(dto: ResendEmailVerificationDto) {
+    const user = await this.usersService.findByIdForEmailVerification(dto.userId);
+
+    if (!user) {
+      throwRpcError(
+        RpcErrorCode.USER_NOT_FOUND,
+        'User was not found',
+      );
+    }
+
+    if (user.deletedAt || user.status === 'DELETED') {
+      throwRpcError(
+        RpcErrorCode.USER_DELETED,
+        'User account was deleted',
+      );
+    }
+
+    if (user.status === 'BLOCKED') {
+      throwRpcError(
+        RpcErrorCode.USER_BLOCKED,
+        'User account is blocked',
+      );
+    }
+
+    if (user.emailVerifiedAt) {
+      throwRpcError(
+        RpcErrorCode.EMAIL_ALREADY_VERIFIED,
+        'Email is already verified',
+      );
+    }
+
+    const { verificationUrl } =
+      await this.emailVerificationService.createVerificationToken(user.id, {
+        enforceCooldown: true,
+      });
+    
+    this.sendVerificationEmailEventInBackground({
+      userId: user.id,
+      email: user.email,
+      verificationUrl,
+      name: 'Друг',
+    });
+
+    return {
+      success: true,
+    };
+  }
+
+  async verifyEmail(dto: VerifyEmailDto) {
+    return this.emailVerificationService.verifyEmail(dto.token);
+  }
+
+  private sendVerificationEmailInBackground(user: {
+    id: string;
+    email: string;
+    name?: string;
+  }): void {
+    void this.emailVerificationService
+      .sendVerificationEmail({
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+      })
+      .catch((error) => {
+        this.logger.error(
+          `Failed to send email verification for user ${user.id}`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      });
+  }
+
+  private sendVerificationEmailEventInBackground(input: {
+    userId: string;
+    email: string;
+    verificationUrl: string;
+    name?: string;
+  }): void {
+    void this.emailVerificationService
+      .sendVerificationEmailEvent(input)
+      .catch((error) => {
+        this.logger.error(
+          `Failed to send email verification event for user ${input.userId}`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      });
   }
 }
