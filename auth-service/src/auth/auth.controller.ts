@@ -10,6 +10,8 @@ import { LogoutSessionDto } from './dto/logout-session.dto';
 import { GetSessionsDto } from './dto/get-sessions.dto';
 import { ResendEmailVerificationDto } from './dto/resend-email-verification.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller()
 export class AuthController {
@@ -58,5 +60,15 @@ export class AuthController {
   @MessagePattern('auth.verify_email')
   verifyEmail(@Payload() dto: VerifyEmailDto) {
     return this.authService.verifyEmail(dto);
+  }
+
+  @MessagePattern('auth.password_reset.request')
+  requestPasswordReset(@Payload() dto: RequestPasswordResetDto) {
+    return this.authService.requestPasswordReset(dto);
+  }
+  
+  @MessagePattern('auth.password_reset.confirm')
+  resetPassword(@Payload() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 }

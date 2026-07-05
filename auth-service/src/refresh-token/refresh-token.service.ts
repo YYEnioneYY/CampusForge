@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -63,6 +64,7 @@ export class RefreshTokenService {
             email: true,
             systemRole: true,
             status: true,
+            emailVerifiedAt: true,
             deletedAt: true,
           },
         },
@@ -238,6 +240,24 @@ export class RefreshTokenService {
         ? session.id === input.currentSessionId
         : false,
     }));
+  }
+
+  async revokeAllUserTokensInTransaction(
+    userId: string,
+    revokedAt: Date,
+    tx: Prisma.TransactionClient,
+  ): Promise<number> {
+    const result = await tx.refreshToken.updateMany({
+      where: {
+        userId,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt,
+      },
+    });
+
+    return result.count;
   }
 
   private areHashesEqual(firstHash: string, secondHash: string): boolean {

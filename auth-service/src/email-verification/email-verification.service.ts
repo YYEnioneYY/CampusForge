@@ -303,4 +303,29 @@ export class EmailVerificationService {
       user,
     };
   }
+
+  async deleteExpiredAndUsedTokens(): Promise<number> {
+    const now = new Date();
+  
+    const usedBefore = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  
+    const result = await this.prisma.emailVerificationToken.deleteMany({
+      where: {
+        OR: [
+          {
+            expiresAt: {
+              lt: now,
+            },
+          },
+          {
+            usedAt: {
+              lt: usedBefore,
+            },
+          },
+        ],
+      },
+    });
+  
+    return result.count;
+  }
 }

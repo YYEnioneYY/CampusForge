@@ -3,6 +3,8 @@ import { RpcErrorCode } from '../common/rpc/rpc-error-code';
 import { throwRpcError } from '../common/rpc/throw-rpc-error';
 import { randomUUID } from 'node:crypto';
 
+import { UserStatus } from '../generated/prisma/client';
+
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
@@ -12,7 +14,10 @@ import { LogoutSessionDto } from './dto/logout-session.dto';
 import { GetSessionsDto } from './dto/get-sessions.dto';
 import { ResendEmailVerificationDto } from './dto/resend-email-verification.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
+import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
 import { PasswordService } from '../password/password.service';
 import { TokenService } from '../token/token.service';
@@ -29,6 +34,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly refreshTokenService: RefreshTokenService,
     private readonly emailVerificationService: EmailVerificationService,
+    private readonly passwordResetService: PasswordResetService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -57,6 +63,8 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.systemRole,
+      status: user.status,
+      emailVerified: Boolean(user.emailVerifiedAt),
       sid: sessionId,
     });
 
@@ -75,11 +83,14 @@ export class AuthService {
       userAgent: dto.userAgent,
     });
 
-    this.sendVerificationEmailInBackground({
-      id: user.id,
-      email: user.email,
-      name: 'Друг',
-    });
+    this.runInBackground(
+      this.emailVerificationService.sendVerificationEmail({
+        userId: user.id,
+        email: user.email,
+        name: 'Друг',
+      }),
+      `Failed to send email verification for user ${user.id}`,
+    );
 
     return {
       user,
@@ -141,6 +152,8 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.systemRole,
+      status: user.status,
+      emailVerified: Boolean(user.emailVerifiedAt),
       sid: sessionId,
     });
 
@@ -223,6 +236,8 @@ export class AuthService {
       sub: session.user.id,
       email: session.user.email,
       role: session.user.systemRole,
+      status: session.user.status,
+      emailVerified: Boolean(session.user.emailVerifiedAt),
       sid: newSessionId
     });
 
@@ -397,12 +412,15 @@ export class AuthService {
         enforceCooldown: true,
       });
     
-    this.sendVerificationEmailEventInBackground({
-      userId: user.id,
-      email: user.email,
-      verificationUrl,
-      name: 'Друг',
-    });
+    this.runInBackground(
+      this.emailVerificationService.sendVerificationEmailEvent({
+        userId: user.id,
+        email: user.email,
+        verificationUrl,
+        name: 'Друг',
+      }),
+      `Failed to send email verification event for user ${user.id}`,
+    );
 
     return {
       success: true,
@@ -413,38 +431,72 @@ export class AuthService {
     return this.emailVerificationService.verifyEmail(dto.token);
   }
 
-  private sendVerificationEmailInBackground(user: {
-    id: string;
-    email: string;
-    name?: string;
-  }): void {
-    void this.emailVerificationService
-      .sendVerificationEmail({
+  async requestPasswordReset(dto: RequestPasswordResetDto) {
+    const email = dto.email.trim().toLowerCase();
+
+    const user = await this.usersService.findByEmailForPasswordReset(email);
+
+    if (!user) {
+      return {
+        success: true,
+      };
+    }
+
+    if (user.deletedAt || user.status === UserStatus.DELETED) {
+      return {
+        success: true,
+      };
+    }
+
+    if (user.status === UserStatus.BLOCKED) {
+      return {
+        success: true,
+      };
+    }
+
+    this.runInBackground(
+      this.passwordResetService.requestPasswordResetEmail({
         userId: user.id,
         email: user.email,
-        name: user.name,
-      })
-      .catch((error) => {
-        this.logger.error(
-          `Failed to send email verification for user ${user.id}`,
-          error instanceof Error ? error.stack : String(error),
-        );
-      });
+        name: 'Друг',
+      }),
+      `Failed to request password reset for user ${user.id}`,
+    );
+
+    return {
+      success: true,
+    };
   }
 
-  private sendVerificationEmailEventInBackground(input: {
-    userId: string;
-    email: string;
-    verificationUrl: string;
-    name?: string;
-  }): void {
-    void this.emailVerificationService
-      .sendVerificationEmailEvent(input)
-      .catch((error) => {
-        this.logger.error(
-          `Failed to send email verification event for user ${input.userId}`,
-          error instanceof Error ? error.stack : String(error),
-        );
-      });
+  async resetPassword(dto: ResetPasswordDto) {
+    const { user } = await this.passwordResetService.resetPassword(
+      dto.token,
+      dto.newPassword,
+    );
+
+    this.runInBackground(
+      this.passwordResetService.sendPasswordChangedEmailEvent({
+        userId: user.id,
+        email: user.email,
+        name: 'Друг',
+      }),
+      `Failed to send password changed email for user ${user.id}`,
+    );
+
+    return {
+      success: true,
+    };
+  }
+
+  private runInBackground(
+    promise: Promise<void>,
+    errorMessage: string,
+  ): void {
+    void promise.catch((error) => {
+      this.logger.error(
+        errorMessage,
+        error instanceof Error ? error.stack : String(error),
+      );
+    });
   }
 }

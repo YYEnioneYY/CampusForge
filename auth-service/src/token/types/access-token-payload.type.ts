@@ -1,6 +1,10 @@
+import { SystemRole, UserStatus } from '../../generated/prisma/client';
+
 export type AccessTokenPayload = {
   sub: string;
   email: string;
-  role: string | null;
+  role: SystemRole;
+  status: UserStatus;
+  emailVerified: boolean;
   sid: string;
 };

@@ -9,14 +9,15 @@ import { UsersModule } from './users/users.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationProducerModule } from './notification-producer/notification-producer.module';
 import { EmailVerificationModule } from './email-verification/email-verification.module';
-
+import { PasswordResetModule } from './password-reset/password-reset.module';
+import { validateEnv } from './config/env.validation';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      validate: validateEnv,
     }),
     PrismaModule,
     TokenModule,
@@ -25,6 +26,7 @@ import { EmailVerificationModule } from './email-verification/email-verification
     UsersModule,
     NotificationProducerModule,
     EmailVerificationModule,
+    PasswordResetModule,
   ],
 })
 export class AppModule {}

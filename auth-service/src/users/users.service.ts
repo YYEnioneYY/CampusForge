@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, UserStatus } from '../generated/prisma/client';
+import { Prisma, SystemRole, UserStatus } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserInput } from './types/create-user.input';
 
@@ -19,6 +19,7 @@ export class UsersService {
         email: input.email,
         phone: input.phone,
         passwordHash: input.passwordHash,
+        SystemRole: SystemRole.USER,
         status: UserStatus.PENDING,
       },
       select: {
@@ -87,6 +88,44 @@ export class UsersService {
       data: {
         emailVerifiedAt: verifiedAt,
         status: UserStatus.ACTIVE,
+      },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        systemRole: true,
+        status: true,
+        emailVerifiedAt: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async findByEmailForPasswordReset(email: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+        email: true,
+        status: true,
+        deletedAt: true,
+      },
+    });
+  }
+
+  async updatePasswordAfterReset(
+    userId: string,
+    passwordHash: string,
+    tx: Prisma.TransactionClient,
+  ) {
+    return tx.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        passwordHash,
       },
       select: {
         id: true,
