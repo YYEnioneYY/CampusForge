@@ -260,6 +260,28 @@ export class RefreshTokenService {
     return result.count;
   }
 
+  async revokeAllUserTokensExceptInTransaction(
+    userId: string,
+    exceptSessionId: string,
+    revokedAt: Date,
+    tx: Prisma.TransactionClient,
+  ): Promise<number> {
+    const result = await tx.refreshToken.updateMany({
+      where: {
+        userId,
+        id: {
+          not: exceptSessionId,
+        },
+        revokedAt: null,
+      },
+      data: {
+        revokedAt,
+      },
+    });
+  
+    return result.count;
+  }
+
   private areHashesEqual(firstHash: string, secondHash: string): boolean {
     const firstBuffer = Buffer.from(firstHash, 'hex');
     const secondBuffer = Buffer.from(secondHash, 'hex');

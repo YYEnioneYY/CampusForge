@@ -7,6 +7,7 @@ import { TokenModule } from '../token/token.module';
 import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 import { EmailVerificationModule } from '../email-verification/email-verification.module';
 import { PasswordResetModule } from '../password-reset/password-reset.module';
+import { PasswordChangeModule } from '../password-change/password-change.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { PasswordResetModule } from '../password-reset/password-reset.module';
     TokenModule,
     RefreshTokenModule,
     EmailVerificationModule,
-    PasswordModule,
+    PasswordResetModule,
+    PasswordChangeModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

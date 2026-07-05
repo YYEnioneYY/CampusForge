@@ -16,6 +16,8 @@ import { ResendEmailVerificationDto } from './dto/resend-email-verification.dto'
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { MeDto } from './dto/me.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
@@ -23,6 +25,7 @@ import { PasswordService } from '../password/password.service';
 import { TokenService } from '../token/token.service';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { EmailVerificationService } from 'src/email-verification/email-verification.service';
+import { PasswordChangeService } from '../password-change/password-change.service';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +38,7 @@ export class AuthService {
     private readonly refreshTokenService: RefreshTokenService,
     private readonly emailVerificationService: EmailVerificationService,
     private readonly passwordResetService: PasswordResetService,
+    private readonly passwordChangeService: PasswordChangeService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -485,6 +489,68 @@ export class AuthService {
 
     return {
       success: true,
+    };
+  }
+
+  async changePassword(dto: ChangePasswordDto) {
+    const user = await this.passwordChangeService.changePassword({
+      userId: dto.userId,
+      currentSessionId: dto.currentSessionId,
+      currentPassword: dto.currentPassword,
+      newPassword: dto.newPassword,
+    });
+  
+    this.runInBackground(
+      this.passwordResetService.sendPasswordChangedEmailEvent({
+        userId: user.id,
+        email: user.email,
+        name: 'Друг',
+      }),
+      `Failed to send password changed email for user ${user.id}`,
+    );
+  
+    return {
+      success: true,
+    };
+  }
+
+  async me(dto: MeDto) {
+    const user = await this.usersService.findMeById(dto.userId);
+
+    if (!user) {
+      throwRpcError(
+        RpcErrorCode.USER_NOT_FOUND,
+        'User was not found',
+      );
+    }
+
+    if (user.deletedAt || user.status === UserStatus.DELETED) {
+      throwRpcError(
+        RpcErrorCode.USER_DELETED,
+        'User account was deleted',
+      );
+    }
+
+    if (user.status === UserStatus.BLOCKED) {
+      throwRpcError(
+        RpcErrorCode.USER_BLOCKED,
+        'User account is blocked',
+      );
+    }
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        role: user.systemRole,
+        status: user.status,
+        emailVerified: Boolean(user.emailVerifiedAt),
+        emailVerifiedAt: user.emailVerifiedAt,
+        lastLoginAt: user.lastLoginAt,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
     };
   }
 

@@ -11,6 +11,7 @@ import { NotificationProducerModule } from './notification-producer/notification
 import { EmailVerificationModule } from './email-verification/email-verification.module';
 import { PasswordResetModule } from './password-reset/password-reset.module';
 import { validateEnv } from './config/env.validation';
+import { PasswordChangeModule } from './password-change/password-change.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { validateEnv } from './config/env.validation';
     NotificationProducerModule,
     EmailVerificationModule,
     PasswordResetModule,
+    PasswordChangeModule,
   ],
 })
 export class AppModule {}

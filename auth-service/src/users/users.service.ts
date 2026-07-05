@@ -67,6 +67,26 @@ export class UsersService {
     });
   }
 
+  async findMeById(userId: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        systemRole: true,
+        status: true,
+        emailVerifiedAt: true,
+        lastLoginAt: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+      },
+    });
+  }
+
   async updateLastLoginAt(userId: string): Promise<void> {
     await this.prisma.user.update({
       where: { id: userId },
@@ -115,7 +135,22 @@ export class UsersService {
     });
   }
 
-  async updatePasswordAfterReset(
+  async findByIdForPasswordChange(userId: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        status: true,
+        deletedAt: true,
+      },
+    });
+  }
+
+  async updatePassword(
     userId: string,
     passwordHash: string,
     tx: Prisma.TransactionClient,

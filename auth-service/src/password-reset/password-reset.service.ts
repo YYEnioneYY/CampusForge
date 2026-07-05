@@ -145,7 +145,7 @@ export class PasswordResetService {
         },
       });
 
-      const updatedUser = await this.usersService.updatePasswordAfterReset(
+      const updatedUser = await this.usersService.updatePassword(
         resetToken.userId,
         passwordHash,
         tx,
