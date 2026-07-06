@@ -18,11 +18,6 @@ export class RegisterDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(32)
-  phone?: string;
-
-  @IsOptional()
-  @IsString()
   @MaxLength(255)
   deviceName?: string;
 

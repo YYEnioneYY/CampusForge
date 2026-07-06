@@ -57,7 +57,6 @@ export class AuthService {
 
     const user = await this.usersService.createUser({
       email,
-      phone: dto.phone,
       passwordHash,
     });
 
@@ -182,7 +181,6 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        phone: user.phone,
         systemRole: user.systemRole,
         status: user.status,
         emailVerifiedAt: user.emailVerifiedAt,
@@ -267,7 +265,6 @@ export class AuthService {
       user: {
         id: session.user.id,
         email: session.user.email,
-        phone: session.user.phone,
         systemRole: session.user.systemRole,
         status: session.user.status,
         emailVerifiedAt: session.user.emailVerifiedAt,
@@ -542,7 +539,6 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        phone: user.phone,
         role: user.systemRole,
         status: user.status,
         emailVerified: Boolean(user.emailVerifiedAt),

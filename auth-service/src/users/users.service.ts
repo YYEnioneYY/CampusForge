@@ -17,7 +17,6 @@ export class UsersService {
     return this.prisma.user.create({
       data: {
         email: input.email,
-        phone: input.phone,
         passwordHash: input.passwordHash,
         SystemRole: SystemRole.USER,
         status: UserStatus.PENDING,
@@ -25,7 +24,6 @@ export class UsersService {
       select: {
         id: true,
         email: true,
-        phone: true,
         systemRole: true,
         status: true,
         emailVerifiedAt: true,
@@ -40,7 +38,6 @@ export class UsersService {
       select: {
         id: true,
         email: true,
-        phone: true,
         passwordHash: true,
         systemRole: true,
         status: true,
@@ -75,7 +72,6 @@ export class UsersService {
       select: {
         id: true,
         email: true,
-        phone: true,
         systemRole: true,
         status: true,
         emailVerifiedAt: true,
@@ -112,7 +108,6 @@ export class UsersService {
       select: {
         id: true,
         email: true,
-        phone: true,
         systemRole: true,
         status: true,
         emailVerifiedAt: true,
@@ -165,7 +160,6 @@ export class UsersService {
       select: {
         id: true,
         email: true,
-        phone: true,
         systemRole: true,
         status: true,
         emailVerifiedAt: true,
