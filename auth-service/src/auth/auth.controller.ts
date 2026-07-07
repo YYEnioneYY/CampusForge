@@ -15,6 +15,7 @@ import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { MeDto } from './dto/me.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { AdminGetUsersDto } from './dto/admin-get-users.dto';
 
 @Controller()
 export class AuthController {
@@ -83,5 +84,12 @@ export class AuthController {
   @MessagePattern(AUTH_PATTERNS.CHANGE_PASSWORD)
   changePassword(@Payload() dto: ChangePasswordDto) {
     return this.authService.changePassword(dto);
+  }
+
+  // ADMIN routes
+
+  @MessagePattern(AUTH_PATTERNS.ADMIN_GET_USERS)
+  adminGetUsers(@Payload() dto: AdminGetUsersDto) {
+    return this.authService.adminGetUsers(dto);
   }
 }

@@ -12,6 +12,7 @@ import { EmailVerificationModule } from './email-verification/email-verification
 import { PasswordResetModule } from './password-reset/password-reset.module';
 import { validateEnv } from './config/env.validation';
 import { PasswordChangeModule } from './password-change/password-change.module';
+import { ProfileProducerModule } from './profile-producer/profile-producer.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PasswordChangeModule } from './password-change/password-change.module';
     EmailVerificationModule,
     PasswordResetModule,
     PasswordChangeModule,
+    ProfileProducerModule,
   ],
 })
 export class AppModule {}

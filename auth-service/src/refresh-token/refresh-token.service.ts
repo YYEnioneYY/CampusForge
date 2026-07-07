@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -65,6 +65,7 @@ export class RefreshTokenService {
             systemRole: true,
             status: true,
             emailVerifiedAt: true,
+            createdAt: true,
             deletedAt: true,
           },
         },

@@ -8,6 +8,7 @@ import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 import { EmailVerificationModule } from '../email-verification/email-verification.module';
 import { PasswordResetModule } from '../password-reset/password-reset.module';
 import { PasswordChangeModule } from '../password-change/password-change.module';
+import { ProfileProducerModule } from '../profile-producer/profile-producer.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PasswordChangeModule } from '../password-change/password-change.module'
     EmailVerificationModule,
     PasswordResetModule,
     PasswordChangeModule,
+    ProfileProducerModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

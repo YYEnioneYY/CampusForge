@@ -3,7 +3,7 @@ import { RpcErrorCode } from '../common/rpc/rpc-error-code';
 import { throwRpcError } from '../common/rpc/throw-rpc-error';
 import { randomUUID } from 'node:crypto';
 
-import { UserStatus } from '../generated/prisma/client';
+import { UserStatus, SystemRole } from '../generated/prisma/client';
 
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -18,6 +18,7 @@ import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { MeDto } from './dto/me.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { AdminGetUsersDto } from './dto/admin-get-users.dto';
 
 import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
@@ -26,6 +27,7 @@ import { TokenService } from '../token/token.service';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { EmailVerificationService } from 'src/email-verification/email-verification.service';
 import { PasswordChangeService } from '../password-change/password-change.service';
+import { ProfileProducerService } from '../profile-producer/profile-producer.service';
 
 @Injectable()
 export class AuthService {
@@ -39,6 +41,7 @@ export class AuthService {
     private readonly emailVerificationService: EmailVerificationService,
     private readonly passwordResetService: PasswordResetService,
     private readonly passwordChangeService: PasswordChangeService,
+    private readonly profileProducerService: ProfileProducerService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -85,6 +88,16 @@ export class AuthService {
       ipAddress: dto.ipAddress,
       userAgent: dto.userAgent,
     });
+
+    this.runInBackground(
+      this.profileProducerService.userRegistered({
+        userId: user.id,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        middleName: dto.middleName,
+      }),
+      `Failed to create profile for user ${user.id}`,
+    );
 
     this.runInBackground(
       this.emailVerificationService.sendVerificationEmail({
@@ -548,6 +561,46 @@ export class AuthService {
         updatedAt: user.updatedAt,
       },
     };
+  }
+
+  async adminGetUsers(dto: AdminGetUsersDto) {
+    const actor = await this.usersService.findByIdForAdminCheck(dto.actorUserId);
+
+    if (!actor) {
+      throwRpcError(
+        RpcErrorCode.FORBIDDEN,
+        'Access denied',
+      );
+    }
+
+    if (actor.deletedAt || actor.status === UserStatus.DELETED) {
+      throwRpcError(
+        RpcErrorCode.FORBIDDEN,
+        'Access denied',
+      );
+    }
+
+    if (actor.status !== UserStatus.ACTIVE) {
+      throwRpcError(
+        RpcErrorCode.FORBIDDEN,
+        'Access denied',
+      );
+    }
+
+    if (actor.systemRole !== SystemRole.ADMIN) {
+      throwRpcError(
+        RpcErrorCode.FORBIDDEN,
+        'Admin role is required',
+      );
+    }
+
+    return this.usersService.getUsersPage({
+      page: dto.page,
+      limit: dto.limit,
+      search: dto.search,
+      status: dto.status,
+      role: dto.role,
+    });
   }
 
   private runInBackground(

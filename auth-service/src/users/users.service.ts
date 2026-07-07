@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, SystemRole, UserStatus } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserInput } from './types/create-user.input';
+import { GetUsersPageInput } from './types/get-users-page.input';
 
 @Injectable()
 export class UsersService {
@@ -164,6 +165,95 @@ export class UsersService {
         status: true,
         emailVerifiedAt: true,
         createdAt: true,
+      },
+    });
+  }
+
+  async getUsersPage(input: GetUsersPageInput) {
+    const page = input.page ?? 1;
+    const limit = input.limit ?? 20;
+
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.min(Math.max(limit, 1), 100);
+
+    const search = input.search?.trim();
+
+    const where: Prisma.UserWhereInput = {
+      ...(input.status ? { status: input.status } : {}),
+      ...(input.role ? { systemRole: input.role } : {}),
+      ...(search
+        ? {
+            email: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          }
+        : {}),
+    };
+
+    const skip = (safePage - 1) * safeLimit;
+
+    const [total, users] = await this.prisma.$transaction([
+      this.prisma.user.count({
+        where,
+      }),
+      this.prisma.user.findMany({
+        where,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take: safeLimit,
+        select: {
+          id: true,
+          email: true,
+          systemRole: true,
+          status: true,
+          emailVerifiedAt: true,
+          lastLoginAt: true,
+          deletedAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / safeLimit);
+
+    return {
+      items: users.map((user) => ({
+        id: user.id,
+        email: user.email,
+        role: user.systemRole,
+        status: user.status,
+        emailVerified: Boolean(user.emailVerifiedAt),
+        emailVerifiedAt: user.emailVerifiedAt,
+        lastLoginAt: user.lastLoginAt,
+        deletedAt: user.deletedAt,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      })),
+      meta: {
+        page: safePage,
+        limit: safeLimit,
+        total,
+        totalPages,
+        hasNextPage: safePage < totalPages,
+        hasPreviousPage: safePage > 1,
+      },
+    };
+  }
+
+  async findByIdForAdminCheck(userId: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        systemRole: true,
+        status: true,
+        deletedAt: true,
       },
     });
   }

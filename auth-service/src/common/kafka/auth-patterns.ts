@@ -16,4 +16,7 @@ export const AUTH_PATTERNS = {
   CHANGE_PASSWORD: 'auth.password.change',
 
   ME: 'auth.me',
+
+
+  ADMIN_GET_USERS: 'auth.admin.users.list',
 } as const;
