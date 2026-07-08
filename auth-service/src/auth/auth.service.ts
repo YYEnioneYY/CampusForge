@@ -19,6 +19,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { MeDto } from './dto/me.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AdminGetUsersDto } from './dto/admin-get-users.dto';
+import { AdminBlockUserDto } from './dto/admin-block-user.dto';
 
 import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
@@ -28,6 +29,7 @@ import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { EmailVerificationService } from 'src/email-verification/email-verification.service';
 import { PasswordChangeService } from '../password-change/password-change.service';
 import { ProfileProducerService } from '../profile-producer/profile-producer.service';
+import { AdminUsersService } from '../admin-users/admin-users.service';
 
 @Injectable()
 export class AuthService {
@@ -42,6 +44,7 @@ export class AuthService {
     private readonly passwordResetService: PasswordResetService,
     private readonly passwordChangeService: PasswordChangeService,
     private readonly profileProducerService: ProfileProducerService,
+    private readonly adminUsersService: AdminUsersService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -564,42 +567,20 @@ export class AuthService {
   }
 
   async adminGetUsers(dto: AdminGetUsersDto) {
-    const actor = await this.usersService.findByIdForAdminCheck(dto.actorUserId);
-
-    if (!actor) {
-      throwRpcError(
-        RpcErrorCode.FORBIDDEN,
-        'Access denied',
-      );
-    }
-
-    if (actor.deletedAt || actor.status === UserStatus.DELETED) {
-      throwRpcError(
-        RpcErrorCode.FORBIDDEN,
-        'Access denied',
-      );
-    }
-
-    if (actor.status !== UserStatus.ACTIVE) {
-      throwRpcError(
-        RpcErrorCode.FORBIDDEN,
-        'Access denied',
-      );
-    }
-
-    if (actor.systemRole !== SystemRole.ADMIN) {
-      throwRpcError(
-        RpcErrorCode.FORBIDDEN,
-        'Admin role is required',
-      );
-    }
-
-    return this.usersService.getUsersPage({
+    return this.adminUsersService.getUsers({
+      actorUserId: dto.actorUserId,
       page: dto.page,
       limit: dto.limit,
       search: dto.search,
       status: dto.status,
       role: dto.role,
+    });
+  }
+
+  async adminBlockUser(dto: AdminBlockUserDto) {
+    return this.adminUsersService.blockUser({
+      actorUserId: dto.actorUserId,
+      targetUserId: dto.targetUserId,
     });
   }
 

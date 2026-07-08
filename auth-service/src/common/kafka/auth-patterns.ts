@@ -19,4 +19,5 @@ export const AUTH_PATTERNS = {
 
 
   ADMIN_GET_USERS: 'auth.admin.users.list',
+  ADMIN_BLOCK_USER: 'auth.admin.users.block',
 } as const;

@@ -9,6 +9,7 @@ import { EmailVerificationModule } from '../email-verification/email-verificatio
 import { PasswordResetModule } from '../password-reset/password-reset.module';
 import { PasswordChangeModule } from '../password-change/password-change.module';
 import { ProfileProducerModule } from '../profile-producer/profile-producer.module';
+import { AdminUsersModule } from '../admin-users/admin-users.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ProfileProducerModule } from '../profile-producer/profile-producer.modu
     PasswordResetModule,
     PasswordChangeModule,
     ProfileProducerModule,
+    AdminUsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

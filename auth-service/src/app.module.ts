@@ -13,6 +13,7 @@ import { PasswordResetModule } from './password-reset/password-reset.module';
 import { validateEnv } from './config/env.validation';
 import { PasswordChangeModule } from './password-change/password-change.module';
 import { ProfileProducerModule } from './profile-producer/profile-producer.module';
+import { AdminUsersModule } from './admin-users/admin-users.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ProfileProducerModule } from './profile-producer/profile-producer.modul
     PasswordResetModule,
     PasswordChangeModule,
     ProfileProducerModule,
+    AdminUsersModule,
   ],
 })
 export class AppModule {}

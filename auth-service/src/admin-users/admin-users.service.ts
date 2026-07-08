@@ -1,0 +1,116 @@
+import { Injectable } from '@nestjs/common';
+import { SystemRole, UserStatus } from '../generated/prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { UsersService } from '../users/users.service';
+import { RefreshTokenService } from '../refresh-token/refresh-token.service';
+import { RpcErrorCode } from '../common/rpc/rpc-error-code';
+import { throwRpcError } from '../common/rpc/throw-rpc-error';
+
+type BlockUserInput = {
+  actorUserId: string;
+  targetUserId: string;
+};
+
+type GetUsersInput = {
+  actorUserId: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: UserStatus;
+  role?: SystemRole;
+};
+
+@Injectable()
+export class AdminUsersService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly usersService: UsersService,
+    private readonly refreshTokenService: RefreshTokenService,
+  ) {}
+
+  async getUsers(input: GetUsersInput) {
+    await this.assertActiveAdmin(input.actorUserId);
+
+    return this.usersService.getUsersPage({
+      page: input.page,
+      limit: input.limit,
+      search: input.search,
+      status: input.status,
+      role: input.role,
+    });
+  }
+
+  async blockUser(input: BlockUserInput) {
+    await this.assertActiveAdmin(input.actorUserId);
+
+    if (input.actorUserId === input.targetUserId) {
+      throwRpcError(
+        RpcErrorCode.FORBIDDEN,
+        'You cannot block yourself',
+      );
+    }
+
+    const targetUser = await this.usersService.findByIdForAdminAction(
+      input.targetUserId,
+    );
+
+    if (!targetUser || targetUser.deletedAt) {
+      throwRpcError(
+        RpcErrorCode.USER_NOT_FOUND,
+        'User was not found',
+      );
+    }
+
+    if (targetUser.systemRole === SystemRole.ADMIN) {
+      throwRpcError(
+        RpcErrorCode.FORBIDDEN,
+        'You cannot block another admin',
+      );
+    }
+
+    if (targetUser.status === UserStatus.BLOCKED) {
+      return {
+        success: true,
+        user: this.usersService.mapUserForAdminResponse(targetUser),
+      };
+    }
+
+    const now = new Date();
+
+    const blockedUser = await this.prisma.$transaction(async (tx) => {
+      const updatedUser = await this.usersService.blockUserInTransaction(
+        input.targetUserId,
+        tx,
+      );
+
+      await this.refreshTokenService.revokeAllUserTokensInTransaction(
+        input.targetUserId,
+        now,
+        tx,
+      );
+
+      return updatedUser;
+    });
+
+    return {
+      success: true,
+      user: this.usersService.mapUserForAdminResponse(blockedUser),
+    };
+  }
+
+  private async assertActiveAdmin(actorUserId: string): Promise<void> {
+    const actor = await this.usersService.findByIdForAdminCheck(actorUserId);
+
+    if (
+      !actor ||
+      actor.deletedAt ||
+      actor.status !== UserStatus.ACTIVE ||
+      actor.systemRole !== SystemRole.ADMIN
+    ) {
+      throwRpcError(
+        RpcErrorCode.FORBIDDEN,
+        'Admin role is required',
+      );
+    }
+  }
+}

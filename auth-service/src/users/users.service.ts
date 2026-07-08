@@ -257,4 +257,73 @@ export class UsersService {
       },
     });
   }
+
+  async findByIdForAdminAction(userId: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        systemRole: true,
+        status: true,
+        emailVerifiedAt: true,
+        lastLoginAt: true,
+        deletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
+  async blockUserInTransaction(
+    userId: string,
+    tx: Prisma.TransactionClient,
+  ) {
+    return tx.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        status: UserStatus.BLOCKED,
+      },
+      select: {
+        id: true,
+        email: true,
+        systemRole: true,
+        status: true,
+        emailVerifiedAt: true,
+        lastLoginAt: true,
+        deletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
+  mapUserForAdminResponse(user: {
+    id: string;
+    email: string;
+    systemRole: SystemRole;
+    status: UserStatus;
+    emailVerifiedAt: Date | null;
+    lastLoginAt: Date | null;
+    deletedAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }) {
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.systemRole,
+      status: user.status,
+      emailVerified: Boolean(user.emailVerifiedAt),
+      emailVerifiedAt: user.emailVerifiedAt,
+      lastLoginAt: user.lastLoginAt,
+      deletedAt: user.deletedAt,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
 }
