@@ -6,6 +6,7 @@ import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 import { NotificationProducerModule } from '../notification-producer/notification-producer.module';
 import { PasswordResetService } from './password-reset.service';
 import { PasswordResetCleanupService } from './password-reset-cleanup/password-reset-cleanup.service';
+import { PasswordResetRepository } from './password-reset.repository';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { PasswordResetCleanupService } from './password-reset-cleanup/password-r
     RefreshTokenModule,
     NotificationProducerModule,
   ],
-  providers: [PasswordResetService, PasswordResetCleanupService],
+  providers: [PasswordResetService, PasswordResetRepository, PasswordResetCleanupService],
   exports: [PasswordResetService],
 })
 export class PasswordResetModule {}

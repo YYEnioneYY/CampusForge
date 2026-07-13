@@ -1,26 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UserStatus } from '../generated/prisma/client';
 import { createHmac, randomBytes } from 'node:crypto';
-import { PrismaService } from '../prisma/prisma.service';
-import { PasswordService } from '../password/password.service';
-import { UsersService } from '../users/users.service';
-import { RefreshTokenService } from '../refresh-token/refresh-token.service';
-import { NotificationProducerService } from '../notification-producer/notification-producer.service';
+import { UserStatus } from '../generated/prisma/client';
 import { RpcErrorCode } from '../common/rpc/rpc-error-code';
 import { throwRpcError } from '../common/rpc/throw-rpc-error';
+import { NotificationProducerService } from '../notification-producer/notification-producer.service';
+import { PasswordService } from '../password/password.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { RefreshTokenService } from '../refresh-token/refresh-token.service';
+import { UsersService } from '../users/users.service';
+import { PasswordResetRepository } from './password-reset.repository';
+import { CreatePasswordResetTokenResult } from './types/create-password-reset-token-result.type';
 import { RequestPasswordResetEmailInput } from './types/request-password-reset-email.input';
-
-type CreatePasswordResetTokenResult = {
-  resetUrl: string;
-  expiresAt: Date;
-};
-
-type SendPasswordChangedEmailEventInput = {
-  userId: string;
-  email: string;
-  name?: string;
-};
+import { SendPasswordChangedEmailEventInput } from './types/send-password-changed-email-event.input';
 
 @Injectable()
 export class PasswordResetService {
@@ -31,6 +23,7 @@ export class PasswordResetService {
     private readonly usersService: UsersService,
     private readonly refreshTokenService: RefreshTokenService,
     private readonly notificationProducerService: NotificationProducerService,
+    private readonly passwordResetRepository: PasswordResetRepository,
   ) {}
 
   async requestPasswordResetEmail(
@@ -42,7 +35,9 @@ export class PasswordResetService {
       return;
     }
 
-    const { resetUrl } = await this.createPasswordResetToken(input.userId);
+    const { resetUrl } = await this.createPasswordResetToken(
+      input.userId,
+    );
 
     await this.notificationProducerService.sendPasswordReset({
       userId: input.userId,
@@ -55,25 +50,8 @@ export class PasswordResetService {
   async resetPassword(token: string, newPassword: string) {
     const tokenHash = this.hashToken(token);
 
-    const resetToken = await this.prisma.passwordResetToken.findUnique({
-      where: {
-        tokenHash,
-      },
-      select: {
-        id: true,
-        userId: true,
-        expiresAt: true,
-        usedAt: true,
-        user: {
-          select: {
-            id: true,
-            email: true,
-            status: true,
-            deletedAt: true,
-          },
-        },
-      },
-    });
+    const resetToken =
+      await this.passwordResetRepository.findByTokenHash(tokenHash);
 
     if (!resetToken) {
       throwRpcError(
@@ -98,7 +76,10 @@ export class PasswordResetService {
       );
     }
 
-    if (resetToken.user.deletedAt || resetToken.user.status === UserStatus.DELETED) {
+    if (
+      resetToken.user.deletedAt ||
+      resetToken.user.status === UserStatus.DELETED
+    ) {
       throwRpcError(
         RpcErrorCode.USER_DELETED,
         'User account was deleted',
@@ -112,38 +93,29 @@ export class PasswordResetService {
       );
     }
 
-    const passwordHash = await this.passwordService.hashPassword(newPassword);
+    const passwordHash =
+      await this.passwordService.hashPassword(newPassword);
 
     const user = await this.prisma.$transaction(async (tx) => {
-      const updatedToken = await tx.passwordResetToken.updateMany({
-        where: {
-          id: resetToken.id,
-          usedAt: null,
-          expiresAt: {
-            gt: now,
-          },
-        },
-        data: {
-          usedAt: now,
-        },
-      });
+      const tokenMarkedAsUsed =
+        await this.passwordResetRepository.markAsUsedIfActiveInTransaction(
+          resetToken.id,
+          now,
+          tx,
+        );
 
-      if (updatedToken.count === 0) {
+      if (!tokenMarkedAsUsed) {
         throwRpcError(
           RpcErrorCode.INVALID_PASSWORD_RESET_TOKEN,
           'Invalid password reset token',
         );
       }
 
-      await tx.passwordResetToken.updateMany({
-        where: {
-          userId: resetToken.userId,
-          usedAt: null,
-        },
-        data: {
-          usedAt: now,
-        },
-      });
+      await this.passwordResetRepository.invalidateUnusedTokensForUserInTransaction(
+        resetToken.userId,
+        now,
+        tx,
+      );
 
       const updatedUser = await this.usersService.updatePassword(
         resetToken.userId,
@@ -184,24 +156,11 @@ export class PasswordResetService {
     const tokenHash = this.hashToken(token);
     const expiresAt = this.getExpiresAt();
 
-    await this.prisma.$transaction(async (tx) => {
-      await tx.passwordResetToken.updateMany({
-        where: {
-          userId,
-          usedAt: null,
-        },
-        data: {
-          usedAt: now,
-        },
-      });
-
-      await tx.passwordResetToken.create({
-        data: {
-          userId,
-          tokenHash,
-          expiresAt,
-        },
-      });
+    await this.passwordResetRepository.invalidateUnusedTokensAndCreate({
+      userId,
+      tokenHash,
+      expiresAt,
+      invalidatedAt: now,
     });
 
     return {
@@ -210,30 +169,25 @@ export class PasswordResetService {
     };
   }
 
-  private async canRequestPasswordReset(userId: string): Promise<boolean> {
+  private async canRequestPasswordReset(
+    userId: string,
+  ): Promise<boolean> {
     const cooldownMs = this.getRequestCooldownMs();
 
     if (cooldownMs === 0) {
       return true;
     }
 
-    const lastToken = await this.prisma.passwordResetToken.findFirst({
-      where: {
+    const lastTokenCreatedAt =
+      await this.passwordResetRepository.findLatestCreatedAtByUserId(
         userId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      select: {
-        createdAt: true,
-      },
-    });
+      );
 
-    if (!lastToken) {
+    if (!lastTokenCreatedAt) {
       return true;
     }
 
-    const elapsedMs = Date.now() - lastToken.createdAt.getTime();
+    const elapsedMs = Date.now() - lastTokenCreatedAt.getTime();
 
     return elapsedMs >= cooldownMs;
   }
@@ -247,13 +201,17 @@ export class PasswordResetService {
       'PASSWORD_RESET_TOKEN_HASH_SECRET',
     );
 
-    return createHmac('sha256', secret).update(token).digest('hex');
+    return createHmac('sha256', secret)
+      .update(token)
+      .digest('hex');
   }
 
   private buildResetUrl(token: string): string {
-    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
+    const frontendUrl =
+      this.configService.getOrThrow<string>('FRONTEND_URL');
 
     const url = new URL('/reset-password', frontendUrl);
+
     url.searchParams.set('token', token);
 
     return url.toString();
@@ -277,7 +235,9 @@ export class PasswordResetService {
     const seconds = Number(value);
 
     if (!Number.isFinite(seconds) || seconds < 0) {
-      throw new Error('Invalid PASSWORD_RESET_REQUEST_COOLDOWN_SECONDS value');
+      throw new Error(
+        'Invalid PASSWORD_RESET_REQUEST_COOLDOWN_SECONDS value',
+      );
     }
 
     return seconds * 1000;
@@ -304,31 +264,8 @@ export class PasswordResetService {
       d: 24 * 60 * 60 * 1000,
     };
 
-    return new Date(Date.now() + amount * multiplierMap[unit]);
-  }
-
-  async deleteExpiredAndUsedTokens(): Promise<number> {
-    const now = new Date();
-  
-    const usedBefore = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  
-    const result = await this.prisma.passwordResetToken.deleteMany({
-      where: {
-        OR: [
-          {
-            expiresAt: {
-              lt: now,
-            },
-          },
-          {
-            usedAt: {
-              lt: usedBefore,
-            },
-          },
-        ],
-      },
-    });
-  
-    return result.count;
+    return new Date(
+      Date.now() + amount * multiplierMap[unit],
+    );
   }
 }

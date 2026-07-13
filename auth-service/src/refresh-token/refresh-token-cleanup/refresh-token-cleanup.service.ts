@@ -1,17 +1,37 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { RefreshTokenService } from '../refresh-token.service';
+import { Cron } from '@nestjs/schedule';
+import { RefreshTokenRepository } from '../refresh-token.repository';
 
 @Injectable()
 export class RefreshTokenCleanupService {
-  private readonly logger = new Logger(RefreshTokenCleanupService.name);
+  private readonly logger = new Logger(
+    RefreshTokenCleanupService.name,
+  );
 
-  constructor(private readonly refreshTokenService: RefreshTokenService) {}
+  constructor(
+    private readonly refreshTokenRepository: RefreshTokenRepository,
+  ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async deleteExpiredRefreshTokens() {
-    await this.refreshTokenService.deleteExpiredTokens();
+  @Cron('0 0 * * *')
+  async deleteExpiredTokens(): Promise<void> {
+    try {
+      const deletedCount =
+        await this.refreshTokenRepository.deleteExpiredTokens(
+          new Date(),
+        );
 
-    this.logger.log('Expired refresh tokens cleanup completed');
+      if (deletedCount > 0) {
+        this.logger.log(
+          `Deleted ${deletedCount} expired refresh tokens`,
+        );
+      }
+    } catch (error) {
+      this.logger.error(
+        'Failed to delete expired refresh tokens',
+        error instanceof Error
+          ? error.stack
+          : String(error),
+      );
+    }
   }
 }
