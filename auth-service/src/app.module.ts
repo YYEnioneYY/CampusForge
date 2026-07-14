@@ -14,6 +14,8 @@ import { validateEnv } from './config/env.validation';
 import { PasswordChangeModule } from './password-change/password-change.module';
 import { ProfileProducerModule } from './profile-producer/profile-producer.module';
 import { AdminUsersModule } from './admin-users/admin-users.module';
+import { RedisModule } from './redis/redis.module';
+import { AccessRevocationModule } from './access-revocation/access-revocation.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { AdminUsersModule } from './admin-users/admin-users.module';
     PasswordChangeModule,
     ProfileProducerModule,
     AdminUsersModule,
+    RedisModule,
+    AccessRevocationModule,
   ],
 })
 export class AppModule {}

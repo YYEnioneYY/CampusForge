@@ -3,7 +3,7 @@ import { RpcErrorCode } from '../common/rpc/rpc-error-code';
 import { throwRpcError } from '../common/rpc/throw-rpc-error';
 import { randomUUID } from 'node:crypto';
 
-import { UserStatus, SystemRole } from '../generated/prisma/client';
+import { UserStatus } from '../generated/prisma/client';
 
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -26,10 +26,11 @@ import { UsersService } from '../users/users.service';
 import { PasswordService } from '../password/password.service';
 import { TokenService } from '../token/token.service';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
-import { EmailVerificationService } from 'src/email-verification/email-verification.service';
+import { EmailVerificationService } from '../email-verification/email-verification.service';
 import { PasswordChangeService } from '../password-change/password-change.service';
 import { ProfileProducerService } from '../profile-producer/profile-producer.service';
 import { AdminUsersService } from '../admin-users/admin-users.service';
+import { AccessRevocationService } from '../access-revocation/access-revocation.service';
 
 @Injectable()
 export class AuthService {
@@ -45,6 +46,7 @@ export class AuthService {
     private readonly passwordChangeService: PasswordChangeService,
     private readonly profileProducerService: ProfileProducerService,
     private readonly adminUsersService: AdminUsersService,
+    private readonly accessRevocationService: AccessRevocationService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -264,18 +266,26 @@ export class AuthService {
       jti: newSessionId,
     });
 
-    await this.refreshTokenService.rotateSession({
-      oldSessionId: session.id,
-      newSession: {
-        id: newSessionId,
-        userId: session.user.id,
-        refreshToken,
-        expiresAt: this.tokenService.getRefreshTokenExpiresAt(),
-        deviceName: dto.deviceName ?? session.deviceName,
-        ipAddress: dto.ipAddress ?? session.ipAddress,
-        userAgent: dto.userAgent ?? session.userAgent,
-      },
-    });
+    const rotatedSession =
+      await this.refreshTokenService.rotateSession({
+        oldSessionId: session.id,
+        newSession: {
+          id: newSessionId,
+          userId: session.user.id,
+          refreshToken,
+          expiresAt: this.tokenService.getRefreshTokenExpiresAt(),
+          deviceName: dto.deviceName ?? session.deviceName,
+          ipAddress: dto.ipAddress ?? session.ipAddress,
+          userAgent: dto.userAgent ?? session.userAgent,
+        },
+      });
+    
+    if (!rotatedSession) {
+      throwRpcError(
+        RpcErrorCode.INVALID_REFRESH_TOKEN,
+        'Invalid refresh token',
+      );
+    }
 
     return {
       user: {
@@ -297,7 +307,9 @@ export class AuthService {
     let payload: { sub: string; jti: string };
 
     try {
-      payload = await this.tokenService.verifyRefreshToken(dto.refreshToken);
+      payload = await this.tokenService.verifyRefreshToken(
+        dto.refreshToken,
+      );
     } catch {
       throwRpcError(
         RpcErrorCode.INVALID_REFRESH_TOKEN,
@@ -305,11 +317,12 @@ export class AuthService {
       );
     }
 
-    const session = await this.refreshTokenService.findActiveSession({
-      id: payload.jti,
-      userId: payload.sub,
-      refreshToken: dto.refreshToken,
-    });
+    const session =
+      await this.refreshTokenService.findActiveSession({
+        id: payload.jti,
+        userId: payload.sub,
+        refreshToken: dto.refreshToken,
+      });
 
     if (!session) {
       throwRpcError(
@@ -318,13 +331,29 @@ export class AuthService {
       );
     }
 
+    const now = new Date();
+
     if (dto.exceptCurrent) {
-      await this.refreshTokenService.revokeAllUserTokensExcept(
-        session.userId,
-        session.id,
+      const revokedSessionIds =
+        await this.refreshTokenService.revokeAllUserTokensExcept(
+          session.userId,
+          session.id,
+          now,
+        );
+
+      await this.accessRevocationService.revokeSessions(
+        revokedSessionIds,
       );
     } else {
-      await this.refreshTokenService.revokeAllUserTokens(session.userId);
+      await this.refreshTokenService.revokeAllUserTokens(
+        session.userId,
+        now,
+      );
+
+      await this.accessRevocationService.revokeUserAccessTokens(
+        session.userId,
+        now,
+      );
     }
 
     return {
@@ -336,7 +365,9 @@ export class AuthService {
     let payload: { sub: string; jti: string };
 
     try {
-      payload = await this.tokenService.verifyRefreshToken(dto.refreshToken);
+      payload = await this.tokenService.verifyRefreshToken(
+        dto.refreshToken,
+      );
     } catch {
       throwRpcError(
         RpcErrorCode.INVALID_REFRESH_TOKEN,
@@ -344,11 +375,12 @@ export class AuthService {
       );
     }
 
-    const session = await this.refreshTokenService.findActiveSession({
-      id: payload.jti,
-      userId: payload.sub,
-      refreshToken: dto.refreshToken,
-    });
+    const session =
+      await this.refreshTokenService.findActiveSession({
+        id: payload.jti,
+        userId: payload.sub,
+        refreshToken: dto.refreshToken,
+      });
 
     if (!session) {
       throwRpcError(
@@ -357,18 +389,11 @@ export class AuthService {
       );
     }
 
-    await this.refreshTokenService.revokeById(session.id);
-
-    return {
-      success: true,
-    };
-  }
-
-  async logoutSession(dto: LogoutSessionDto) {
-    const wasRevoked = await this.refreshTokenService.revokeUserSession(
-      dto.userId,
-      dto.sessionId,
-    );
+    const wasRevoked =
+      await this.refreshTokenService.revokeUserSession(
+        session.userId,
+        session.id,
+      );
 
     if (!wasRevoked) {
       throwRpcError(
@@ -377,19 +402,35 @@ export class AuthService {
       );
     }
 
+    await this.accessRevocationService.revokeSession(
+      session.id,
+    );
+
     return {
       success: true,
     };
   }
 
-  async getSessions(dto: GetSessionsDto) {
-    const sessions = await this.refreshTokenService.getUserSessions({
-      userId: dto.userId,
-      currentSessionId: dto.currentSessionId,
-    });
+  async logoutSession(dto: LogoutSessionDto) {
+    const wasRevoked =
+      await this.refreshTokenService.revokeUserSession(
+        dto.userId,
+        dto.sessionId,
+      );
+
+    if (!wasRevoked) {
+      throwRpcError(
+        RpcErrorCode.SESSION_NOT_FOUND,
+        'Active session was not found',
+      );
+    }
+
+    await this.accessRevocationService.revokeSession(
+      dto.sessionId,
+    );
 
     return {
-      sessions,
+      success: true,
     };
   }
 
@@ -563,6 +604,17 @@ export class AuthService {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
+    };
+  }
+
+  async getSessions(dto: GetSessionsDto) {
+    const sessions = await this.refreshTokenService.getUserSessions({
+      userId: dto.userId,
+      currentSessionId: dto.currentSessionId,
+    });
+  
+    return {
+      sessions,
     };
   }
 

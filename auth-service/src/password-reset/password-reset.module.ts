@@ -7,6 +7,7 @@ import { NotificationProducerModule } from '../notification-producer/notificatio
 import { PasswordResetService } from './password-reset.service';
 import { PasswordResetCleanupService } from './password-reset-cleanup/password-reset-cleanup.service';
 import { PasswordResetRepository } from './password-reset.repository';
+import { AccessRevocationModule } from 'src/access-revocation/access-revocation.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PasswordResetRepository } from './password-reset.repository';
     UsersModule,
     RefreshTokenModule,
     NotificationProducerModule,
+    AccessRevocationModule,
   ],
   providers: [PasswordResetService, PasswordResetRepository, PasswordResetCleanupService],
   exports: [PasswordResetService],

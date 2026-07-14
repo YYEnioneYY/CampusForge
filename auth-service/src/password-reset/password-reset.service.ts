@@ -13,6 +13,7 @@ import { PasswordResetRepository } from './password-reset.repository';
 import { CreatePasswordResetTokenResult } from './types/create-password-reset-token-result.type';
 import { RequestPasswordResetEmailInput } from './types/request-password-reset-email.input';
 import { SendPasswordChangedEmailEventInput } from './types/send-password-changed-email-event.input';
+import { AccessRevocationService } from '../access-revocation/access-revocation.service';
 
 @Injectable()
 export class PasswordResetService {
@@ -24,6 +25,7 @@ export class PasswordResetService {
     private readonly refreshTokenService: RefreshTokenService,
     private readonly notificationProducerService: NotificationProducerService,
     private readonly passwordResetRepository: PasswordResetRepository,
+    private readonly accessRevocationService: AccessRevocationService,
   ) {}
 
   async requestPasswordResetEmail(
@@ -131,6 +133,11 @@ export class PasswordResetService {
 
       return updatedUser;
     });
+
+    await this.accessRevocationService.revokeUserAccessTokens(
+      resetToken.userId,
+      now,
+    );
 
     return {
       user,

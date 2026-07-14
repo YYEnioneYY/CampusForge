@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SystemRole, UserStatus } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
+import { AccessRevocationService } from 'src/access-revocation/access-revocation.service';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { RpcErrorCode } from '../common/rpc/rpc-error-code';
 import { throwRpcError } from '../common/rpc/throw-rpc-error';
@@ -26,6 +27,7 @@ export class AdminUsersService {
     private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
     private readonly refreshTokenService: RefreshTokenService,
+    private readonly accessRevocationService: AccessRevocationService,
   ) {}
 
   async getUsers(input: GetUsersInput) {
@@ -91,6 +93,11 @@ export class AdminUsersService {
 
       return updatedUser;
     });
+
+    await this.accessRevocationService.revokeUserAccessTokens(
+      input.targetUserId,
+      now,
+    );
 
     return {
       success: true,

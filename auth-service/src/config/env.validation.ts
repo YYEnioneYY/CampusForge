@@ -72,6 +72,10 @@ class EnvironmentVariables {
 
   @Matches(/^\d+$/)
   PASSWORD_RESET_REQUEST_COOLDOWN_SECONDS!: string;
+
+  @IsString()
+  @Matches(/^rediss?:\/\/.+/)
+  REDIS_URL!: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

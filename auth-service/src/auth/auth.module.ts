@@ -10,6 +10,7 @@ import { PasswordResetModule } from '../password-reset/password-reset.module';
 import { PasswordChangeModule } from '../password-change/password-change.module';
 import { ProfileProducerModule } from '../profile-producer/profile-producer.module';
 import { AdminUsersModule } from '../admin-users/admin-users.module';
+import { AccessRevocationModule } from 'src/access-revocation/access-revocation.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AdminUsersModule } from '../admin-users/admin-users.module';
     PasswordChangeModule,
     ProfileProducerModule,
     AdminUsersModule,
+    AccessRevocationModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

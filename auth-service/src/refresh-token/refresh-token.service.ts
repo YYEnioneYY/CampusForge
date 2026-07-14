@@ -68,21 +68,25 @@ export class RefreshTokenService {
     );
   }
 
-  async revokeAllUserTokens(userId: string): Promise<void> {
+  async revokeAllUserTokens(
+    userId: string,
+    revokedAt: Date = new Date(),
+  ): Promise<void> {
     await this.refreshTokenRepository.revokeAllByUserId(
       userId,
-      new Date(),
+      revokedAt,
     );
   }
 
   async revokeAllUserTokensExcept(
     userId: string,
     exceptSessionId: string,
-  ): Promise<void> {
-    await this.refreshTokenRepository.revokeAllExcept(
+    revokedAt: Date = new Date(),
+  ): Promise<string[]> {
+    return this.refreshTokenRepository.revokeAllExcept(
       userId,
       exceptSessionId,
-      new Date(),
+      revokedAt,
     );
   }
 
@@ -149,7 +153,7 @@ export class RefreshTokenService {
     exceptSessionId: string,
     revokedAt: Date,
     tx: Prisma.TransactionClient,
-  ): Promise<number> {
+  ): Promise<string[]> {
     return this.refreshTokenRepository.revokeAllExceptInTransaction(
       userId,
       exceptSessionId,

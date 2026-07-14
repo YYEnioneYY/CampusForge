@@ -131,21 +131,41 @@ export class RefreshTokenRepository {
     userId: string,
     exceptSessionId: string,
     revokedAt: Date,
-  ): Promise<number> {
-    const result = await this.prisma.refreshToken.updateMany({
-      where: {
-        userId,
-        id: {
-          not: exceptSessionId,
+  ): Promise<string[]> {
+    return this.prisma.$transaction(async (tx) => {
+      const sessions = await tx.refreshToken.findMany({
+        where: {
+          userId,
+          id: {
+            not: exceptSessionId,
+          },
+          revokedAt: null,
         },
-        revokedAt: null,
-      },
-      data: {
-        revokedAt,
-      },
+        select: {
+          id: true,
+        },
+      });
+  
+      const sessionIds = sessions.map((session) => session.id);
+  
+      if (sessionIds.length === 0) {
+        return [];
+      }
+  
+      await tx.refreshToken.updateMany({
+        where: {
+          id: {
+            in: sessionIds,
+          },
+          revokedAt: null,
+        },
+        data: {
+          revokedAt,
+        },
+      });
+  
+      return sessionIds;
     });
-
-    return result.count;
   }
 
   async revokeUserSession(
@@ -241,8 +261,8 @@ export class RefreshTokenRepository {
     exceptSessionId: string,
     revokedAt: Date,
     tx: Prisma.TransactionClient,
-  ): Promise<number> {
-    const result = await tx.refreshToken.updateMany({
+  ): Promise<string[]> {
+    const sessions = await tx.refreshToken.findMany({
       where: {
         userId,
         id: {
@@ -250,12 +270,30 @@ export class RefreshTokenRepository {
         },
         revokedAt: null,
       },
+      select: {
+        id: true,
+      },
+    });
+  
+    const sessionIds = sessions.map((session) => session.id);
+  
+    if (sessionIds.length === 0) {
+      return [];
+    }
+  
+    await tx.refreshToken.updateMany({
+      where: {
+        id: {
+          in: sessionIds,
+        },
+        revokedAt: null,
+      },
       data: {
         revokedAt,
       },
     });
-
-    return result.count;
+  
+    return sessionIds;
   }
 
   async deleteExpiredTokens(now: Date): Promise<number> {
