@@ -171,7 +171,7 @@ export class UsersRepository {
     });
   }
 
-  async findByIdForPasswordChange(userId: string) {
+  async findByIdForSensitiveAction(userId: string) {
     return this.prisma.user.findUnique({
       where: {
         id: userId,
@@ -199,6 +199,23 @@ export class UsersRepository {
         passwordHash,
       },
       select: userSummarySelect,
+    });
+  }
+
+  async softDeleteInTransaction(
+    userId: string,
+    deletedAt: Date,
+    tx: Prisma.TransactionClient,
+  ) {
+    return tx.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        status: UserStatus.DELETED,
+        deletedAt,
+      },
+      select: adminUserSelect,
     });
   }
 

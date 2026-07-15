@@ -21,6 +21,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { AdminGetUsersDto } from './dto/admin-get-users.dto';
 import { AdminBlockUserDto } from './dto/admin-block-user.dto';
 import { AdminUnblockUserDto } from './dto/admin-unblock-user.dto';
+import { DeleteAccountDto } from './dto/delete-account.dto';
 
 import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
@@ -32,6 +33,7 @@ import { PasswordChangeService } from '../password-change/password-change.servic
 import { ProfileProducerService } from '../profile-producer/profile-producer.service';
 import { AdminUsersService } from '../admin-users/admin-users.service';
 import { AccessRevocationService } from '../access-revocation/access-revocation.service';
+import { AccountDeletionService } from 'src/account-deletion/account-deletion.service';
 
 @Injectable()
 export class AuthService {
@@ -48,6 +50,7 @@ export class AuthService {
     private readonly profileProducerService: ProfileProducerService,
     private readonly adminUsersService: AdminUsersService,
     private readonly accessRevocationService: AccessRevocationService,
+    private readonly accountDeletionService: AccountDeletionService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -617,6 +620,13 @@ export class AuthService {
     return {
       sessions,
     };
+  }
+
+  async deleteAccount(dto: DeleteAccountDto) {
+    return this.accountDeletionService.deleteAccount({
+      userId: dto.userId,
+      currentPassword: dto.currentPassword,
+    });
   }
 
   async adminGetUsers(dto: AdminGetUsersDto) {

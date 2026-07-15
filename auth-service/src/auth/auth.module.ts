@@ -11,6 +11,7 @@ import { PasswordChangeModule } from '../password-change/password-change.module'
 import { ProfileProducerModule } from '../profile-producer/profile-producer.module';
 import { AdminUsersModule } from '../admin-users/admin-users.module';
 import { AccessRevocationModule } from 'src/access-revocation/access-revocation.module';
+import { AccountDeletionModule } from '../account-deletion/account-deletion.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AccessRevocationModule } from 'src/access-revocation/access-revocation.
     ProfileProducerModule,
     AdminUsersModule,
     AccessRevocationModule,
+    AccountDeletionModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

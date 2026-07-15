@@ -18,6 +18,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { AdminGetUsersDto } from './dto/admin-get-users.dto';
 import { AdminBlockUserDto } from './dto/admin-block-user.dto';
 import { AdminUnblockUserDto } from './dto/admin-unblock-user.dto';
+import { DeleteAccountDto } from './dto/delete-account.dto';
 
 @Controller()
 export class AuthController {
@@ -86,6 +87,11 @@ export class AuthController {
   @MessagePattern(AUTH_PATTERNS.CHANGE_PASSWORD)
   changePassword(@Payload() dto: ChangePasswordDto) {
     return this.authService.changePassword(dto);
+  }
+
+  @MessagePattern(AUTH_PATTERNS.DELETE_ACCOUNT)
+  deleteAccount(@Payload() dto: DeleteAccountDto) {
+    return this.authService.deleteAccount(dto);
   }
 
   // ADMIN routes

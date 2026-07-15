@@ -16,6 +16,7 @@ import { ProfileProducerModule } from './profile-producer/profile-producer.modul
 import { AdminUsersModule } from './admin-users/admin-users.module';
 import { RedisModule } from './redis/redis.module';
 import { AccessRevocationModule } from './access-revocation/access-revocation.module';
+import { AccountDeletionModule } from './account-deletion/account-deletion.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AccessRevocationModule } from './access-revocation/access-revocation.mo
     AdminUsersModule,
     RedisModule,
     AccessRevocationModule,
+    AccountDeletionModule,
   ],
 })
 export class AppModule {}

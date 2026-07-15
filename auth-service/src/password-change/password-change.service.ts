@@ -20,17 +20,17 @@ export class PasswordChangeService {
   ) {}
 
   async changePassword(input: ChangePasswordInput) {
-    const user = await this.usersService.findByIdForPasswordChange(
+    const user = await this.usersService.findByIdForSensitiveAction(
       input.userId,
     );
-  
+
     if (!user) {
       throwRpcError(
         RpcErrorCode.USER_NOT_FOUND,
         'User was not found',
       );
     }
-  
+
     if (
       user.deletedAt ||
       user.status === UserStatus.DELETED
@@ -40,34 +40,34 @@ export class PasswordChangeService {
         'User account was deleted',
       );
     }
-  
+
     if (user.status === UserStatus.BLOCKED) {
       throwRpcError(
         RpcErrorCode.USER_BLOCKED,
         'User account is blocked',
       );
     }
-  
+
     const isCurrentPasswordValid =
       await this.passwordService.verifyPassword(
         input.currentPassword,
         user.passwordHash,
       );
-    
+
     if (!isCurrentPasswordValid) {
       throwRpcError(
         RpcErrorCode.INVALID_CURRENT_PASSWORD,
         'Current password is invalid',
       );
     }
-  
+
     const passwordHash =
       await this.passwordService.hashPassword(
         input.newPassword,
       );
-    
+
     const now = new Date();
-    
+
     const result = await this.prisma.$transaction(async (tx) => {
       const updatedUser =
         await this.usersService.updatePassword(
@@ -75,7 +75,7 @@ export class PasswordChangeService {
           passwordHash,
           tx,
         );
-      
+
       const revokedSessionIds =
         await this.refreshTokenService.revokeAllUserTokensExceptInTransaction(
           input.userId,
@@ -83,17 +83,17 @@ export class PasswordChangeService {
           now,
           tx,
         );
-      
+
       return {
         updatedUser,
         revokedSessionIds,
       };
     });
-  
+
     await this.accessRevocationService.revokeSessions(
       result.revokedSessionIds,
     );
-  
+
     return result.updatedUser;
   }
 }

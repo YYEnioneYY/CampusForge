@@ -60,8 +60,8 @@ export class UsersService {
     return this.usersRepository.findByEmailForPasswordReset(email);
   }
 
-  async findByIdForPasswordChange(userId: string) {
-    return this.usersRepository.findByIdForPasswordChange(userId);
+  async findByIdForSensitiveAction(userId: string) {
+    return this.usersRepository.findByIdForSensitiveAction(userId);
   }
 
   async updatePassword(
@@ -76,6 +76,19 @@ export class UsersService {
     );
   }
 
+  async softDeleteInTransaction(
+    userId: string,
+    deletedAt: Date,
+    tx: Prisma.TransactionClient,
+  ) {
+    return this.usersRepository.softDeleteInTransaction(
+      userId,
+      deletedAt,
+      tx,
+    );
+  }
+
+  // Админские приколы
   async getUsersPage(input: GetUsersPageInput) {
     const safePage = Math.max(input.page ?? 1, 1);
     const safeLimit = Math.min(
