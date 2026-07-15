@@ -12,6 +12,11 @@ type BlockUserInput = {
   targetUserId: string;
 };
 
+type UnblockUserInput = {
+  actorUserId: string;
+  targetUserId: string;
+};
+
 type GetUsersInput = {
   actorUserId: string;
   page?: number;
@@ -80,8 +85,9 @@ export class AdminUsersService {
     const now = new Date();
 
     const blockedUser = await this.prisma.$transaction(async (tx) => {
-      const updatedUser = await this.usersService.blockUserInTransaction(
+      const updatedUser = await this.usersService.updateUserStatusInTransaction(
         input.targetUserId,
+        UserStatus.BLOCKED,
         tx,
       );
 
@@ -102,6 +108,48 @@ export class AdminUsersService {
     return {
       success: true,
       user: this.usersService.mapUserForAdminResponse(blockedUser),
+    };
+  }
+
+  async unblockUser(input: UnblockUserInput) {
+    await this.assertActiveAdmin(input.actorUserId);
+  
+    const targetUser =
+      await this.usersService.findByIdForAdminAction(
+        input.targetUserId,
+      );
+  
+    if (!targetUser || targetUser.deletedAt) {
+      throwRpcError(
+        RpcErrorCode.USER_NOT_FOUND,
+        'User was not found',
+      );
+    }
+  
+    if (targetUser.status !== UserStatus.BLOCKED) {
+      return {
+        success: true,
+        user: this.usersService.mapUserForAdminResponse(
+          targetUser,
+        ),
+      };
+    }
+  
+    const nextStatus = targetUser.emailVerifiedAt
+      ? UserStatus.ACTIVE
+      : UserStatus.PENDING;
+  
+    const unblockedUser =
+      await this.usersService.updateUserStatus(
+        targetUser.id,
+        nextStatus,
+      );
+  
+    return {
+      success: true,
+      user: this.usersService.mapUserForAdminResponse(
+        unblockedUser,
+      ),
     };
   }
 

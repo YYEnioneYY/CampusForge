@@ -120,11 +120,26 @@ export class UsersService {
     return this.usersRepository.findByIdForAdminAction(userId);
   }
 
-  async blockUserInTransaction(
+  async updateUserStatusInTransaction(
     userId: string,
+    status: UserStatus,
     tx: Prisma.TransactionClient,
   ) {
-    return this.usersRepository.blockUserInTransaction(userId, tx);
+    return this.usersRepository.updateUserStatusInTransaction(
+      userId, 
+      status, 
+      tx,
+    );
+  }
+
+  async updateUserStatus(
+    userId: string,
+    status: UserStatus,
+  ) {
+    return this.usersRepository.updateUserStatus(
+      userId,
+      status,
+    );
   }
 
   mapUserForAdminResponse(user: AdminUserRecord) {

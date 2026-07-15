@@ -20,6 +20,7 @@ import { MeDto } from './dto/me.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AdminGetUsersDto } from './dto/admin-get-users.dto';
 import { AdminBlockUserDto } from './dto/admin-block-user.dto';
+import { AdminUnblockUserDto } from './dto/admin-unblock-user.dto';
 
 import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
@@ -612,7 +613,7 @@ export class AuthService {
       userId: dto.userId,
       currentSessionId: dto.currentSessionId,
     });
-  
+
     return {
       sessions,
     };
@@ -631,6 +632,15 @@ export class AuthService {
 
   async adminBlockUser(dto: AdminBlockUserDto) {
     return this.adminUsersService.blockUser({
+      actorUserId: dto.actorUserId,
+      targetUserId: dto.targetUserId,
+    });
+  }
+
+  async adminUnblockUser(
+    dto: AdminUnblockUserDto,
+  ) {
+    return this.adminUsersService.unblockUser({
       actorUserId: dto.actorUserId,
       targetUserId: dto.targetUserId,
     });

@@ -202,6 +202,7 @@ export class UsersRepository {
     });
   }
 
+  // Админские функции
   async findUsersPage(input: FindUsersPageInput) {
     const where: Prisma.UserWhereInput = {
       ...(input.status !== undefined
@@ -275,8 +276,25 @@ export class UsersRepository {
     });
   }
 
-  async blockUserInTransaction(
+  // Универсальные способы для обновления статуса(без транзакции и с транзакцией)
+  async updateUserStatus(
     userId: string,
+    status: UserStatus,
+  ) {
+    return this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        status,
+      },
+      select: adminUserSelect,
+    });
+  }
+
+  async updateUserStatusInTransaction(
+    userId: string,
+    status: UserStatus,
     tx: Prisma.TransactionClient,
   ): Promise<AdminUserRecord> {
     return tx.user.update({
@@ -284,7 +302,7 @@ export class UsersRepository {
         id: userId,
       },
       data: {
-        status: UserStatus.BLOCKED,
+        status,
       },
       select: adminUserSelect,
     });

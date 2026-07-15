@@ -15,9 +15,15 @@ export const AUTH_PATTERNS = {
   PASSWORD_RESET_CONFIRM: 'auth.password_reset.confirm',
   CHANGE_PASSWORD: 'auth.password.change',
 
+  DELETE_ACCOUNT: 'auth.account.delete',
+  
+  ACCOUNT_RESTORE_REQUEST: 'auth.account_restore.request',
+  ACCOUNT_RESTORE_CONFIRM: 'auth.account_restore.confirm',
+
   ME: 'auth.me',
 
 
   ADMIN_GET_USERS: 'auth.admin.users.list',
   ADMIN_BLOCK_USER: 'auth.admin.users.block',
+  ADMIN_UNBLOCK_USER: 'auth.admin.users.unblock',
 } as const;

@@ -17,6 +17,7 @@ import { MeDto } from './dto/me.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AdminGetUsersDto } from './dto/admin-get-users.dto';
 import { AdminBlockUserDto } from './dto/admin-block-user.dto';
+import { AdminUnblockUserDto } from './dto/admin-unblock-user.dto';
 
 @Controller()
 export class AuthController {
@@ -97,5 +98,10 @@ export class AuthController {
   @MessagePattern(AUTH_PATTERNS.ADMIN_BLOCK_USER)
   adminBlockUser(@Payload() dto: AdminBlockUserDto) {
     return this.authService.adminBlockUser(dto);
+  }
+
+  @MessagePattern(AUTH_PATTERNS.ADMIN_UNBLOCK_USER)
+  adminUnblockUser(@Payload() dto: AdminUnblockUserDto) {
+    return this.authService.adminUnblockUser(dto);
   }
 }
