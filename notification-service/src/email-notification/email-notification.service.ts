@@ -4,6 +4,7 @@ import { TemplateService } from '../mail/template.service';
 import { SendEmailVerificationDto } from './dto/send-email-verification.dto';
 import { SendPasswordChangedDto } from './dto/send-password-changed.dto';
 import { SendPasswordResetDto } from './dto/send-password-reset.dto';
+import { AccountRestoreEventDto } from './dto/account-restore-event.dto';
 
 @Injectable()
 export class EmailNotificationService {
@@ -50,6 +51,24 @@ export class EmailNotificationService {
       subject: 'Пароль изменён',
       html,
       text: `${this.buildGreeting(dto.name)}\n\nВаш пароль был успешно изменён.`,
+    });
+  }
+
+  async sendAccountRestoreEmail(
+    dto: AccountRestoreEventDto
+  ): Promise<void> {
+    const html = await this.templateService.render(
+      'account-restore',
+      {
+        name: dto.name ?? 'Друг',
+        restoreUrl: dto.restoreUrl,
+      },
+    );
+
+    await this.mailService.sendMail({
+      to: dto.email,
+      subject: 'Восстановление аккаунта — CampusForge',
+      html,
     });
   }
 
