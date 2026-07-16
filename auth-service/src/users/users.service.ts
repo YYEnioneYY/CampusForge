@@ -88,6 +88,24 @@ export class UsersService {
     );
   }
 
+  async findByEmailForAccountRestore(email: string) {
+    return this.usersRepository.findByEmailForAccountRestore(
+      email,
+    );
+  }
+
+  async restoreUserInTransaction(
+    userId: string,
+    status: UserStatus,
+    tx: Prisma.TransactionClient,
+  ) {
+    return this.usersRepository.restoreUserInTransaction(
+      userId,
+      status,
+      tx,
+    );
+  }
+
   // Админские приколы
   async getUsersPage(input: GetUsersPageInput) {
     const safePage = Math.max(input.page ?? 1, 1);

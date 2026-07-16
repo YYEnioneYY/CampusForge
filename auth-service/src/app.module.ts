@@ -17,6 +17,7 @@ import { AdminUsersModule } from './admin-users/admin-users.module';
 import { RedisModule } from './redis/redis.module';
 import { AccessRevocationModule } from './access-revocation/access-revocation.module';
 import { AccountDeletionModule } from './account-deletion/account-deletion.module';
+import { AccountRestoreModule } from './account-restore/account-restore.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AccountDeletionModule } from './account-deletion/account-deletion.modul
     RedisModule,
     AccessRevocationModule,
     AccountDeletionModule,
+    AccountRestoreModule,
   ],
 })
 export class AppModule {}

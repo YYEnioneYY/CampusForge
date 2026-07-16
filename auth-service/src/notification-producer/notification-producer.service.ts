@@ -1,12 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-
-const NOTIFICATION_PATTERNS = {
-  SEND_EMAIL_VERIFICATION: 'notification.email_verification.send',
-  SEND_PASSWORD_RESET: 'notification.password_reset.send',
-  SEND_PASSWORD_CHANGED: 'notification.password_changed.send',
-} as const;
+import { NOTIFICATION_PATTERNS } from 'src/common/kafka/notification-patterns';
 
 type SendEmailVerificationInput = {
   userId: string;
@@ -27,6 +22,12 @@ type SendPasswordChangedInput = {
   email: string;
   name?: string;
 };
+
+type SendAccountRestoreInput = {
+  email: string;
+  restoreUrl: string;
+  name?: string;
+}
 
 @Injectable()
 export class NotificationProducerService implements OnModuleInit {
@@ -61,6 +62,15 @@ export class NotificationProducerService implements OnModuleInit {
     await lastValueFrom(
       this.notificationClient.emit(
         NOTIFICATION_PATTERNS.SEND_PASSWORD_CHANGED,
+        input,
+      ),
+    );
+  }
+
+  async sendAccountRestore(input: SendAccountRestoreInput): Promise<void> {
+    await lastValueFrom(
+      this.notificationClient.emit(
+        NOTIFICATION_PATTERNS.ACCOUNT_RESTORE_SEND,
         input,
       ),
     );

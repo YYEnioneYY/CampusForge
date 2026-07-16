@@ -19,6 +19,8 @@ import { AdminGetUsersDto } from './dto/admin-get-users.dto';
 import { AdminBlockUserDto } from './dto/admin-block-user.dto';
 import { AdminUnblockUserDto } from './dto/admin-unblock-user.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
+import { RequestAccountRestoreDto } from './dto/request-account-restore.dto';
+import { ConfirmAccountRestoreDto } from './dto/confirm-account-restore.dto';
 
 @Controller()
 export class AuthController {
@@ -92,6 +94,16 @@ export class AuthController {
   @MessagePattern(AUTH_PATTERNS.DELETE_ACCOUNT)
   deleteAccount(@Payload() dto: DeleteAccountDto) {
     return this.authService.deleteAccount(dto);
+  }
+
+  @MessagePattern(AUTH_PATTERNS.ACCOUNT_RESTORE_REQUEST)
+  requestAccountRestore(@Payload() dto: RequestAccountRestoreDto) {
+    return this.authService.requestAccountRestore(dto);
+  }
+
+  @MessagePattern(AUTH_PATTERNS.ACCOUNT_RESTORE_CONFIRM)
+  confirmAccountRestore(@Payload() dto: ConfirmAccountRestoreDto) {
+    return this.authService.confirmAccountRestore(dto);
   }
 
   // ADMIN routes

@@ -73,6 +73,16 @@ class EnvironmentVariables {
   @Matches(/^\d+$/)
   PASSWORD_RESET_REQUEST_COOLDOWN_SECONDS!: string;
 
+  @Matches(/^\d+(s|m|h|d)$/)
+  ACCOUNT_RESTORE_TOKEN_EXPIRES_IN!: string;
+
+  @IsString()
+  @MinLength(32)
+  ACCOUNT_RESTORE_TOKEN_HASH_SECRET!: string;
+
+  @Matches(/^\d+$/)
+  ACCOUNT_RESTORE_REQUEST_COOLDOWN_SECONDS!: string;
+
   @IsString()
   @Matches(/^rediss?:\/\/.+/)
   REDIS_URL!: string;

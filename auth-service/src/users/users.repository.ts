@@ -219,6 +219,48 @@ export class UsersRepository {
     });
   }
 
+  async findByEmailForAccountRestore(email: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+        email: true,
+        status: true,
+        emailVerifiedAt: true,
+        deletedAt: true,
+      },
+    });
+  }
+
+  async restoreUserInTransaction(
+    userId: string,
+    status: UserStatus,
+    tx: Prisma.TransactionClient,
+  ) {
+    return tx.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        status,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        email: true,
+        systemRole: true,
+        status: true,
+        emailVerifiedAt: true,
+        lastLoginAt: true,
+        deletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
   // Админские функции
   async findUsersPage(input: FindUsersPageInput) {
     const where: Prisma.UserWhereInput = {

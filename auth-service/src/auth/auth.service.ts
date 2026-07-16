@@ -22,6 +22,8 @@ import { AdminGetUsersDto } from './dto/admin-get-users.dto';
 import { AdminBlockUserDto } from './dto/admin-block-user.dto';
 import { AdminUnblockUserDto } from './dto/admin-unblock-user.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
+import { RequestAccountRestoreDto } from './dto/request-account-restore.dto';
+import { ConfirmAccountRestoreDto } from './dto/confirm-account-restore.dto';
 
 import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
@@ -34,6 +36,7 @@ import { ProfileProducerService } from '../profile-producer/profile-producer.ser
 import { AdminUsersService } from '../admin-users/admin-users.service';
 import { AccessRevocationService } from '../access-revocation/access-revocation.service';
 import { AccountDeletionService } from 'src/account-deletion/account-deletion.service';
+import { AccountRestoreService } from '../account-restore/account-restore.service';
 
 @Injectable()
 export class AuthService {
@@ -51,6 +54,7 @@ export class AuthService {
     private readonly adminUsersService: AdminUsersService,
     private readonly accessRevocationService: AccessRevocationService,
     private readonly accountDeletionService: AccountDeletionService,
+    private readonly accountRestoreService: AccountRestoreService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -627,6 +631,54 @@ export class AuthService {
       userId: dto.userId,
       currentPassword: dto.currentPassword,
     });
+  }
+
+  async requestAccountRestore(
+    dto: RequestAccountRestoreDto,
+  ) {
+    const email = dto.email
+      .trim()
+      .toLowerCase();
+
+    const user =
+      await this.usersService.findByEmailForAccountRestore(
+        email,
+      );
+
+    if (
+      !user ||
+      !user.deletedAt ||
+      user.status !== UserStatus.DELETED
+    ) {
+      return {
+        success: true,
+      };
+    }
+
+    this.runInBackground(
+      this.accountRestoreService.requestAccountRestoreEmail({
+        userId: user.id,
+        email: user.email,
+        name: 'Друг',
+      }),
+      `Failed to request account restore for user ${user.id}`,
+    );
+
+    return {
+      success: true,
+    };
+  }
+
+  async confirmAccountRestore(
+    dto: ConfirmAccountRestoreDto,
+  ) {
+    await this.accountRestoreService.confirmAccountRestore(
+      dto.token,
+    );
+  
+    return {
+      success: true,
+    };
   }
 
   async adminGetUsers(dto: AdminGetUsersDto) {
