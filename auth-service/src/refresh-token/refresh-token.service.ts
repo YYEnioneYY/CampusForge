@@ -2,11 +2,31 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '../generated/prisma/client';
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { RefreshTokenRepository } from './refresh-token.repository';
+import { RefreshTokenRepository, UserSessionRecord, } from './refresh-token.repository';
 import { CreateRefreshTokenSessionInput } from './types/create-refresh-token-session.input';
 import { FindActiveRefreshTokenSessionInput } from './types/find-active-refresh-token-session.input';
 import { RotateRefreshTokenSessionInput } from './types/rotate-refresh-token-session.input';
 import { GetUserSessionsInput } from './types/get-user-sessions.input';
+import { throwRpcError } from '../common/rpc/throw-rpc-error';
+import { RpcErrorCode } from '../common/rpc/rpc-error-code';
+
+type RenameUserSessionInput = {
+  userId: string;
+  currentSessionId: string;
+  sessionId: string;
+  sessionName: string;
+};
+
+type UserSessionResponse = {
+  id: string;
+  deviceName: string | null;
+  sessionName: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  expiresAt: Date;
+  createdAt: Date;
+  isCurrent: boolean;
+};
 
 @Injectable()
 export class RefreshTokenService {
@@ -128,12 +148,12 @@ export class RefreshTokenService {
         new Date(),
       );
 
-    return sessions.map((session) => ({
-      ...session,
-      isCurrent: input.currentSessionId
-        ? session.id === input.currentSessionId
-        : false,
-    }));
+    return sessions.map((session) =>
+      this.mapSession(
+        session,
+        input.currentSessionId,
+      ),
+    );
   }
 
   async revokeAllUserTokensInTransaction(
@@ -159,6 +179,30 @@ export class RefreshTokenService {
       exceptSessionId,
       revokedAt,
       tx,
+    );
+  }
+
+  async renameUserSession(
+    input: RenameUserSessionInput,
+  ): Promise<UserSessionResponse> {
+    const session =
+      await this.refreshTokenRepository.renameActiveSession({
+        userId: input.userId,
+        sessionId: input.sessionId,
+        sessionName: input.sessionName.trim(),
+        now: new Date(),
+      });
+
+    if (!session) {
+      throwRpcError(
+        RpcErrorCode.SESSION_NOT_FOUND,
+        'Active session was not found',
+      );
+    }
+
+    return this.mapSession(
+      session,
+      input.currentSessionId,
     );
   }
 
@@ -197,5 +241,23 @@ export class RefreshTokenService {
     }
 
     return timingSafeEqual(firstBuffer, secondBuffer);
+  }
+  
+  private mapSession(
+    session: UserSessionRecord,
+    currentSessionId?: string,
+  ): UserSessionResponse {
+    return {
+      id: session.id,
+      deviceName: session.deviceName,
+      sessionName: session.sessionName,
+      ipAddress: session.ipAddress,
+      userAgent: session.userAgent,
+      expiresAt: session.expiresAt,
+      createdAt: session.createdAt,
+      isCurrent:
+        currentSessionId !== undefined &&
+        session.id === currentSessionId,
+    };
   }
 }

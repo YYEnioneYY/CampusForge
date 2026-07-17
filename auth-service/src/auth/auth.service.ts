@@ -24,6 +24,7 @@ import { AdminUnblockUserDto } from './dto/admin-unblock-user.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
 import { RequestAccountRestoreDto } from './dto/request-account-restore.dto';
 import { ConfirmAccountRestoreDto } from './dto/confirm-account-restore.dto';
+import { RenameSessionDto } from './dto/rename-session.dto';
 
 import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
@@ -626,6 +627,21 @@ export class AuthService {
     };
   }
 
+  async renameSession(dto: RenameSessionDto) {
+    const session =
+      await this.refreshTokenService.renameUserSession({
+        userId: dto.userId,
+        currentSessionId: dto.currentSessionId,
+        sessionId: dto.sessionId,
+        sessionName: dto.sessionName,
+      });
+    
+    return {
+      success: true,
+      session,
+    };
+  }
+
   async deleteAccount(dto: DeleteAccountDto) {
     return this.accountDeletionService.deleteAccount({
       userId: dto.userId,
@@ -675,7 +691,7 @@ export class AuthService {
     await this.accountRestoreService.confirmAccountRestore(
       dto.token,
     );
-  
+
     return {
       success: true,
     };

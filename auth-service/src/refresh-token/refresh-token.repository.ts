@@ -6,6 +6,7 @@ const refreshTokenSessionSelect = {
   id: true,
   userId: true,
   deviceName: true,
+  sessionName: true,
   ipAddress: true,
   userAgent: true,
   expiresAt: true,
@@ -18,6 +19,7 @@ const refreshTokenWithUserSelect = {
   userId: true,
   tokenHash: true,
   deviceName: true,
+  sessionName: true,
   ipAddress: true,
   userAgent: true,
   expiresAt: true,
@@ -39,15 +41,26 @@ const refreshTokenWithUserSelect = {
 const userSessionSelect = {
   id: true,
   deviceName: true,
+  sessionName: true,
   ipAddress: true,
   userAgent: true,
   expiresAt: true,
   createdAt: true,
 } satisfies Prisma.RefreshTokenSelect;
 
+export type UserSessionRecord =
+  Prisma.RefreshTokenGetPayload<{
+    select: typeof userSessionSelect;
+  }>;
+
 export type RefreshTokenWithUserRecord =
   Prisma.RefreshTokenGetPayload<{
     select: typeof refreshTokenWithUserSelect;
+  }>;
+
+export type RefreshSessionRecord =
+  Prisma.RefreshTokenGetPayload<{
+    select: typeof refreshTokenSessionSelect;
   }>;
 
 type CreateRefreshTokenRecordInput = {
@@ -64,6 +77,13 @@ type RotateRefreshTokenRecordInput = {
   oldSessionId: string;
   rotatedAt: Date;
   newSession: CreateRefreshTokenRecordInput;
+};
+
+type RenameActiveSessionInput = {
+  userId: string;
+  sessionId: string;
+  sessionName: string;
+  now: Date;
 };
 
 @Injectable()
@@ -203,23 +223,51 @@ export class RefreshTokenRepository {
     });
   }
 
-  async rotateSession(input: RotateRefreshTokenRecordInput) {
+  async rotateSession(
+    input: RotateRefreshTokenRecordInput,
+  ): Promise<RefreshSessionRecord | null> {
     return this.prisma.$transaction(async (tx) => {
-      const revokedSession = await tx.refreshToken.updateMany({
-        where: {
-          id: input.oldSessionId,
-          userId: input.newSession.userId,
-          revokedAt: null,
-          expiresAt: {
-            gt: input.rotatedAt,
+      const oldSession =
+        await tx.refreshToken.findUnique({
+          where: {
+            id: input.oldSessionId,
           },
-        },
-        data: {
-          revokedAt: input.rotatedAt,
-        },
-      });
+          select: {
+            userId: true,
+            deviceName: true,
+            sessionName: true,
+            ipAddress: true,
+            userAgent: true,
+          },
+        });
 
-      if (revokedSession.count !== 1) {
+      if (!oldSession) {
+        return null;
+      }
+
+      if (
+        oldSession.userId !==
+        input.newSession.userId
+      ) {
+        return null;
+      }
+
+      const revokeResult =
+        await tx.refreshToken.updateMany({
+          where: {
+            id: input.oldSessionId,
+            userId: input.newSession.userId,
+            revokedAt: null,
+            expiresAt: {
+              gt: input.rotatedAt,
+            },
+          },
+          data: {
+            revokedAt: input.rotatedAt,
+          },
+        });
+
+      if (revokeResult.count !== 1) {
         return null;
       }
 
@@ -228,9 +276,22 @@ export class RefreshTokenRepository {
           id: input.newSession.id,
           userId: input.newSession.userId,
           tokenHash: input.newSession.tokenHash,
-          deviceName: input.newSession.deviceName,
-          ipAddress: input.newSession.ipAddress,
-          userAgent: input.newSession.userAgent,
+
+          deviceName:
+            input.newSession.deviceName ??
+            oldSession.deviceName,
+
+          sessionName:
+            oldSession.sessionName,
+
+          ipAddress:
+            input.newSession.ipAddress ??
+            oldSession.ipAddress,
+
+          userAgent:
+            input.newSession.userAgent ??
+            oldSession.userAgent,
+
           expiresAt: input.newSession.expiresAt,
         },
         select: refreshTokenSessionSelect,
@@ -274,13 +335,13 @@ export class RefreshTokenRepository {
         id: true,
       },
     });
-  
+
     const sessionIds = sessions.map((session) => session.id);
-  
+
     if (sessionIds.length === 0) {
       return [];
     }
-  
+
     await tx.refreshToken.updateMany({
       where: {
         id: {
@@ -292,8 +353,39 @@ export class RefreshTokenRepository {
         revokedAt,
       },
     });
-  
+
     return sessionIds;
+  }
+
+  async renameActiveSession(
+    input: RenameActiveSessionInput,
+  ): Promise<UserSessionRecord | null> {
+    return this.prisma.$transaction(async (tx) => {
+      const result = await tx.refreshToken.updateMany({
+        where: {
+          id: input.sessionId,
+          userId: input.userId,
+          revokedAt: null,
+          expiresAt: {
+            gt: input.now,
+          },
+        },
+        data: {
+          sessionName: input.sessionName,
+        },
+      });
+
+      if (result.count !== 1) {
+        return null;
+      }
+
+      return tx.refreshToken.findUnique({
+        where: {
+          id: input.sessionId,
+        },
+        select: userSessionSelect,
+      });
+    });
   }
 
   async deleteExpiredTokens(now: Date): Promise<number> {

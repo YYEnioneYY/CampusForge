@@ -7,6 +7,7 @@ export const AUTH_PATTERNS = {
   LOGOUT_ALL: 'auth.logout_all',
   LOGOUT_SESSION: 'auth.logout_session',
   GET_SESSIONS: 'auth.get_sessions',
+  RENAME_SESSION: 'auth.session.rename',
 
   VERIFY_EMAIL: 'auth.verify_email',
   RESEND_EMAIL_VERIFICATION: 'auth.resend_email_verification',
@@ -16,7 +17,7 @@ export const AUTH_PATTERNS = {
   CHANGE_PASSWORD: 'auth.password.change',
 
   DELETE_ACCOUNT: 'auth.account.delete',
-  
+
   ACCOUNT_RESTORE_REQUEST: 'auth.account_restore.request',
   ACCOUNT_RESTORE_CONFIRM: 'auth.account_restore.confirm',
 

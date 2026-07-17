@@ -59,6 +59,7 @@ model RefreshToken {
   tokenHash   String    @unique @map("token_hash") @db.VarChar(255)
 
   deviceName  String?   @map("device_name") @db.VarChar(255)
+  sessionName String? @map("session_name") @db.VarChar(100)
   ipAddress   String?   @map("ip_address") @db.Inet
   userAgent   String?   @map("user_agent") @db.Text
 

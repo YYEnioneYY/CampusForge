@@ -21,6 +21,7 @@ import { AdminUnblockUserDto } from './dto/admin-unblock-user.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
 import { RequestAccountRestoreDto } from './dto/request-account-restore.dto';
 import { ConfirmAccountRestoreDto } from './dto/confirm-account-restore.dto';
+import { RenameSessionDto } from './dto/rename-session.dto';
 
 @Controller()
 export class AuthController {
@@ -59,6 +60,11 @@ export class AuthController {
   @MessagePattern(AUTH_PATTERNS.GET_SESSIONS)
   getSessions(@Payload() dto: GetSessionsDto) {
     return this.authService.getSessions(dto);
+  }
+
+  @MessagePattern(AUTH_PATTERNS.RENAME_SESSION)
+  renameSession(@Payload() dto: RenameSessionDto) {
+    return this.authService.renameSession(dto);
   }
 
   @MessagePattern(AUTH_PATTERNS.RESEND_EMAIL_VERIFICATION)
