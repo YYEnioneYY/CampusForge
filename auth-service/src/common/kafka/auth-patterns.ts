@@ -8,6 +8,7 @@ export const AUTH_PATTERNS = {
   LOGOUT_SESSION: 'auth.logout_session',
   GET_SESSIONS: 'auth.get_sessions',
   RENAME_SESSION: 'auth.session.rename',
+  TOUCH_SESSION: 'auth.session.touch',
 
   VERIFY_EMAIL: 'auth.verify_email',
   RESEND_EMAIL_VERIFICATION: 'auth.resend_email_verification',

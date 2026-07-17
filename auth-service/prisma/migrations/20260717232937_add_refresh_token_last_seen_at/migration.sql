@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "refresh_tokens" ADD COLUMN     "last_seen_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;

@@ -25,6 +25,7 @@ import { DeleteAccountDto } from './dto/delete-account.dto';
 import { RequestAccountRestoreDto } from './dto/request-account-restore.dto';
 import { ConfirmAccountRestoreDto } from './dto/confirm-account-restore.dto';
 import { RenameSessionDto } from './dto/rename-session.dto';
+import { TouchSessionDto } from './dto/touch-session.dto';
 
 import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
@@ -310,6 +311,15 @@ export class AuthService {
         refreshToken,
       },
     };
+  }
+
+  async touchSession(
+    dto: TouchSessionDto,
+  ): Promise<void> {
+    await this.refreshTokenService.touchUserSession({
+      userId: dto.userId,
+      sessionId: dto.sessionId,
+    });
   }
 
   async logoutAll(dto: LogoutAllDto) {
@@ -635,7 +645,7 @@ export class AuthService {
         sessionId: dto.sessionId,
         sessionName: dto.sessionName,
       });
-    
+
     return {
       success: true,
       session,

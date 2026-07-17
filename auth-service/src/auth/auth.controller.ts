@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, EventPattern, Payload } from '@nestjs/microservices';
 import { AUTH_PATTERNS } from 'src/common/kafka/auth-patterns';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -22,6 +22,7 @@ import { DeleteAccountDto } from './dto/delete-account.dto';
 import { RequestAccountRestoreDto } from './dto/request-account-restore.dto';
 import { ConfirmAccountRestoreDto } from './dto/confirm-account-restore.dto';
 import { RenameSessionDto } from './dto/rename-session.dto';
+import { TouchSessionDto } from './dto/touch-session.dto';
 
 @Controller()
 export class AuthController {
@@ -40,6 +41,11 @@ export class AuthController {
   @MessagePattern(AUTH_PATTERNS.REFRESH)
   refresh(@Payload() dto: RefreshDto) {
     return this.authService.refresh(dto);
+  }
+
+  @EventPattern(AUTH_PATTERNS.TOUCH_SESSION)
+  async touchSession(@Payload() dto: TouchSessionDto): Promise<void> {
+    await this.authService.touchSession(dto);
   }
 
   @MessagePattern(AUTH_PATTERNS.LOGOUT_ALL)

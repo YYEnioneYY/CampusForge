@@ -24,8 +24,14 @@ type UserSessionResponse = {
   ipAddress: string | null;
   userAgent: string | null;
   expiresAt: Date;
+  lastSeenAt: Date;
   createdAt: Date;
   isCurrent: boolean;
+};
+
+type TouchUserSessionInput = {
+  userId: string;
+  sessionId: string;
 };
 
 @Injectable()
@@ -206,6 +212,47 @@ export class RefreshTokenService {
     );
   }
 
+  async touchUserSession(
+    input: TouchUserSessionInput,
+  ): Promise<void> {
+    const seenAt = new Date();
+
+    const updateIntervalMs =
+      this.getSessionActivityUpdateIntervalMs();
+
+    const updateBefore = new Date(
+      seenAt.getTime() - updateIntervalMs,
+    );
+
+    await this.refreshTokenRepository.touchActiveSession({
+      userId: input.userId,
+      sessionId: input.sessionId,
+      seenAt,
+      updateBefore,
+    });
+  }
+
+  private getSessionActivityUpdateIntervalMs(): number {
+    const value =
+      this.configService.get<string>(
+        'SESSION_ACTIVITY_UPDATE_INTERVAL_SECONDS',
+        '300',
+      );
+
+    const seconds = Number(value);
+
+    if (
+      !Number.isInteger(seconds) ||
+      seconds < 0
+    ) {
+      throw new Error(
+        'Invalid SESSION_ACTIVITY_UPDATE_INTERVAL_SECONDS value',
+      );
+    }
+
+    return seconds * 1000;
+  }
+
   private hashToken(token: string): string {
     const secret = this.configService.getOrThrow<string>(
       'REFRESH_TOKEN_HASH_SECRET',
@@ -248,15 +295,8 @@ export class RefreshTokenService {
     currentSessionId?: string,
   ): UserSessionResponse {
     return {
-      id: session.id,
-      deviceName: session.deviceName,
-      sessionName: session.sessionName,
-      ipAddress: session.ipAddress,
-      userAgent: session.userAgent,
-      expiresAt: session.expiresAt,
-      createdAt: session.createdAt,
+      ...session,
       isCurrent:
-        currentSessionId !== undefined &&
         session.id === currentSessionId,
     };
   }

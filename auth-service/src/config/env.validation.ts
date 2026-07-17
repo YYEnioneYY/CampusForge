@@ -48,6 +48,9 @@ class EnvironmentVariables {
   @MinLength(16)
   REFRESH_TOKEN_HASH_SECRET!: string;
 
+  @Matches(/^\d+$/)
+  SESSION_ACTIVITY_UPDATE_INTERVAL_SECONDS!: string;
+
   @IsUrl({
     require_tld: false,
   })

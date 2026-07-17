@@ -11,6 +11,7 @@ const refreshTokenSessionSelect = {
   userAgent: true,
   expiresAt: true,
   revokedAt: true,
+  lastSeenAt: true,
   createdAt: true,
 } satisfies Prisma.RefreshTokenSelect;
 
@@ -24,6 +25,7 @@ const refreshTokenWithUserSelect = {
   userAgent: true,
   expiresAt: true,
   revokedAt: true,
+  lastSeenAt: true,
   createdAt: true,
   user: {
     select: {
@@ -45,6 +47,7 @@ const userSessionSelect = {
   ipAddress: true,
   userAgent: true,
   expiresAt: true,
+  lastSeenAt: true,
   createdAt: true,
 } satisfies Prisma.RefreshTokenSelect;
 
@@ -84,6 +87,13 @@ type RenameActiveSessionInput = {
   sessionId: string;
   sessionName: string;
   now: Date;
+};
+
+type TouchActiveSessionInput = {
+  userId: string;
+  sessionId: string;
+  seenAt: Date;
+  updateBefore: Date;
 };
 
 @Injectable()
@@ -207,7 +217,7 @@ export class RefreshTokenRepository {
     return result.count > 0;
   }
 
-  async findActiveUserSessions(userId: string, now: Date) {
+  async findActiveUserSessions(userId: string, now: Date): Promise<UserSessionRecord[]> {
     return this.prisma.refreshToken.findMany({
       where: {
         userId,
@@ -217,7 +227,7 @@ export class RefreshTokenRepository {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        lastSeenAt: 'desc',
       },
       select: userSessionSelect,
     });
@@ -293,6 +303,7 @@ export class RefreshTokenRepository {
             oldSession.userAgent,
 
           expiresAt: input.newSession.expiresAt,
+          lastSeenAt: input.rotatedAt,
         },
         select: refreshTokenSessionSelect,
       });
@@ -398,5 +409,29 @@ export class RefreshTokenRepository {
     });
 
     return result.count;
+  }
+
+  async touchActiveSession(
+    input: TouchActiveSessionInput,
+  ): Promise<boolean> {
+    const result =
+      await this.prisma.refreshToken.updateMany({
+        where: {
+          id: input.sessionId,
+          userId: input.userId,
+          revokedAt: null,
+          expiresAt: {
+            gt: input.seenAt,
+          },
+          lastSeenAt: {
+            lt: input.updateBefore,
+          },
+        },
+        data: {
+          lastSeenAt: input.seenAt,
+        },
+      });
+
+    return result.count === 1;
   }
 }

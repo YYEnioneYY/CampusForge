@@ -66,6 +66,7 @@ model RefreshToken {
   expiresAt   DateTime  @map("expires_at") @db.Timestamptz
   revokedAt   DateTime? @map("revoked_at") @db.Timestamptz
 
+  lastSeenAt  DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   @@index([userId])
