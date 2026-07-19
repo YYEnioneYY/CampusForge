@@ -27,6 +27,7 @@ import { ConfirmAccountRestoreDto } from './dto/confirm-account-restore.dto';
 import { RenameSessionDto } from './dto/rename-session.dto';
 import { TouchSessionDto } from './dto/touch-session.dto';
 import { AdminGetUserDto } from './dto/admin-get-user.dto';
+import { AdminChangeUserRoleDto } from './dto/admin-change-user-role.dto';
 
 import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
@@ -739,6 +740,16 @@ export class AuthService {
     return this.adminUsersService.getUser({
       actorUserId: dto.actorUserId,
       targetUserId: dto.targetUserId,
+    });
+  }
+
+  async adminChangeUserRole(
+    dto: AdminChangeUserRoleDto,
+  ) {
+    return this.adminUsersService.changeUserRole({
+      actorUserId: dto.actorUserId,
+      targetUserId: dto.targetUserId,
+      newRole: dto.newRole,
     });
   }
 

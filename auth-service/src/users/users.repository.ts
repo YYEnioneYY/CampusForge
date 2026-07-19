@@ -262,6 +262,7 @@ export class UsersRepository {
   }
 
   // Админские функции
+
   async findUsersPage(input: FindUsersPageInput) {
     const where: Prisma.UserWhereInput = {
       ...(input.status !== undefined
@@ -330,6 +331,22 @@ export class UsersRepository {
     return this.prisma.user.findUnique({
       where: {
         id: userId,
+      },
+      select: adminUserSelect,
+    });
+  }
+
+  async updateUserRoleInTransaction(
+    userId: string,
+    systemRole: SystemRole,
+    tx: Prisma.TransactionClient,
+  ) {
+    return tx.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        systemRole,
       },
       select: adminUserSelect,
     });

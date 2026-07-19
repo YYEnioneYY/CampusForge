@@ -30,4 +30,6 @@ export const AUTH_PATTERNS = {
 
   ADMIN_BLOCK_USER: 'auth.admin.users.block',
   ADMIN_UNBLOCK_USER: 'auth.admin.users.unblock',
+
+  ADMIN_CHANGE_USER_ROLE: 'auth.admin.users.change_role',
 } as const;

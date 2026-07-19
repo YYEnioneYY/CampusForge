@@ -24,6 +24,7 @@ import { ConfirmAccountRestoreDto } from './dto/confirm-account-restore.dto';
 import { RenameSessionDto } from './dto/rename-session.dto';
 import { TouchSessionDto } from './dto/touch-session.dto';
 import { AdminGetUserDto } from './dto/admin-get-user.dto';
+import { AdminChangeUserRoleDto } from './dto/admin-change-user-role.dto';
 
 @Controller()
 export class AuthController {
@@ -139,5 +140,10 @@ export class AuthController {
   @MessagePattern(AUTH_PATTERNS.ADMIN_GET_USER)
   adminGetUser(@Payload() dto: AdminGetUserDto) {
     return this.authService.adminGetUser(dto);
+  }
+
+  @MessagePattern(AUTH_PATTERNS.ADMIN_CHANGE_USER_ROLE)
+  adminChangeUserRole(@Payload() dto: AdminChangeUserRoleDto) {
+    return this.authService.adminChangeUserRole(dto);
   }
 }

@@ -31,6 +31,12 @@ type GetUserInput = {
   targetUserId: string;
 };
 
+type ChangeUserRoleInput = {
+  actorUserId: string;
+  targetUserId: string;
+  newRole: SystemRole;
+};
+
 @Injectable()
 export class AdminUsersService {
   constructor(
@@ -184,6 +190,78 @@ export class AdminUsersService {
         ...this.usersService.mapUserForAdminResponse(user),
         activeSessionsCount,
       },
+    };
+  }
+
+  async changeUserRole(
+    input: ChangeUserRoleInput,
+  ) {
+    await this.assertActiveAdmin(input.actorUserId);
+  
+    if (input.actorUserId === input.targetUserId) {
+      throwRpcError(
+        RpcErrorCode.FORBIDDEN,
+        'Administrator cannot change their own role',
+      );
+    }
+  
+    const targetUser =
+      await this.usersService.findByIdForAdminAction(
+        input.targetUserId,
+      );
+  
+    if (
+      !targetUser ||
+      targetUser.deletedAt ||
+      targetUser.status === UserStatus.DELETED
+    ) {
+      throwRpcError(
+        RpcErrorCode.USER_NOT_FOUND,
+        'User was not found',
+      );
+    }
+  
+    if (targetUser.systemRole === input.newRole) {
+      return {
+        success: true,
+        user:
+          this.usersService.mapUserForAdminResponse(
+            targetUser,
+          ),
+      };
+    }
+  
+    const changedAt = new Date();
+  
+    const updatedUser =
+      await this.prisma.$transaction(async (tx) => {
+        const user =
+          await this.usersService.updateUserRoleInTransaction(
+            targetUser.id,
+            input.newRole,
+            tx,
+          );
+      
+        await this.refreshTokenService.revokeAllUserTokensInTransaction(
+          targetUser.id,
+          changedAt,
+          tx,
+        );
+      
+        return user;
+      });
+  
+    await this.accessRevocationService.revokeUserAccessTokens(
+      targetUser.id,
+      changedAt,
+    );
+  
+    return {
+      success: true,
+      user:
+        this.usersService.mapUserForAdminResponse(
+          updatedUser,
+        ),
     };
   }
 

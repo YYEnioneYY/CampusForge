@@ -173,6 +173,18 @@ export class UsersService {
     );
   }
 
+  async updateUserRoleInTransaction(
+    userId: string,
+    systemRole: SystemRole,
+    tx: Prisma.TransactionClient,
+  ) {
+    return this.usersRepository.updateUserRoleInTransaction(
+      userId,
+      systemRole,
+      tx,
+    );
+  }
+
   mapUserForAdminResponse(user: AdminUserRecord) {
     return {
       id: user.id,
