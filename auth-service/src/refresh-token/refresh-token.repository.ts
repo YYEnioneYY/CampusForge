@@ -434,4 +434,19 @@ export class RefreshTokenRepository {
 
     return result.count === 1;
   }
+
+  async countActiveUserSessions(
+    userId: string,
+    now: Date,
+  ): Promise<number> {
+    return this.prisma.refreshToken.count({
+      where: {
+        userId,
+        revokedAt: null,
+        expiresAt: {
+          gt: now,
+        },
+      },
+    });
+  }
 }

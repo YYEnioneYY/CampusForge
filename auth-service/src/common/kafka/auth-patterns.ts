@@ -24,8 +24,10 @@ export const AUTH_PATTERNS = {
 
   ME: 'auth.me',
 
-
+  // ADMIN
   ADMIN_GET_USERS: 'auth.admin.users.list',
+  ADMIN_GET_USER: 'auth.admin.users.get',
+
   ADMIN_BLOCK_USER: 'auth.admin.users.block',
   ADMIN_UNBLOCK_USER: 'auth.admin.users.unblock',
 } as const;

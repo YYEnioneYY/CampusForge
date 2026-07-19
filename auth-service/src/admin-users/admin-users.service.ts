@@ -26,6 +26,11 @@ type GetUsersInput = {
   role?: SystemRole;
 };
 
+type GetUserInput = {
+  actorUserId: string;
+  targetUserId: string;
+};
+
 @Injectable()
 export class AdminUsersService {
   constructor(
@@ -150,6 +155,35 @@ export class AdminUsersService {
       user: this.usersService.mapUserForAdminResponse(
         unblockedUser,
       ),
+    };
+  }
+
+  async getUser(input: GetUserInput) {
+    await this.assertActiveAdmin(input.actorUserId);
+  
+    const user =
+      await this.usersService.findByIdForAdminAction(
+        input.targetUserId,
+      );
+  
+    if (!user) {
+      throwRpcError(
+        RpcErrorCode.USER_NOT_FOUND,
+        'User was not found',
+      );
+    }
+  
+    const activeSessionsCount =
+      await this.refreshTokenService.countActiveUserSessions(
+        user.id,
+      );
+  
+    return {
+      success: true,
+      user: {
+        ...this.usersService.mapUserForAdminResponse(user),
+        activeSessionsCount,
+      },
     };
   }
 

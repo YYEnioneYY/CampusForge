@@ -232,6 +232,15 @@ export class RefreshTokenService {
     });
   }
 
+  async countActiveUserSessions(
+    userId: string,
+  ): Promise<number> {
+    return this.refreshTokenRepository.countActiveUserSessions(
+      userId,
+      new Date(),
+    );
+  }
+
   private getSessionActivityUpdateIntervalMs(): number {
     const value =
       this.configService.get<string>(
