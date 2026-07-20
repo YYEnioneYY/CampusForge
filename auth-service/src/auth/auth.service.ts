@@ -28,6 +28,7 @@ import { RenameSessionDto } from './dto/rename-session.dto';
 import { TouchSessionDto } from './dto/touch-session.dto';
 import { AdminGetUserDto } from './dto/admin-get-user.dto';
 import { AdminChangeUserRoleDto } from './dto/admin-change-user-role.dto';
+import { AdminRevokeUserSessionsDto } from './dto/admin-revoke-user-sessions.dto';
 
 import { PasswordResetService } from '../password-reset/password-reset.service';
 import { UsersService } from '../users/users.service';
@@ -750,6 +751,15 @@ export class AuthService {
       actorUserId: dto.actorUserId,
       targetUserId: dto.targetUserId,
       newRole: dto.newRole,
+    });
+  }
+
+  async adminRevokeUserSessions(
+    dto: AdminRevokeUserSessionsDto,
+  ) {
+    return this.adminUsersService.revokeUserSessions({
+      actorUserId: dto.actorUserId,
+      targetUserId: dto.targetUserId,
     });
   }
 

@@ -25,6 +25,7 @@ import { RenameSessionDto } from './dto/rename-session.dto';
 import { TouchSessionDto } from './dto/touch-session.dto';
 import { AdminGetUserDto } from './dto/admin-get-user.dto';
 import { AdminChangeUserRoleDto } from './dto/admin-change-user-role.dto';
+import { AdminRevokeUserSessionsDto } from './dto/admin-revoke-user-sessions.dto';
 
 @Controller()
 export class AuthController {
@@ -145,5 +146,10 @@ export class AuthController {
   @MessagePattern(AUTH_PATTERNS.ADMIN_CHANGE_USER_ROLE)
   adminChangeUserRole(@Payload() dto: AdminChangeUserRoleDto) {
     return this.authService.adminChangeUserRole(dto);
+  }
+
+  @MessagePattern(AUTH_PATTERNS.ADMIN_REVOKE_USER_SESSIONS)
+  adminRevokeUserSessions(@Payload() dto: AdminRevokeUserSessionsDto) {
+    return this.authService.adminRevokeUserSessions(dto);
   }
 }

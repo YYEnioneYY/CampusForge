@@ -148,6 +148,9 @@ export class RefreshTokenRepository {
       where: {
         userId,
         revokedAt: null,
+        expiresAt: {
+          gt: revokedAt,
+        },
       },
       data: {
         revokedAt,

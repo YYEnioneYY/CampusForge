@@ -97,8 +97,8 @@ export class RefreshTokenService {
   async revokeAllUserTokens(
     userId: string,
     revokedAt: Date = new Date(),
-  ): Promise<void> {
-    await this.refreshTokenRepository.revokeAllByUserId(
+  ): Promise<number> {
+    return this.refreshTokenRepository.revokeAllByUserId(
       userId,
       revokedAt,
     );
