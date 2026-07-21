@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
+import { setupSwagger } from './swagger/setup-swagger';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -9,6 +10,8 @@ async function bootstrap(): Promise<void> {
 
   app.enableShutdownHooks();
   app.setGlobalPrefix('api');
+
+  setupSwagger(app);
 
   const port =
     configService.getOrThrow<number>('PORT');
