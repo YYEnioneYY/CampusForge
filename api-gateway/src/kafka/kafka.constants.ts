@@ -1,0 +1,1 @@
+export const AUTH_KAFKA_CLIENT = 'AUTH_KAFKA_CLIENT';
