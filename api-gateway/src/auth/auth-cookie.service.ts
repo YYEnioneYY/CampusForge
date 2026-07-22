@@ -39,16 +39,16 @@ export class AuthCookieService {
     );
   }
 
-  private getBaseOptions():
-    CookieOptions {
-    const isProduction =
+  private getBaseOptions(): CookieOptions {
+    const secure =
       this.configService.get<string>(
-        'NODE_ENV',
-      ) === 'production';
-
+        'AUTH_COOKIE_SECURE',
+        'false',
+      ) === 'true';
+  
     return {
       httpOnly: true,
-      secure: isProduction,
+      secure,
       sameSite: 'lax',
       path: '/api/auth',
     };

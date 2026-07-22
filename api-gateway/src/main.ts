@@ -16,11 +16,11 @@ async function bootstrap(): Promise<void> {
       'TRUST_PROXY_HOPS',
       0,
     );
-  
+
   if (trustProxyHops > 0) {
     const expressApp =
       app.getHttpAdapter().getInstance();
-  
+
     expressApp.set(
       'trust proxy',
       trustProxyHops,
@@ -43,7 +43,7 @@ async function bootstrap(): Promise<void> {
   const port =
     configService.getOrThrow<number>('PORT');
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 }
 
 void bootstrap();

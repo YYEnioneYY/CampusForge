@@ -1,5 +1,6 @@
 import { plainToInstance, Type } from 'class-transformer';
 import {
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -33,6 +34,14 @@ class EnvironmentVariables {
   @IsInt()
   @Min(0)
   TRUST_PROXY_HOPS: number = 0;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1000)
+  KAFKA_REQUEST_TIMEOUT_MS!: number;
+
+  @IsIn(['true', 'false'])
+  AUTH_COOKIE_SECURE!: string;
 }
 
 export function validateEnv(

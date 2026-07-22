@@ -1,19 +1,14 @@
 import {
   Body,
   Controller,
-  HttpCode,
-  HttpStatus,
   Post,
   Req,
   Res,
 } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
-  ApiConflictResponse,
   ApiCreatedResponse,
-  ApiOperation,
-  ApiServiceUnavailableResponse,
   ApiTags,
+  ApiOperation,
 } from '@nestjs/swagger';
 import type {
   Request,
@@ -29,54 +24,36 @@ import { RegisterResponseDto } from './dto/register-response.dto';
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService:
-      AuthService,
-
-    private readonly clientContextService:
-      ClientContextService,
-
-    private readonly authCookieService:
-      AuthCookieService,
+    private readonly authService: AuthService,
+    private readonly clientContextService: ClientContextService,
+    private readonly authCookieService: AuthCookieService,
   ) {}
 
   @Post('register')
-  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
+
     summary: 'Регистрация пользователя',
+
+    description:
+
+      'Создаёт пользователя, авторизационную сессию и отправляет письмо для подтверждения email.',
+
   })
   @ApiCreatedResponse({
-    description:
-      'Пользователь успешно зарегистрирован',
     type: RegisterResponseDto,
-  })
-  @ApiBadRequestResponse({
-    description:
-      'Переданы некорректные данные',
-  })
-  @ApiConflictResponse({
-    description:
-      'Пользователь с таким email уже существует',
-  })
-  @ApiServiceUnavailableResponse({
-    description:
-      'Сервис авторизации временно недоступен',
   })
   async register(
     @Body() dto: RegisterDto,
     @Req() request: Request,
-    @Res({ passthrough: true })
-    response: Response,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<RegisterResponseDto> {
     const clientContext =
-      this.clientContextService.fromRequest(
-        request,
-      );
+      this.clientContextService.fromRequest(request);
 
-    const result =
-      await this.authService.register(
-        dto,
-        clientContext,
-      );
+    const result = await this.authService.register(
+      dto,
+      clientContext,
+    );
 
     this.authCookieService.setRefreshToken(
       response,
