@@ -5,6 +5,7 @@ import { TokenModule } from './token/token.module';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { PasswordModule } from './password/password.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationProducerModule } from './notification-producer/notification-producer.module';
@@ -31,6 +32,7 @@ import { AccountRestoreModule } from './account-restore/account-restore.module';
     RefreshTokenModule,
     PasswordModule,
     UsersModule,
+    AuthModule,
     NotificationProducerModule,
     EmailVerificationModule,
     PasswordResetModule,

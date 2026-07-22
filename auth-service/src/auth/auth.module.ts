@@ -12,6 +12,7 @@ import { ProfileProducerModule } from '../profile-producer/profile-producer.modu
 import { AdminUsersModule } from '../admin-users/admin-users.module';
 import { AccessRevocationModule } from 'src/access-revocation/access-revocation.module';
 import { AccountDeletionModule } from '../account-deletion/account-deletion.module';
+import { AccountRestoreModule } from 'src/account-restore/account-restore.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AccountDeletionModule } from '../account-deletion/account-deletion.modu
     AdminUsersModule,
     AccessRevocationModule,
     AccountDeletionModule,
+    AccountRestoreModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],
