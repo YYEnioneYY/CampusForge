@@ -97,11 +97,17 @@ export class AuthService {
       jti: sessionId,
     });
 
+    const accessTokenExpiresAt =
+      this.tokenService.getAccessTokenExpiresAt();
+
+    const refreshTokenExpiresAt =
+      this.tokenService.getRefreshTokenExpiresAt();
+
     await this.refreshTokenService.createSession({
       id: sessionId,
       userId: user.id,
       refreshToken,
-      expiresAt: this.tokenService.getRefreshTokenExpiresAt(),
+      expiresAt: refreshTokenExpiresAt,
       deviceName: dto.deviceName,
       ipAddress: dto.ipAddress,
       userAgent: dto.userAgent,
@@ -121,16 +127,25 @@ export class AuthService {
       this.emailVerificationService.sendVerificationEmail({
         userId: user.id,
         email: user.email,
-        name: 'Друг',
+        name: dto.firstName,
       }),
       `Failed to send email verification for user ${user.id}`,
     );
 
     return {
-      user,
+      user: {
+        id: user.id,
+        email: user.email,
+        systemRole: user.systemRole,
+        status: user.status,
+        emailVerifiedAt: user.emailVerifiedAt,
+        createdAt: user.createdAt,
+      },
       tokens: {
         accessToken,
+        accessTokenExpiresAt,
         refreshToken,
+        refreshTokenExpiresAt,
       },
     };
   }

@@ -83,6 +83,14 @@ export class TokenService {
       return this.expiresInToDate(expiresIn);
     }
 
+    getAccessTokenExpiresAt(): Date {
+      const expiresIn = this.configService.getOrThrow<string>(
+        'JWT_ACCESS_EXPIRES_IN',
+      )
+
+      return this.expiresInToDate(expiresIn);
+    }
+
     async verifyAccessToken(token: string): Promise<AccessTokenPayload> {
       const secret = this.configService.getOrThrow<string>('JWT_ACCESS_SECRET');
 
