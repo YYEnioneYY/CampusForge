@@ -2,6 +2,7 @@ import { plainToInstance, Type } from 'class-transformer';
 import {
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Max,
   Min,
@@ -26,6 +27,12 @@ class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   KAFKA_AUTH_CONSUMER_GROUP_ID!: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  TRUST_PROXY_HOPS: number = 0;
 }
 
 export function validateEnv(
