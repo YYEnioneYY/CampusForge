@@ -197,6 +197,12 @@ export class AuthService {
 
     const sessionId = randomUUID();
 
+    const accessTokenExpiresAt =
+      this.tokenService.getAccessTokenExpiresAt();
+
+    const refreshTokenExpiresAt =
+      this.tokenService.getRefreshTokenExpiresAt();
+
     const accessToken = await this.tokenService.generateAccessToken({
       sub: user.id,
       email: user.email,
@@ -215,7 +221,7 @@ export class AuthService {
       id: sessionId,
       userId: user.id,
       refreshToken,
-      expiresAt: this.tokenService.getRefreshTokenExpiresAt(),
+      expiresAt: refreshTokenExpiresAt,
       deviceName: dto.deviceName,
       ipAddress: dto.ipAddress,
       userAgent: dto.userAgent,
@@ -234,7 +240,9 @@ export class AuthService {
       },
       tokens: {
         accessToken,
+        accessTokenExpiresAt,
         refreshToken,
+        refreshTokenExpiresAt,
       },
     };
   }
