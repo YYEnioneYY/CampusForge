@@ -330,14 +330,6 @@ export class AuthService {
     }
 
     return {
-      user: {
-        id: session.user.id,
-        email: session.user.email,
-        systemRole: session.user.systemRole,
-        status: session.user.status,
-        emailVerifiedAt: session.user.emailVerifiedAt,
-        createdAt: session.user.createdAt,
-      },
       tokens: {
         accessToken,
         accessTokenExpiresAt,
