@@ -6,12 +6,14 @@ import {
   Res,
   HttpCode,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiTags,
   ApiOperation,
   ApiOkResponse,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import type {
   Request,
@@ -20,10 +22,13 @@ import type {
 import { ClientContextService } from '../common/http/client-context.service';
 import { AuthCookieService } from './auth-cookie.service';
 import { AuthService } from './auth.service';
+
 import { RegisterDto } from './dto/register.dto';
-import { RegisterResponseDto } from './dto/register-response.dto';
 import { LoginDto } from './dto/login.dto';
+
+import { RegisterResponseDto } from './dto/register-response.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
+import { RefreshResponseDto } from './dto/refresh-response.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -89,6 +94,56 @@ export class AuthController {
     const result =
       await this.authService.login(
         dto,
+        clientContext,
+      );
+  
+    this.authCookieService.setRefreshToken(
+      response,
+      result.refreshToken.value,
+      result.refreshToken.expiresAt,
+    );
+  
+    return result.body;
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Обновление токенов',
+    description:
+      'Проверяет refresh token из HttpOnly cookie, создаёт новую сессию и возвращает новый access token.',
+  })
+  @ApiOkResponse({
+    type: RefreshResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description:
+      'Refresh token отсутствует или недействителен',
+  })
+  async refresh(
+    @Req() request: Request,
+    @Res({ passthrough: true })
+    response: Response,
+  ): Promise<RefreshResponseDto> {
+    const refreshToken =
+      this.authCookieService.getRefreshToken(
+        request,
+      );
+  
+    if (!refreshToken) {
+      throw new UnauthorizedException(
+        'Refresh token is missing',
+      );
+    }
+  
+    const clientContext =
+      this.clientContextService.fromRequest(
+        request,
+      );
+  
+    const result =
+      await this.authService.refresh(
+        refreshToken,
         clientContext,
       );
   

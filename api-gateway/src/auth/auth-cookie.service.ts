@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type {
   CookieOptions,
   Response,
+  Request,
 } from 'express';
 
 @Injectable()
@@ -28,6 +29,20 @@ export class AuthCookieService {
         expires: expiresAt,
       },
     );
+  }
+
+  getRefreshToken(
+    request: Request,
+  ): string | null {
+    const value =
+      request.cookies?.[
+        this.refreshCookieName
+      ];
+
+    return typeof value === 'string' &&
+      value.length > 0
+      ? value
+      : null;
   }
 
   clearRefreshToken(

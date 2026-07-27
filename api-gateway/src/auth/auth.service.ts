@@ -6,50 +6,20 @@ import { firstValueFrom } from 'rxjs';
 import type { ClientContext } from '../common/http/types/client-context.type';
 import { AuthKafkaService } from '../kafka/auth-kafka.service';
 import { AUTH_PATTERNS } from '../kafka/patterns/auth-patterns';
+
 import { RegisterDto } from './dto/register.dto';
-import { RegisterResponseDto } from './dto/register-response.dto';
-import type { RegisterKafkaResponse } from './types/register-kafka-response.type';
-import { LoginResponseDto } from './dto/login-response.dto';
+import { RegisterKafkaResponse } from './types/register/register-kafka-response.type';
+import { RegisterKafkaPayload } from './types/register/register-kafka-payload.type';
+import { RegisterResult } from './types/register/register-result.type';
+
 import { LoginDto } from './dto/login.dto';
-import { LoginKafkaResponse } from './types/login-kafka-response.type';
+import { LoginKafkaResponse } from './types/login/login-kafka-response.type';
+import { LoginKafkaPayload } from './types/login/login-kafka-payload.type';
+import { LoginResult } from './types/login/login-result.type';
 
-type RegisterKafkaPayload = {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  middleName?: string;
-  ipAddress: string | null;
-  userAgent: string | null;
-  deviceName: string | null;
-};
-
-export type LoginKafkaPayload = {
-  email: string;
-  password: string;
-
-  ipAddress?: string | null;
-  userAgent?: string | null;
-  deviceName?: string | null;
-};
-
-export type RegisterResult = {
-  body: RegisterResponseDto;
-
-  refreshToken: {
-    value: string;
-    expiresAt: Date;
-  };
-};
-
-export type LoginResult = {
-  body: LoginResponseDto;
-
-  refreshToken: {
-    value: string;
-    expiresAt: Date;
-  };
-};
+import { RefreshKafkaResponse } from './types/refresh/refresh-kafka-response.type';
+import { RefreshKafkaPayload } from './types/refresh/refresh-kafka-payload.type';
+import { RefreshResult } from './types/refresh/refresh-result.type';
 
 @Injectable()
 export class AuthService {
@@ -208,6 +178,62 @@ export class AuthService {
               result.user.createdAt,
             ).toISOString(),
         },
+      },
+  
+      refreshToken: {
+        value:
+          result.tokens.refreshToken,
+      
+        expiresAt:
+          refreshTokenExpiresAt,
+      },
+    };
+  }
+
+  async refresh(
+    refreshToken: string,
+    clientContext: ClientContext,
+  ): Promise<RefreshResult> {
+    const payload: RefreshKafkaPayload = {
+      refreshToken,
+  
+      ipAddress:
+        clientContext.ipAddress,
+  
+      userAgent:
+        clientContext.userAgent,
+  
+      deviceName:
+        clientContext.deviceName,
+    };
+  
+    const result = await firstValueFrom(
+      this.authKafkaService.send<
+        RefreshKafkaResponse,
+        RefreshKafkaPayload
+      >(
+        AUTH_PATTERNS.REFRESH,
+        payload,
+      ),
+    );
+  
+    const accessTokenExpiresAt =
+      this.parseDate(
+        result.tokens.accessTokenExpiresAt,
+      );
+  
+    const refreshTokenExpiresAt =
+      this.parseDate(
+        result.tokens.refreshTokenExpiresAt,
+      );
+  
+    return {
+      body: {
+        accessToken:
+          result.tokens.accessToken,
+      
+        accessTokenExpiresAt:
+          accessTokenExpiresAt.toISOString(),
       },
   
       refreshToken: {
