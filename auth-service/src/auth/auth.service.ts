@@ -218,15 +218,24 @@ export class AuthService {
       jti: sessionId,
     });
 
-    await this.refreshTokenService.createSession({
+    await this.refreshTokenService.createLoginSession({
       id: sessionId,
       userId: user.id,
       refreshToken,
-      expiresAt: refreshTokenExpiresAt,
-      deviceId: dto.deviceId ?? null,
-      deviceName: dto.deviceName ?? null,
-      ipAddress: dto.ipAddress ?? null,
-      userAgent: dto.userAgent ?? null,
+      expiresAt:
+        refreshTokenExpiresAt,
+
+      deviceId:
+        dto.deviceId ?? null,
+
+      deviceName:
+        dto.deviceName ?? null,
+
+      ipAddress:
+        dto.ipAddress ?? null,
+
+      userAgent:
+        dto.userAgent ?? null,
     });
 
     await this.usersService.updateLastLoginAt(user.id);

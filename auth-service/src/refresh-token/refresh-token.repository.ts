@@ -99,6 +99,11 @@ type TouchActiveSessionInput = {
   updateBefore: Date;
 };
 
+type CreateDeviceSessionResult = {
+  session: RefreshSessionRecord;
+  revokedSessionIds: string[];
+};
+
 @Injectable()
 export class RefreshTokenRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -460,6 +465,86 @@ export class RefreshTokenRepository {
           gt: now,
         },
       },
+    });
+  }
+
+  async replaceActiveDeviceSession(
+    input: CreateRefreshTokenRecordInput,
+  ): Promise<CreateDeviceSessionResult> {
+    const now = new Date();
+  
+    return this.prisma.$transaction(async (tx) => {
+      let revokedSessionIds: string[] = [];
+    
+      if (input.deviceId) {
+        const activeSessions =
+          await tx.refreshToken.findMany({
+            where: {
+              userId: input.userId,
+              deviceId: input.deviceId,
+              revokedAt: null,
+              expiresAt: {
+                gt: now,
+              },
+            },
+            select: {
+              id: true,
+            },
+          });
+        
+        revokedSessionIds =
+          activeSessions.map(
+            (session) => session.id,
+          );
+        
+        if (revokedSessionIds.length > 0) {
+          await tx.refreshToken.updateMany({
+            where: {
+              id: {
+                in: revokedSessionIds,
+              },
+              userId: input.userId,
+              revokedAt: null,
+            },
+            data: {
+              revokedAt: now,
+            },
+          });
+        }
+      }
+    
+      const session =
+        await tx.refreshToken.create({
+          data: {
+            id: input.id,
+            userId: input.userId,
+            tokenHash: input.tokenHash,
+          
+            deviceId:
+              input.deviceId ?? null,
+          
+            deviceName:
+              input.deviceName ?? null,
+          
+            ipAddress:
+              input.ipAddress ?? null,
+          
+            userAgent:
+              input.userAgent ?? null,
+          
+            expiresAt:
+              input.expiresAt,
+          
+            lastSeenAt:
+              now,
+          },
+          select: refreshTokenSessionSelect,
+        });
+      
+      return {
+        session,
+        revokedSessionIds,
+      };
     });
   }
 }

@@ -56,6 +56,29 @@ export class RefreshTokenService {
     });
   }
 
+  async createLoginSession(
+    input: CreateRefreshTokenSessionInput,
+  ) {
+    const tokenHash =
+      this.hashToken(input.refreshToken);
+
+    return this.refreshTokenRepository.replaceActiveDeviceSession({
+      id: input.id,
+      userId: input.userId,
+      tokenHash,
+      deviceId:
+        input.deviceId ?? null,
+      deviceName:
+        input.deviceName ?? null,
+      ipAddress:
+        input.ipAddress ?? null,
+      userAgent:
+        input.userAgent ?? null,
+      expiresAt:
+        input.expiresAt,
+    });
+  }
+
   async findActiveSession(
     input: FindActiveRefreshTokenSessionInput,
   ) {
