@@ -4,6 +4,7 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  IsUUID,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
@@ -34,6 +35,10 @@ export class RegisterDto {
   @IsString()
   @MaxLength(255)
   middleName?: string;
+
+  @IsOptional()
+  @IsUUID('4')
+  deviceId?: string | null;
 
   @IsOptional()
   @IsString()

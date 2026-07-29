@@ -108,9 +108,10 @@ export class AuthService {
       userId: user.id,
       refreshToken,
       expiresAt: refreshTokenExpiresAt,
-      deviceName: dto.deviceName,
-      ipAddress: dto.ipAddress,
-      userAgent: dto.userAgent,
+      deviceId: dto.deviceId ?? null,
+      deviceName: dto.deviceName ?? null,
+      ipAddress: dto.ipAddress ?? null,
+      userAgent: dto.userAgent ?? null,
     });
 
     this.runInBackground(
@@ -222,9 +223,10 @@ export class AuthService {
       userId: user.id,
       refreshToken,
       expiresAt: refreshTokenExpiresAt,
-      deviceName: dto.deviceName,
-      ipAddress: dto.ipAddress,
-      userAgent: dto.userAgent,
+      deviceId: dto.deviceId ?? null,
+      deviceName: dto.deviceName ?? null,
+      ipAddress: dto.ipAddress ?? null,
+      userAgent: dto.userAgent ?? null,
     });
 
     await this.usersService.updateLastLoginAt(user.id);
@@ -316,6 +318,7 @@ export class AuthService {
           userId: session.user.id,
           refreshToken,
           expiresAt: refreshTokenExpiresAt,
+          deviceId: dto.deviceId ?? null,
           deviceName: dto.deviceName ?? session.deviceName,
           ipAddress: dto.ipAddress ?? session.ipAddress,
           userAgent: dto.userAgent ?? session.userAgent,

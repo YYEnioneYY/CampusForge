@@ -48,9 +48,10 @@ export class RefreshTokenService {
       id: input.id,
       userId: input.userId,
       tokenHash,
-      deviceName: input.deviceName,
-      ipAddress: input.ipAddress,
-      userAgent: input.userAgent,
+      deviceId: input.deviceId ?? null,
+      deviceName: input.deviceName ?? null,
+      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent ?? null,
       expiresAt: input.expiresAt,
     });
   }
@@ -128,6 +129,7 @@ export class RefreshTokenService {
         id: input.newSession.id,
         userId: input.newSession.userId,
         tokenHash,
+        deviceId: input.newSession.deviceId,
         deviceName: input.newSession.deviceName,
         ipAddress: input.newSession.ipAddress,
         userAgent: input.newSession.userAgent,

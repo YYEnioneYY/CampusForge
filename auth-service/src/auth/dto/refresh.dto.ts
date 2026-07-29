@@ -1,8 +1,12 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional, IsString, MaxLength, IsUUID } from 'class-validator';
 
 export class RefreshDto {
   @IsString()
   refreshToken!: string;
+
+  @IsOptional()
+  @IsUUID('4')
+  deviceId?: string | null;
 
   @IsOptional()
   @IsString()

@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 const refreshTokenSessionSelect = {
   id: true,
   userId: true,
+  deviceId: true,
   deviceName: true,
   sessionName: true,
   ipAddress: true,
@@ -19,6 +20,7 @@ const refreshTokenWithUserSelect = {
   id: true,
   userId: true,
   tokenHash: true,
+  deviceId: true,
   deviceName: true,
   sessionName: true,
   ipAddress: true,
@@ -70,6 +72,7 @@ type CreateRefreshTokenRecordInput = {
   id: string;
   userId: string;
   tokenHash: string;
+  deviceId?: string | null;
   deviceName?: string | null;
   ipAddress?: string | null;
   userAgent?: string | null;
@@ -106,6 +109,7 @@ export class RefreshTokenRepository {
         id: input.id,
         userId: input.userId,
         tokenHash: input.tokenHash,
+        deviceId: input.deviceId,
         deviceName: input.deviceName,
         ipAddress: input.ipAddress,
         userAgent: input.userAgent,
@@ -247,6 +251,7 @@ export class RefreshTokenRepository {
           },
           select: {
             userId: true,
+            deviceId: true,
             deviceName: true,
             sessionName: true,
             ipAddress: true,
@@ -289,6 +294,11 @@ export class RefreshTokenRepository {
           id: input.newSession.id,
           userId: input.newSession.userId,
           tokenHash: input.newSession.tokenHash,
+
+          deviceId:
+            oldSession.deviceId ??
+            input.newSession.deviceId ??
+            null,
 
           deviceName:
             input.newSession.deviceName ??

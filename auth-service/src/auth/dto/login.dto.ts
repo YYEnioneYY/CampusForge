@@ -4,6 +4,7 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  IsUUID,
 } from 'class-validator';
 
 export class LoginDto {
@@ -15,6 +16,10 @@ export class LoginDto {
   @MinLength(8)
   @MaxLength(128)
   password!: string;
+
+  @IsOptional()
+  @IsUUID('4')
+  deviceId?: string | null;
 
   @IsOptional()
   @IsString()
