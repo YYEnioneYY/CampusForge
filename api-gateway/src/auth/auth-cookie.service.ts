@@ -8,13 +8,15 @@ import type {
 } from 'express';
 import { randomUUID } from 'node:crypto';
 
+import { AUTH_COOKIE_NAMES } from './constants/auth-cookie.constants';
+
 @Injectable()
 export class AuthCookieService {
   private readonly refreshCookieName =
-    'refresh_token';
-
+    AUTH_COOKIE_NAMES.refreshToken;
+  
   private readonly deviceIdCookieName =
-    'device_id';
+    AUTH_COOKIE_NAMES.deviceId;
 
   constructor(
     private readonly configService:

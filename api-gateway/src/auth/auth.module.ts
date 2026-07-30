@@ -5,6 +5,9 @@ import { AuthCookieService } from './auth-cookie.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
+import { AuthClientContextInterceptor } from './interceptors/auth-client-context.interceptor';
+import { AuthSessionCookieInterceptor } from './interceptors/auth-session-cookie.interceptor';
+
 @Module({
   imports: [
     KafkaModule,
@@ -16,6 +19,9 @@ import { AuthService } from './auth.service';
   providers: [
     AuthService,
     AuthCookieService,
+
+    AuthClientContextInterceptor,
+    AuthSessionCookieInterceptor,
   ],
 })
 export class AuthModule {}
