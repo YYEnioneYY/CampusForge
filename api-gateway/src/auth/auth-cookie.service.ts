@@ -1,15 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { isUUID } from 'class-validator';
 import type {
   CookieOptions,
-  Response,
   Request,
+  Response,
 } from 'express';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class AuthCookieService {
   private readonly refreshCookieName =
     'refresh_token';
+
+  private readonly deviceIdCookieName =
+    'device_id';
 
   constructor(
     private readonly configService:
@@ -25,7 +30,7 @@ export class AuthCookieService {
       this.refreshCookieName,
       refreshToken,
       {
-        ...this.getBaseOptions(),
+        ...this.getAuthCookieOptions(),
         expires: expiresAt,
       },
     );
@@ -50,17 +55,57 @@ export class AuthCookieService {
   ): void {
     response.clearCookie(
       this.refreshCookieName,
-      this.getBaseOptions(),
+      this.getAuthCookieOptions(),
     );
   }
 
-  private getBaseOptions(): CookieOptions {
+  getOrCreateDeviceId(
+    request: Request,
+    response: Response,
+  ): string {
+    const existingDeviceId =
+      request.cookies?.[
+        this.deviceIdCookieName
+      ];
+
+    if (
+      typeof existingDeviceId === 'string' &&
+      isUUID(existingDeviceId, '4')
+    ) {
+      return existingDeviceId;
+    }
+
+    const deviceId = randomUUID();
+
+    const maxAgeDays =
+      this.configService.getOrThrow<number>(
+        'DEVICE_ID_COOKIE_MAX_AGE_DAYS',
+      );
+
+    response.cookie(
+      this.deviceIdCookieName,
+      deviceId,
+      {
+        ...this.getAuthCookieOptions(),
+        maxAge:
+          maxAgeDays *
+          24 *
+          60 *
+          60 *
+          1000,
+      },
+    );
+
+    return deviceId;
+  }
+
+  private getAuthCookieOptions():
+    CookieOptions {
     const secure =
-      this.configService.get<string>(
+      this.configService.getOrThrow<string>(
         'AUTH_COOKIE_SECURE',
-        'false',
       ) === 'true';
-  
+
     return {
       httpOnly: true,
       secure,

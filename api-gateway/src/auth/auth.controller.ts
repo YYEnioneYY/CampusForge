@@ -53,8 +53,17 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<RegisterResponseDto> {
+    const deviceId =
+      this.authCookieService.getOrCreateDeviceId(
+        request,
+        response,
+      );
+
     const clientContext =
-      this.clientContextService.fromRequest(request);
+      this.clientContextService.fromRequest(
+        request,
+        deviceId,
+      );
 
     const result = await this.authService.register(
       dto,
@@ -86,9 +95,16 @@ export class AuthController {
     @Res({ passthrough: true })
     response: Response,
   ): Promise<LoginResponseDto> {
+    const deviceId =
+      this.authCookieService.getOrCreateDeviceId(
+        request,
+        response,
+      );
+
     const clientContext =
       this.clientContextService.fromRequest(
         request,
+        deviceId,
       );
   
     const result =
@@ -136,9 +152,16 @@ export class AuthController {
       );
     }
   
+    const deviceId =
+      this.authCookieService.getOrCreateDeviceId(
+        request,
+        response,
+      );
+
     const clientContext =
       this.clientContextService.fromRequest(
         request,
+        deviceId,
       );
   
     const result =

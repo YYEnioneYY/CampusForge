@@ -39,6 +39,8 @@ export class AuthService {
       lastName: dto.lastName,
       middleName: dto.middleName,
 
+      deviceId: clientContext.deviceId,
+
       ipAddress:
         clientContext.ipAddress,
 
@@ -119,6 +121,8 @@ export class AuthService {
     const payload: LoginKafkaPayload = {
       email: dto.email,
       password: dto.password,
+
+      deviceId: clientContext.deviceId,
   
       ipAddress:
         clientContext.ipAddress,
@@ -196,6 +200,8 @@ export class AuthService {
   ): Promise<RefreshResult> {
     const payload: RefreshKafkaPayload = {
       refreshToken,
+
+      deviceId: clientContext.deviceId,
   
       ipAddress:
         clientContext.ipAddress,

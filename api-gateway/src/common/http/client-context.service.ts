@@ -12,6 +12,7 @@ export class ClientContextService {
 
   fromRequest(
     request: Request,
+    deviceId: string,
   ): ClientContext {
     const userAgent =
       this.normalizeUserAgent(
@@ -24,6 +25,7 @@ export class ClientContextService {
     );
 
     return {
+      deviceId,
       ipAddress,
       userAgent,
       deviceName:

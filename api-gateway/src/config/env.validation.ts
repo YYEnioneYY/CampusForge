@@ -42,6 +42,12 @@ class EnvironmentVariables {
 
   @IsIn(['true', 'false'])
   AUTH_COOKIE_SECURE!: string;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(3650)
+  DEVICE_ID_COOKIE_MAX_AGE_DAYS!: number;
 }
 
 export function validateEnv(
