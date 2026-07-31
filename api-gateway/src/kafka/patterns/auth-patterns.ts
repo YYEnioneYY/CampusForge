@@ -4,8 +4,8 @@ export const AUTH_PATTERNS = {
   REFRESH: 'auth.refresh',
 
   LOGOUT: 'auth.logout',
-  LOGOUT_ALL: 'auth.logout-all',
-  LOGOUT_SESSION: 'auth.logout-session',
+  LOGOUT_ALL: 'auth.logout_all',
+  LOGOUT_SESSION: 'auth.logout_session',
 
   GET_SESSIONS: 'auth.get_sessions',
 } as const;
