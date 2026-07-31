@@ -1,11 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
   Post,
+  Param,
   Req,
   Res,
   HttpCode,
   HttpStatus,
+  UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -13,6 +16,8 @@ import {
   ApiTags,
   ApiOperation,
   ApiOkResponse,
+  ApiBearerAuth,
+  ApiNoContentResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import type {
@@ -29,8 +34,14 @@ import { AuthCookieService } from './auth-cookie.service';
 import { AuthService } from './auth.service';
 import type { ClientContext } from '../common/http/types/client-context.type';
 
+import { AccessTokenGuard } from './guards/access-token.guard';
+import { CurrentUser } from './decorators/current-user.decorator';
+import type { AuthenticatedUser } from './types/authenticated-user.type';
+import { LogoutSessionParamsDto } from './dto/logout-session-params.dto';
+
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { LogoutAllDto } from './dto/logout-all.dto';
 
 import { RegisterResponseDto } from './dto/register-response.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
@@ -44,6 +55,7 @@ import { RefreshResult } from './types/refresh/refresh-result.type';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly authCookieService: AuthCookieService,
   ) {}
 
   @Post('register')
@@ -115,5 +127,85 @@ export class AuthController {
       refreshToken,
       clientContext,
     );
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Выход из текущей сессии',
+  })
+  @ApiNoContentResponse({
+    description: 'Current session was revoked',
+  })
+  async logout(
+    @RefreshTokenCookie()
+    refreshToken: string,
+  
+    @Res({ passthrough: true })
+    response: Response,
+  ): Promise<void> {
+    await this.authService.logout(
+      refreshToken,
+    );
+  
+    this.authCookieService.clearRefreshToken(
+      response,
+    );
+  }
+
+  @Post('logout-all')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Выход из всех сессий аккаунта',
+  })
+  @ApiNoContentResponse({
+    description: 'User sessions were revoked',
+  })
+  async logoutAll(
+    @Body()
+    dto: LogoutAllDto,
+  
+    @RefreshTokenCookie()
+    refreshToken: string,
+  
+    @Res({ passthrough: true })
+    response: Response,
+  ): Promise<void> {
+    await this.authService.logoutAll(
+      refreshToken,
+      dto.exceptCurrent,
+    );
+  
+    if (dto.exceptCurrent !== true) {
+      this.authCookieService.clearRefreshToken(
+        response,
+      );
+    }
+  }
+
+  @Delete('sessions/:sessionId')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logoutSession(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Param()
+    params: LogoutSessionParamsDto,
+  
+    @Res({ passthrough: true })
+    response: Response,
+  ): Promise<void> {
+    await this.authService.logoutSession(
+      user.sub,
+      params.sessionId,
+    );
+  
+    if (params.sessionId === user.sid) {
+      this.authCookieService.clearRefreshToken(
+        response,
+      );
+    }
   }
 }

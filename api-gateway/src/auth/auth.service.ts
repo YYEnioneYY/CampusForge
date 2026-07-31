@@ -7,6 +7,8 @@ import type { ClientContext } from '../common/http/types/client-context.type';
 import { AuthKafkaService } from '../kafka/auth-kafka.service';
 import { AUTH_PATTERNS } from '../kafka/patterns/auth-patterns';
 
+import { CommandAcknowledgement } from './types/command-acknowledgement.type';
+
 import { RegisterDto } from './dto/register.dto';
 import { RegisterKafkaResponse } from './types/register/register-kafka-response.type';
 import { RegisterKafkaPayload } from './types/register/register-kafka-payload.type';
@@ -20,6 +22,10 @@ import { LoginResult } from './types/login/login-result.type';
 import { RefreshKafkaResponse } from './types/refresh/refresh-kafka-response.type';
 import { RefreshKafkaPayload } from './types/refresh/refresh-kafka-payload.type';
 import { RefreshResult } from './types/refresh/refresh-result.type';
+
+import { LogoutKafkaPayload } from './types/logout/logout-kafka-payload.type';
+import { LogoutAllKafkaPayload } from './types/logout/logout-all-kafka-payload.type';
+import { LogoutSessionKafkaPayload } from './types/logout/logout-session-kafka-payload.type';
 
 @Injectable()
 export class AuthService {
@@ -250,6 +256,64 @@ export class AuthService {
           refreshTokenExpiresAt,
       },
     };
+  }
+
+  async logout(
+    refreshToken: string,
+  ): Promise<void> {
+    const payload: LogoutKafkaPayload = {
+      refreshToken,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        LogoutKafkaPayload
+      >(
+        AUTH_PATTERNS.LOGOUT,
+        payload,
+      ),
+    );
+  }
+
+  async logoutAll(
+    refreshToken: string,
+    exceptCurrent?: boolean,
+  ): Promise<void> {
+    const payload: LogoutAllKafkaPayload = {
+      refreshToken,
+      exceptCurrent,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        LogoutAllKafkaPayload
+      >(
+        AUTH_PATTERNS.LOGOUT_ALL,
+        payload,
+      ),
+    );
+  }
+
+  async logoutSession(
+    userId: string,
+    sessionId: string,
+  ): Promise<void> {
+    const payload: LogoutSessionKafkaPayload = {
+      userId,
+      sessionId,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        LogoutSessionKafkaPayload
+      >(
+        AUTH_PATTERNS.LOGOUT_SESSION,
+        payload,
+      ),
+    );
   }
 
   private parseDate(

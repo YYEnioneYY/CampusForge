@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  MinLength,
   Max,
   Min,
   validateSync,
@@ -48,6 +49,10 @@ class EnvironmentVariables {
   @Min(1)
   @Max(3650)
   DEVICE_ID_COOKIE_MAX_AGE_DAYS!: number;
+
+  @IsString()
+  @MinLength(16)
+  JWT_ACCESS_SECRET!: string;
 }
 
 export function validateEnv(
