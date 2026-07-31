@@ -472,10 +472,10 @@ export class RefreshTokenRepository {
     input: CreateRefreshTokenRecordInput,
   ): Promise<CreateDeviceSessionResult> {
     const now = new Date();
-  
+
     return this.prisma.$transaction(async (tx) => {
       let revokedSessionIds: string[] = [];
-    
+
       if (input.deviceId) {
         const activeSessions =
           await tx.refreshToken.findMany({
@@ -491,12 +491,12 @@ export class RefreshTokenRepository {
               id: true,
             },
           });
-        
+
         revokedSessionIds =
           activeSessions.map(
             (session) => session.id,
           );
-        
+
         if (revokedSessionIds.length > 0) {
           await tx.refreshToken.updateMany({
             where: {
@@ -512,35 +512,35 @@ export class RefreshTokenRepository {
           });
         }
       }
-    
+
       const session =
         await tx.refreshToken.create({
           data: {
             id: input.id,
             userId: input.userId,
             tokenHash: input.tokenHash,
-          
+
             deviceId:
               input.deviceId ?? null,
-          
+
             deviceName:
               input.deviceName ?? null,
-          
+
             ipAddress:
               input.ipAddress ?? null,
-          
+
             userAgent:
               input.userAgent ?? null,
-          
+
             expiresAt:
               input.expiresAt,
-          
+
             lastSeenAt:
               now,
           },
           select: refreshTokenSessionSelect,
         });
-      
+
       return {
         session,
         revokedSessionIds,
