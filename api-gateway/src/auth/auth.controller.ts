@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Post,
+  Get,
   Param,
   Req,
   Res,
@@ -46,6 +47,8 @@ import { LogoutAllDto } from './dto/logout-all.dto';
 import { RegisterResponseDto } from './dto/register-response.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
+import { GetSessionsResponseDto } from './dto/get-sessions-response.dto';
+
 import { RegisterResult } from './types/register/register-result.type';
 import { LoginResult } from './types/login/login-result.type';
 import { RefreshResult } from './types/refresh/refresh-result.type';
@@ -185,8 +188,11 @@ export class AuthController {
 
   @Delete('sessions/:sessionId')
   @UseGuards(AccessTokenGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Удаление конкретной сессии аккаунта',
+  })
   async logoutSession(
     @CurrentUser()
     user: AuthenticatedUser,
@@ -207,5 +213,24 @@ export class AuthController {
         response,
       );
     }
+  }
+
+  @Get('sessions')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Получение активных сессий пользователя',
+  })
+  @ApiOkResponse({
+    type: GetSessionsResponseDto,
+  })
+  async getSessions(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  ): Promise<GetSessionsResponseDto> {
+    return this.authService.getSessions(
+      user.sub,
+      user.sid,
+    );
   }
 }

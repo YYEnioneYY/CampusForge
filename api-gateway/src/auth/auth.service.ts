@@ -27,6 +27,10 @@ import { LogoutKafkaPayload } from './types/logout/logout-kafka-payload.type';
 import { LogoutAllKafkaPayload } from './types/logout/logout-all-kafka-payload.type';
 import { LogoutSessionKafkaPayload } from './types/logout/logout-session-kafka-payload.type';
 
+import type { GetSessionsKafkaPayload } from './types/sessions/get-sessions-kafka-payload.type';
+import type { GetSessionsKafkaResponse } from './types/sessions/get-sessions-kafka-response.type';
+import type { GetSessionsResponseDto } from './dto/get-sessions-response.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -314,6 +318,48 @@ export class AuthService {
         payload,
       ),
     );
+  }
+
+  async getSessions(
+    userId: string,
+    currentSessionId: string,
+  ): Promise<GetSessionsResponseDto> {
+    const payload: GetSessionsKafkaPayload = {
+      userId,
+      currentSessionId,
+    };
+  
+    const result = await firstValueFrom(
+      this.authKafkaService.send<
+        GetSessionsKafkaResponse,
+        GetSessionsKafkaPayload
+      >(
+        AUTH_PATTERNS.GET_SESSIONS,
+        payload,
+      ),
+    );
+  
+    return {
+      sessions: result.sessions.map((session) => ({
+        id: session.id,
+        deviceName: session.deviceName,
+        sessionName: session.sessionName,
+        ipAddress: session.ipAddress,
+        userAgent: session.userAgent,
+  
+        lastSeenAt:
+          this.parseDate(
+            session.lastSeenAt,
+          ).toISOString(),
+  
+        createdAt:
+          this.parseDate(
+            session.createdAt,
+          ).toISOString(),
+  
+        isCurrent: session.isCurrent,
+      })),
+    };
   }
 
   private parseDate(
