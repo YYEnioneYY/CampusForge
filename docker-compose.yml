@@ -232,12 +232,15 @@ services:
       NODE_ENV: production
       PORT: 3000
       KAFKA_BROKERS: kafka:9092
+      REDIS_URL: redis://redis:6379
       AUTH_COOKIE_SECURE: "false"
       TRUST_PROXY_HOPS: 0
     ports:
       - "3000:3000"
     depends_on:
       kafka:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       auth-service:
         condition: service_started
