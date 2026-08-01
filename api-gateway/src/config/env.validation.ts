@@ -9,6 +9,7 @@ import {
   Max,
   Min,
   validateSync,
+  Matches,
 } from 'class-validator';
 
 class EnvironmentVariables {
@@ -53,6 +54,10 @@ class EnvironmentVariables {
   @IsString()
   @MinLength(16)
   JWT_ACCESS_SECRET!: string;
+
+  @IsString()
+  @Matches(/^rediss?:\/\/.+/)
+  REDIS_URL!: string;
 }
 
 export function validateEnv(

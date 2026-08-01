@@ -4,6 +4,7 @@ import { validateEnv } from './config/env.validation';
 import { KafkaModule } from './kafka/kafka.module';
 import { AuthModule } from './auth/auth.module';
 import { HttpContextModule } from './common/http/http-context.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { HttpContextModule } from './common/http/http-context.module';
     KafkaModule,
     AuthModule,
     HttpContextModule,
+    RedisModule,
   ],
 })
 export class AppModule {}

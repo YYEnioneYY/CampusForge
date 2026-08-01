@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { isUUID } from 'class-validator';
 
+import { AccessRevocationCheckerService } from '../services/access-revocation-checker.service';
 import type { AuthenticatedRequest } from '../types/authenticated-request.type';
 import type { AuthenticatedUser } from '../types/authenticated-user.type';
 
@@ -16,8 +17,14 @@ export class AccessTokenGuard
   implements CanActivate
 {
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly jwtService:
+      JwtService,
+
+    private readonly configService:
+      ConfigService,
+
+    private readonly accessRevocationChecker:
+      AccessRevocationCheckerService,
   ) {}
 
   async canActivate(
@@ -37,44 +44,57 @@ export class AccessTokenGuard
       );
     }
 
+    const payload =
+      await this.verifyAccessToken(
+        accessToken,
+      );
+
+    this.validatePayload(payload);
+
+    await this.accessRevocationChecker
+      .assertAccessAllowed(payload);
+
+    request.user = payload;
+
+    return true;
+  }
+
+  private async verifyAccessToken(
+    accessToken: string,
+  ): Promise<AuthenticatedUser> {
     try {
       const secret =
         this.configService.getOrThrow<string>(
           'JWT_ACCESS_SECRET',
         );
 
-      const payload =
-        await this.jwtService.verifyAsync<AuthenticatedUser>(
+      return await this.jwtService
+        .verifyAsync<AuthenticatedUser>(
           accessToken,
           {
             secret,
           },
         );
-
-      if (
-        typeof payload.sub !== 'string' ||
-        typeof payload.sid !== 'string' ||
-        !isUUID(payload.sub) ||
-        !isUUID(payload.sid)
-      ) {
-        throw new UnauthorizedException(
-          'Access token payload is invalid',
-        );
-      }
-
-      request.user = payload;
-
-      return true;
-    } catch (error) {
-      if (
-        error instanceof
-        UnauthorizedException
-      ) {
-        throw error;
-      }
-
+    } catch {
       throw new UnauthorizedException(
         'Access token is invalid or expired',
+      );
+    }
+  }
+
+  private validatePayload(
+    payload: AuthenticatedUser,
+  ): void {
+    if (
+      typeof payload.sub !== 'string' ||
+      typeof payload.sid !== 'string' ||
+      !isUUID(payload.sub) ||
+      !isUUID(payload.sid) ||
+      typeof payload.iat !== 'number' ||
+      typeof payload.exp !== 'number'
+    ) {
+      throw new UnauthorizedException(
+        'Access token payload is invalid',
       );
     }
   }
@@ -85,17 +105,15 @@ export class AccessTokenGuard
     const authorization =
       request.headers.authorization;
 
-    if (
-      typeof authorization !== 'string'
-    ) {
+    if (typeof authorization !== 'string') {
       return null;
     }
 
     const [scheme, token] =
-      authorization.split(' ');
+      authorization.trim().split(/\s+/);
 
     if (
-      scheme !== 'Bearer' ||
+      scheme?.toLowerCase() !== 'bearer' ||
       !token
     ) {
       return null;

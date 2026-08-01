@@ -6,6 +6,6 @@ export type AuthenticatedUser = {
   status: string;
   emailVerified: boolean;
 
-  iat?: number;
-  exp?: number;
+  iat: number;
+  exp: number;
 };
