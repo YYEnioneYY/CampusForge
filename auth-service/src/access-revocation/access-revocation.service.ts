@@ -53,9 +53,8 @@ export class AccessRevocationService {
   }
 
   private getAccessTokenTtlSeconds(): number {
-    const value = this.configService.get<string>(
-      'JWT_ACCESS_TOKEN_EXPIRES_IN',
-      '15m',
+    const value = this.configService.getOrThrow<string>(
+      'JWT_ACCESS_EXPIRES_IN',
     );
 
     return this.expiresInToSeconds(value);
