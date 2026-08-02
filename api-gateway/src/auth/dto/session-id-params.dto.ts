@@ -1,6 +1,6 @@
 import { IsUUID } from 'class-validator';
 
-export class LogoutSessionParamsDto {
+export class SessionIdParamsDto {
   @IsUUID('4')
   sessionId!: string;
 }

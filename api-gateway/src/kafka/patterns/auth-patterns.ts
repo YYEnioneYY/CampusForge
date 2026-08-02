@@ -8,6 +8,7 @@ export const AUTH_PATTERNS = {
   LOGOUT_SESSION: 'auth.logout_session',
 
   GET_SESSIONS: 'auth.get_sessions',
+  RENAME_SESSION: 'auth.session.rename',
 } as const;
 
 export const AUTH_RESPONSE_PATTERNS = [
@@ -20,4 +21,5 @@ export const AUTH_RESPONSE_PATTERNS = [
   AUTH_PATTERNS.LOGOUT_SESSION,
 
   AUTH_PATTERNS.GET_SESSIONS,
+  AUTH_PATTERNS.RENAME_SESSION,
 ] as const;

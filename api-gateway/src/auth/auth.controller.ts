@@ -5,12 +5,11 @@ import {
   Post,
   Get,
   Param,
-  Req,
+  Patch,
   Res,
   HttpCode,
   HttpStatus,
   UseGuards,
-  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -19,10 +18,8 @@ import {
   ApiOkResponse,
   ApiBearerAuth,
   ApiNoContentResponse,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import type {
-  Request,
   Response,
 } from 'express';
 
@@ -38,7 +35,7 @@ import type { ClientContext } from '../common/http/types/client-context.type';
 import { AccessTokenGuard } from './guards/access-token.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import type { AuthenticatedUser } from './types/authenticated-user.type';
-import { LogoutSessionParamsDto } from './dto/logout-session-params.dto';
+import { SessionIdParamsDto } from './dto/session-id-params.dto';
 
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -52,6 +49,8 @@ import { GetSessionsResponseDto } from './dto/get-sessions-response.dto';
 import { RegisterResult } from './types/register/register-result.type';
 import { LoginResult } from './types/login/login-result.type';
 import { RefreshResult } from './types/refresh/refresh-result.type';
+
+import { RenameSessionDto } from './dto/rename-session.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -198,7 +197,7 @@ export class AuthController {
     user: AuthenticatedUser,
   
     @Param()
-    params: LogoutSessionParamsDto,
+    params: SessionIdParamsDto,
   
     @Res({ passthrough: true })
     response: Response,
@@ -231,6 +230,31 @@ export class AuthController {
     return this.authService.getSessions(
       user.sub,
       user.sid,
+    );
+  }
+
+  @Patch('sessions/:sessionId')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Переименование сессии пользователя',
+  })
+  async renameSession(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Param()
+    params: SessionIdParamsDto,
+  
+    @Body()
+    dto: RenameSessionDto,
+  ): Promise<void> {
+    await this.authService.renameSession(
+      user.sub,
+      user.sid,
+      params.sessionId,
+      dto.sessionName,
     );
   }
 }

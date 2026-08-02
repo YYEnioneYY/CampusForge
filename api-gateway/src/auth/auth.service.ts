@@ -27,9 +27,10 @@ import { LogoutKafkaPayload } from './types/logout/logout-kafka-payload.type';
 import { LogoutAllKafkaPayload } from './types/logout/logout-all-kafka-payload.type';
 import { LogoutSessionKafkaPayload } from './types/logout/logout-session-kafka-payload.type';
 
-import type { GetSessionsKafkaPayload } from './types/sessions/get-sessions-kafka-payload.type';
-import type { GetSessionsKafkaResponse } from './types/sessions/get-sessions-kafka-response.type';
-import type { GetSessionsResponseDto } from './dto/get-sessions-response.dto';
+import { GetSessionsKafkaPayload } from './types/sessions/get-sessions-kafka-payload.type';
+import { GetSessionsKafkaResponse } from './types/sessions/get-sessions-kafka-response.type';
+import { GetSessionsResponseDto } from './dto/get-sessions-response.dto';
+import { RenameSessionKafkaPayload } from './types/sessions/rename-session-kafka-payload.type';
 
 @Injectable()
 export class AuthService {
@@ -360,6 +361,30 @@ export class AuthService {
         isCurrent: session.isCurrent,
       })),
     };
+  }
+
+  async renameSession(
+    userId: string,
+    currentSessionId: string,
+    sessionId: string,
+    sessionName: string,
+  ): Promise<void> {
+    const payload: RenameSessionKafkaPayload = {
+      userId,
+      currentSessionId,
+      sessionId,
+      sessionName,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        RenameSessionKafkaPayload
+      >(
+        AUTH_PATTERNS.RENAME_SESSION,
+        payload,
+      ),
+    );
   }
 
   private parseDate(
