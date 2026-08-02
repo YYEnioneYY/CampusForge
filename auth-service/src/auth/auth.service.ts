@@ -543,7 +543,11 @@ export class AuthService {
   }
 
   async verifyEmail(dto: VerifyEmailDto) {
-    return this.emailVerificationService.verifyEmail(dto.token);
+    await this.emailVerificationService.verifyEmail(dto.token);
+
+    return {
+      success: true,
+    }
   }
 
   async requestPasswordReset(dto: RequestPasswordResetDto) {
