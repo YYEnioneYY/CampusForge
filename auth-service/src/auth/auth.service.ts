@@ -676,17 +676,15 @@ export class AuthService {
   }
 
   async renameSession(dto: RenameSessionDto) {
-    const session =
-      await this.refreshTokenService.renameUserSession({
-        userId: dto.userId,
-        currentSessionId: dto.currentSessionId,
-        sessionId: dto.sessionId,
-        sessionName: dto.sessionName,
-      });
+    await this.refreshTokenService.renameUserSession({
+      userId: dto.userId,
+      currentSessionId: dto.currentSessionId,
+      sessionId: dto.sessionId,
+      sessionName: dto.sessionName,
+    });
 
     return {
       success: true,
-      session,
     };
   }
 
