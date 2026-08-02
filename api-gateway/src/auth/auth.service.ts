@@ -32,6 +32,8 @@ import { GetSessionsKafkaResponse } from './types/sessions/get-sessions-kafka-re
 import { GetSessionsResponseDto } from './dto/get-sessions-response.dto';
 import { RenameSessionKafkaPayload } from './types/sessions/rename-session-kafka-payload.type';
 
+import { VerifyEmailKafkaPayload } from './types/verify-email/verify-email-kafka-payload.type';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -382,6 +384,24 @@ export class AuthService {
         RenameSessionKafkaPayload
       >(
         AUTH_PATTERNS.RENAME_SESSION,
+        payload,
+      ),
+    );
+  }
+
+  async verifyEmail(
+    token: string,
+  ): Promise<void> {
+    const payload: VerifyEmailKafkaPayload = {
+      token,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        VerifyEmailKafkaPayload
+      >(
+        AUTH_PATTERNS.VERIFY_EMAIL,
         payload,
       ),
     );

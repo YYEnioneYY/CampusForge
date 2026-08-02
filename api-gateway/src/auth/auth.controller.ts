@@ -52,6 +52,8 @@ import { RefreshResult } from './types/refresh/refresh-result.type';
 
 import { RenameSessionDto } from './dto/rename-session.dto';
 
+import { VerifyEmailDto } from './dto/verify-email.dto';
+
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -67,9 +69,6 @@ export class AuthController {
       'Создаёт пользователя, авторизационную сессию и отправляет письмо для подтверждения email.',
   })
   @UseAuthSessionFlow()
-  @ApiCreatedResponse({
-    type: RegisterResponseDto,
-  })
   async register(
     @Body() 
     dto: RegisterDto,
@@ -255,6 +254,20 @@ export class AuthController {
       user.sid,
       params.sessionId,
       dto.sessionName,
+    );
+  }
+
+  @Post('verify-email')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Подтверждение почты пользователем',
+  })
+  async verifyEmail(
+    @Body()
+    dto: VerifyEmailDto,
+  ): Promise<void> {
+    await this.authService.verifyEmail(
+      dto.token,
     );
   }
 }

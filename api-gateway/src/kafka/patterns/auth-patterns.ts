@@ -9,6 +9,8 @@ export const AUTH_PATTERNS = {
 
   GET_SESSIONS: 'auth.get_sessions',
   RENAME_SESSION: 'auth.session.rename',
+
+  VERIFY_EMAIL: 'auth.verify_email',
 } as const;
 
 export const AUTH_RESPONSE_PATTERNS = [
@@ -22,4 +24,5 @@ export const AUTH_RESPONSE_PATTERNS = [
 
   AUTH_PATTERNS.GET_SESSIONS,
   AUTH_PATTERNS.RENAME_SESSION,
+  AUTH_PATTERNS.VERIFY_EMAIL,
 ] as const;
