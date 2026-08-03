@@ -23,8 +23,8 @@ export class TemplateService {
     }
 
     const templatePath = path.join(
-      process.cwd(),
-      'src',
+      __dirname,
+      '..',
       'email-notification',
       'templates',
       `${templateName}.hbs`,
