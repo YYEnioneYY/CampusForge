@@ -74,8 +74,11 @@ export class UsersRepository {
     });
   }
 
-  async createUser(input: CreateUserRecordInput) {
-    return this.prisma.user.create({
+  async createUser(
+    input: CreateUserRecordInput,
+    transaction: Prisma.TransactionClient,
+  ) {
+    return transaction.user.create({
       data: {
         email: input.email,
         passwordHash: input.passwordHash,

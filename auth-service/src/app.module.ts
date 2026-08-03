@@ -19,6 +19,7 @@ import { RedisModule } from './redis/redis.module';
 import { AccessRevocationModule } from './access-revocation/access-revocation.module';
 import { AccountDeletionModule } from './account-deletion/account-deletion.module';
 import { AccountRestoreModule } from './account-restore/account-restore.module';
+import { OutboxModule } from './outbox/outbox.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AccountRestoreModule } from './account-restore/account-restore.module';
     AccessRevocationModule,
     AccountDeletionModule,
     AccountRestoreModule,
+    OutboxModule,
   ],
 })
 export class AppModule {}

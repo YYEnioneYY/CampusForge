@@ -19,13 +19,19 @@ export class UsersService {
     return this.usersRepository.findByEmail(email);
   }
 
-  async createUser(input: CreateUserInput) {
-    return this.usersRepository.createUser({
-      email: input.email,
-      passwordHash: input.passwordHash,
-      systemRole: SystemRole.USER,
-      status: UserStatus.PENDING,
-    });
+  async createUser(
+    input: CreateUserInput,
+    transaction: Prisma.TransactionClient,
+  ) {
+    return this.usersRepository.createUser(
+      {
+        email: input.email,
+        passwordHash: input.passwordHash,
+        systemRole: SystemRole.USER,
+        status: UserStatus.PENDING,
+      },
+      transaction,
+    );
   }
 
   async findByEmailForAuth(email: string) {

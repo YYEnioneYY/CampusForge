@@ -1,0 +1,4 @@
+export const OUTBOX_KAFKA_CLIENT =
+  'OUTBOX_KAFKA_CLIENT';
+
+export const OUTBOX_PUBLISH_INTERVAL_MS = 1_000;

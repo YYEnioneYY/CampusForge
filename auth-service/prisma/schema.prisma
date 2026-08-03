@@ -26,6 +26,13 @@ enum UserStatus {
   @@map("user_status")
 }
 
+enum OutboxEventStatus {
+  PENDING
+  PROCESSING
+  PUBLISHED
+  DEAD
+}
+
 model User {
   id              String      @id @default(uuid()) @db.Uuid
 
@@ -135,4 +142,39 @@ model AccountRestoreToken {
   @@index([expiresAt])
   
   @@map("account_restore_tokens")
+}
+
+model OutboxEvent {
+  id String @id @default(uuid()) @db.Uuid
+
+  topic        String @db.VarChar(255)
+  eventType    String @map("event_type") @db.VarChar(150)
+  eventVersion Int    @default(1) @map("event_version")
+
+  aggregateType String @map("aggregate_type") @db.VarChar(100)
+  aggregateId   String @map("aggregate_id") @db.VarChar(255)
+  partitionKey  String @map("partition_key") @db.VarChar(255)
+
+  payload Json
+
+  status   OutboxEventStatus @default(PENDING)
+  attempts Int               @default(0)
+
+  availableAt DateTime  @default(now()) @map("available_at") @db.Timestamptz(3)
+  lockedAt    DateTime? @map("locked_at") @db.Timestamptz(3)
+  lockedBy    String?   @map("locked_by") @db.VarChar(100)
+
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(3)
+  lastError   String?   @map("last_error") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([status, availableAt], map: "outbox_events_status_available_at_idx")
+
+  @@index([aggregateType, aggregateId], map: "outbox_events_aggregate_idx")
+
+  @@index([lockedAt], map: "outbox_events_locked_at_idx")
+
+  @@map("outbox_events")
 }

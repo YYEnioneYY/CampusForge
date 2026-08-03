@@ -56,6 +56,29 @@ export class RefreshTokenService {
     });
   }
 
+  async createSessionInTransaction(
+    input: CreateRefreshTokenSessionInput,
+    transaction: Prisma.TransactionClient,
+  ) {
+    const tokenHash =
+      this.hashToken(input.refreshToken);
+  
+    return this.refreshTokenRepository
+      .createSessionInTransaction(
+        {
+          id: input.id,
+          userId: input.userId,
+          tokenHash,
+          deviceId: input.deviceId ?? null,
+          deviceName: input.deviceName ?? null,
+          ipAddress: input.ipAddress ?? null,
+          userAgent: input.userAgent ?? null,
+          expiresAt: input.expiresAt,
+        },
+        transaction,
+      );
+  }
+
   async createLoginSession(
     input: CreateRefreshTokenSessionInput,
   ) {

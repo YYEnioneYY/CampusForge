@@ -124,6 +124,25 @@ export class RefreshTokenRepository {
     });
   }
 
+  async createSessionInTransaction(
+    input: CreateRefreshTokenRecordInput,
+    transaction: Prisma.TransactionClient,
+  ) {
+    return transaction.refreshToken.create({
+      data: {
+        id: input.id,
+        userId: input.userId,
+        tokenHash: input.tokenHash,
+        deviceId: input.deviceId,
+        deviceName: input.deviceName,
+        ipAddress: input.ipAddress,
+        userAgent: input.userAgent,
+        expiresAt: input.expiresAt,
+      },
+      select: refreshTokenSessionSelect,
+    });
+  }
+
   async findByIdWithUser(
     id: string,
   ): Promise<RefreshTokenWithUserRecord | null> {

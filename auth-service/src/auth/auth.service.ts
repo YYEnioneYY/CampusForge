@@ -5,6 +5,8 @@ import { randomUUID } from 'node:crypto';
 
 import { UserStatus } from '../generated/prisma/client';
 
+import { PROFILE_PATTERNS } from 'src/common/kafka/profile-patterns';
+
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
@@ -42,6 +44,8 @@ import { AdminUsersService } from '../admin-users/admin-users.service';
 import { AccessRevocationService } from '../access-revocation/access-revocation.service';
 import { AccountDeletionService } from 'src/account-deletion/account-deletion.service';
 import { AccountRestoreService } from '../account-restore/account-restore.service';
+import { OutboxService } from 'src/outbox/outbox.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -60,12 +64,18 @@ export class AuthService {
     private readonly accessRevocationService: AccessRevocationService,
     private readonly accountDeletionService: AccountDeletionService,
     private readonly accountRestoreService: AccountRestoreService,
+    private readonly outboxService: OutboxService,
+    private readonly prismaService: PrismaService,
   ) {}
 
   async register(dto: RegisterDto) {
-    const email = dto.email.toLowerCase().trim();
+    const email =
+      dto.email.toLowerCase().trim();
 
-    const existingUser = await this.usersService.findByEmail(email);
+    const existingUser =
+      await this.usersService.findByEmail(
+        email,
+      );
 
     if (existingUser) {
       throwRpcError(
@@ -74,81 +84,133 @@ export class AuthService {
       );
     }
 
-    const passwordHash = await this.passwordService.hashPassword(dto.password);
-
-    const user = await this.usersService.createUser({
-      email,
-      passwordHash,
-    });
+    const passwordHash =
+      await this.passwordService.hashPassword(
+        dto.password,
+      );
 
     const sessionId = randomUUID();
 
-    const accessToken = await this.tokenService.generateAccessToken({
-      sub: user.id,
-      email: user.email,
-      role: user.systemRole,
-      status: user.status,
-      emailVerified: Boolean(user.emailVerifiedAt),
-      sid: sessionId,
-    });
-
-    const refreshToken = await this.tokenService.generateRefreshToken({
-      sub: user.id,
-      jti: sessionId,
-    });
-
     const accessTokenExpiresAt =
-      this.tokenService.getAccessTokenExpiresAt();
+      this.tokenService
+        .getAccessTokenExpiresAt();
 
     const refreshTokenExpiresAt =
-      this.tokenService.getRefreshTokenExpiresAt();
+      this.tokenService
+        .getRefreshTokenExpiresAt();
 
-    await this.refreshTokenService.createSession({
-      id: sessionId,
-      userId: user.id,
-      refreshToken,
-      expiresAt: refreshTokenExpiresAt,
-      deviceId: dto.deviceId ?? null,
-      deviceName: dto.deviceName ?? null,
-      ipAddress: dto.ipAddress ?? null,
-      userAgent: dto.userAgent ?? null,
-    });
+    const registrationResult = await this.prismaService.$transaction(
+      async (transaction) => {
+        const user =
+          await this.usersService.createUser(
+            {
+              email,
+              passwordHash,
+            },
+            transaction,
+          );
 
-    this.runInBackground(
-      this.profileProducerService.userRegistered({
-        userId: user.id,
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        middleName: dto.middleName,
-      }),
-      `Failed to create profile for user ${user.id}`,
+        const accessToken =
+          await this.tokenService
+            .generateAccessToken({
+              sub: user.id,
+              email: user.email,
+              role: user.systemRole,
+              status: user.status,
+              emailVerified: Boolean(
+                user.emailVerifiedAt,
+              ),
+              sid: sessionId,
+            });
+
+        const refreshToken =
+          await this.tokenService
+            .generateRefreshToken({
+              sub: user.id,
+              jti: sessionId,
+            });
+
+        await this.refreshTokenService
+          .createSessionInTransaction(
+            {
+              id: sessionId,
+              userId: user.id,
+              refreshToken,
+              expiresAt:
+                refreshTokenExpiresAt,
+              deviceId:
+                dto.deviceId ?? null,
+              deviceName:
+                dto.deviceName ?? null,
+              ipAddress:
+                dto.ipAddress ?? null,
+              userAgent:
+                dto.userAgent ?? null,
+            },
+            transaction,
+          );
+
+        await this.outboxService.enqueue(
+          transaction,
+          {
+            topic:
+              PROFILE_PATTERNS.USER_REGISTERED,
+            eventType:
+              'user.registered',
+            eventVersion: 1,
+            aggregateType:
+              'User',
+            aggregateId:
+              user.id,
+            partitionKey:
+              user.id,
+            payload: {
+              userId: user.id,
+              firstName: dto.firstName,
+              lastName: dto.lastName,
+              middleName:
+                dto.middleName ?? null,
+            },
+          },
+        );
+        
+        return {
+          user: {
+            id: user.id,
+            email: user.email,
+            systemRole:
+              user.systemRole,
+            status: user.status,
+            emailVerifiedAt:
+              user.emailVerifiedAt,
+            createdAt: user.createdAt,
+          },
+          tokens: {
+            accessToken,
+            accessTokenExpiresAt,
+            refreshToken,
+            refreshTokenExpiresAt,
+          },
+        };
+      },
     );
 
     this.runInBackground(
-      this.emailVerificationService.sendVerificationEmail({
-        userId: user.id,
-        email: user.email,
-        name: dto.firstName,
-      }),
-      `Failed to send email verification for user ${user.id}`,
+      this.emailVerificationService
+        .sendVerificationEmail({
+          userId:
+            registrationResult.user.id,
+
+          email:
+            registrationResult.user.email,
+
+          name:
+            dto.firstName,
+        }),
+      `Failed to send email verification for user ${registrationResult.user.id}`,
     );
 
-    return {
-      user: {
-        id: user.id,
-        email: user.email,
-        systemRole: user.systemRole,
-        status: user.status,
-        emailVerifiedAt: user.emailVerifiedAt,
-        createdAt: user.createdAt,
-      },
-      tokens: {
-        accessToken,
-        accessTokenExpiresAt,
-        refreshToken,
-        refreshTokenExpiresAt,
-      },
-    };
+    return registrationResult;
   }
 
   async login(dto: LoginDto) {
