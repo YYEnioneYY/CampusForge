@@ -35,6 +35,10 @@ import { RenameSessionKafkaPayload } from './types/sessions/rename-session-kafka
 import { VerifyEmailKafkaPayload } from './types/verify-email/verify-email-kafka-payload.type';
 import { ResendEmailVerificationKafkaPayload } from './types/verify-email/resend-email-verification-kafka-payload.type';
 
+import { MeKafkaPayload } from './types/me/me-kafka-payload.type';
+import { MeKafkaResponse } from './types/me/me-kafka-response.type';
+import { MeResponseDto } from './dto/me/me-response.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -424,6 +428,57 @@ export class AuthService {
         payload,
       ),
     );
+  }
+
+  async me(
+    userId: string,
+  ): Promise<MeResponseDto> {
+    const payload: MeKafkaPayload = {
+      userId,
+    };
+  
+    const result = await firstValueFrom(
+      this.authKafkaService.send<
+        MeKafkaResponse,
+        MeKafkaPayload
+      >(
+        AUTH_PATTERNS.ME,
+        payload,
+      ),
+    );
+  
+    return {
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        role: result.user.role,
+        status: result.user.status,
+        emailVerified:
+          result.user.emailVerified,
+  
+        emailVerifiedAt:
+          result.user.emailVerifiedAt
+            ? new Date(
+                result.user.emailVerifiedAt,
+              ).toISOString()
+            : null,
+  
+        lastLoginAt:
+          result.user.lastLoginAt
+            ? new Date(
+                result.user.lastLoginAt,
+              ).toISOString()
+            : null,
+  
+        createdAt: new Date(
+          result.user.createdAt,
+        ).toISOString(),
+  
+        updatedAt: new Date(
+          result.user.updatedAt,
+        ).toISOString(),
+      },
+    };
   }
 
   private parseDate(

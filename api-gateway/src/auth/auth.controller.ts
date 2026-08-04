@@ -54,6 +54,8 @@ import { RenameSessionDto } from './dto/rename-session.dto';
 
 import { VerifyEmailDto } from './dto/verify-email.dto';
 
+import { MeResponseDto } from './dto/me/me-response.dto';
+
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -283,6 +285,21 @@ export class AuthController {
     user: AuthenticatedUser,
   ): Promise<void> {
     await this.authService.resendEmailVerification(
+      user.sub,
+    );
+  }
+
+  @Get('me')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Получение данных пользователя',
+  })
+  async me(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  ): Promise<MeResponseDto> {
+    return this.authService.me(
       user.sub,
     );
   }
