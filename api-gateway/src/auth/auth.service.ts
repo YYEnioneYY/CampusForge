@@ -39,6 +39,9 @@ import { MeKafkaPayload } from './types/me/me-kafka-payload.type';
 import { MeKafkaResponse } from './types/me/me-kafka-response.type';
 import { MeResponseDto } from './dto/me/me-response.dto';
 
+import { RequestPasswordResetKafkaPayload } from './types/password-reset/request-password-reset-kafka-payload.type';
+import { RequestPasswordResetDto } from './dto/password-reset/request-password-reset.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -479,6 +482,24 @@ export class AuthService {
         ).toISOString(),
       },
     };
+  }
+
+  async requestPasswordReset(
+    dto: RequestPasswordResetDto,
+  ): Promise<void> {
+    const payload: RequestPasswordResetKafkaPayload = {
+      email: dto.email,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        RequestPasswordResetKafkaPayload
+      >(
+        AUTH_PATTERNS.PASSWORD_RESET_REQUEST,
+        payload,
+      ),
+    );
   }
 
   private parseDate(

@@ -14,6 +14,8 @@ export const AUTH_PATTERNS = {
   RESEND_EMAIL_VERIFICATION: 'auth.resend_email_verification',
 
   ME: 'auth.me',
+
+  PASSWORD_RESET_REQUEST: 'auth.password_reset.request',
 } as const;
 
 export const AUTH_RESPONSE_PATTERNS = [
@@ -32,4 +34,6 @@ export const AUTH_RESPONSE_PATTERNS = [
   AUTH_PATTERNS.RESEND_EMAIL_VERIFICATION,
 
   AUTH_PATTERNS.ME,
+
+  AUTH_PATTERNS.PASSWORD_RESET_REQUEST,
 ] as const;
