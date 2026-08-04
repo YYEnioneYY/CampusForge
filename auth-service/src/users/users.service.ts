@@ -29,6 +29,7 @@ export class UsersService {
         passwordHash: input.passwordHash,
         systemRole: SystemRole.USER,
         status: UserStatus.PENDING,
+        lastLoginAt: input.lastLoginAt ?? null,
       },
       transaction,
     );

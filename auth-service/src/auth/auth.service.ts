@@ -89,6 +89,8 @@ export class AuthService {
         dto.password,
       );
 
+    const authenticatedAt = new Date();
+
     const sessionId = randomUUID();
 
     const accessTokenExpiresAt =
@@ -106,6 +108,7 @@ export class AuthService {
             {
               email,
               passwordHash,
+              lastLoginAt: authenticatedAt,
             },
             transaction,
           );
@@ -173,7 +176,7 @@ export class AuthService {
             },
           },
         );
-        
+
         return {
           user: {
             id: user.id,

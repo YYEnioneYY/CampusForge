@@ -48,6 +48,7 @@ type CreateUserRecordInput = {
   passwordHash: string;
   systemRole: SystemRole;
   status: UserStatus;
+  lastLoginAt: Date | null;
 };
 
 type FindUsersPageInput = {
@@ -84,6 +85,7 @@ export class UsersRepository {
         passwordHash: input.passwordHash,
         systemRole: input.systemRole,
         status: input.status,
+        lastLoginAt: input.lastLoginAt,
       },
       select: userSummarySelect,
     });
