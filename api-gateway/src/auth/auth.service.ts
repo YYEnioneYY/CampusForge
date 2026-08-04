@@ -41,6 +41,8 @@ import { MeResponseDto } from './dto/me/me-response.dto';
 
 import { RequestPasswordResetKafkaPayload } from './types/password-reset/request-password-reset-kafka-payload.type';
 import { RequestPasswordResetDto } from './dto/password-reset/request-password-reset.dto';
+import { ResetPasswordKafkaPayload } from './types/password-reset/reset-password-kafka-payload.type';
+import { ResetPasswordDto } from './dto/password-reset/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -497,6 +499,25 @@ export class AuthService {
         RequestPasswordResetKafkaPayload
       >(
         AUTH_PATTERNS.PASSWORD_RESET_REQUEST,
+        payload,
+      ),
+    );
+  }
+
+  async resetPassword(
+    dto: ResetPasswordDto,
+  ): Promise<void> {
+    const payload: ResetPasswordKafkaPayload = {
+      token: dto.token,
+      newPassword: dto.newPassword,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        ResetPasswordKafkaPayload
+      >(
+        AUTH_PATTERNS.PASSWORD_RESET_CONFIRM,
         payload,
       ),
     );

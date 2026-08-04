@@ -57,6 +57,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { MeResponseDto } from './dto/me/me-response.dto';
 
 import { RequestPasswordResetDto } from './dto/password-reset/request-password-reset.dto';
+import { ResetPasswordDto } from './dto/password-reset/reset-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -318,5 +319,17 @@ export class AuthController {
     await this.authService.requestPasswordReset(
       dto,
     );
+  }
+
+  @Post('password-reset/reset')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Установка нового пароля(reset)',
+  })
+  async resetPassword(
+    @Body()
+    dto: ResetPasswordDto,
+  ): Promise<void> {
+    await this.authService.resetPassword(dto);
   }
 }

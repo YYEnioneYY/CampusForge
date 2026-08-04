@@ -16,6 +16,7 @@ export const AUTH_PATTERNS = {
   ME: 'auth.me',
 
   PASSWORD_RESET_REQUEST: 'auth.password_reset.request',
+  PASSWORD_RESET_CONFIRM: 'auth.password_reset.confirm',
 } as const;
 
 export const AUTH_RESPONSE_PATTERNS = [
@@ -36,4 +37,5 @@ export const AUTH_RESPONSE_PATTERNS = [
   AUTH_PATTERNS.ME,
 
   AUTH_PATTERNS.PASSWORD_RESET_REQUEST,
+  AUTH_PATTERNS.PASSWORD_RESET_CONFIRM,
 ] as const;
