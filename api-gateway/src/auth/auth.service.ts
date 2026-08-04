@@ -33,6 +33,7 @@ import { GetSessionsResponseDto } from './dto/get-sessions-response.dto';
 import { RenameSessionKafkaPayload } from './types/sessions/rename-session-kafka-payload.type';
 
 import { VerifyEmailKafkaPayload } from './types/verify-email/verify-email-kafka-payload.type';
+import { ResendEmailVerificationKafkaPayload } from './types/verify-email/resend-email-verification-kafka-payload.type';
 
 @Injectable()
 export class AuthService {
@@ -402,6 +403,24 @@ export class AuthService {
         VerifyEmailKafkaPayload
       >(
         AUTH_PATTERNS.VERIFY_EMAIL,
+        payload,
+      ),
+    );
+  }
+
+  async resendEmailVerification(
+    userId: string,
+  ): Promise<void> {
+    const payload: ResendEmailVerificationKafkaPayload = {
+      userId,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        ResendEmailVerificationKafkaPayload
+      >(
+        AUTH_PATTERNS.RESEND_EMAIL_VERIFICATION,
         payload,
       ),
     );

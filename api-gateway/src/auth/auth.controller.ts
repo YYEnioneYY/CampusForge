@@ -270,4 +270,20 @@ export class AuthController {
       dto.token,
     );
   }
+
+  @Post('resend-email-verification')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Повторная отправка письма для подтверждения почты',
+  })
+  async resendEmailVerification(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  ): Promise<void> {
+    await this.authService.resendEmailVerification(
+      user.sub,
+    );
+  }
 }
