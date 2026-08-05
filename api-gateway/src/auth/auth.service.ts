@@ -53,6 +53,9 @@ import { DeleteAccountRequestDto } from './dto/account/delete-account-request.dt
 import { RequestAccountRestoreKafkaPayload } from './types/account/request-account-restore-kafka-payload.type';
 import { RequestAccountRestoreDto } from './dto/account/request-account-restore.dto';
 
+import { ConfirmAccountRestoreKafkaPayload } from './types/account/confirm-account-restore-kafka-payload.type';
+import { ConfirmAccountRestoreDto } from './dto/account/confirm-account-restore.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -588,6 +591,24 @@ export class AuthService {
         RequestAccountRestoreKafkaPayload
       >(
         AUTH_PATTERNS.ACCOUNT_RESTORE_REQUEST,
+        payload,
+      ),
+    );
+  }
+
+  async confirmAccountRestore(
+    dto: ConfirmAccountRestoreDto,
+  ): Promise<void> {
+    const payload: ConfirmAccountRestoreKafkaPayload = {
+      token: dto.token,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        ConfirmAccountRestoreKafkaPayload
+      >(
+        AUTH_PATTERNS.ACCOUNT_RESTORE_CONFIRM,
         payload,
       ),
     );

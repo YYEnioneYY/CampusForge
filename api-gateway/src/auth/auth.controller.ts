@@ -63,6 +63,7 @@ import { ChangePasswordRequestDto } from './dto/password-change/change-password-
 import { DeleteAccountRequestDto } from './dto/account/delete-account-request.dto';
 
 import { RequestAccountRestoreDto } from './dto/account/request-account-restore.dto';
+import { ConfirmAccountRestoreDto } from './dto/account/confirm-account-restore.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -389,5 +390,19 @@ export class AuthController {
     dto: RequestAccountRestoreDto,
   ): Promise<void> {
     await this.authService.requestAccountRestore(dto);
+  }
+
+  @Post('account-restore/confirm')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Подтверждение восстановления аккаунта',
+  })
+  async confirmAccountRestore(
+    @Body()
+    dto: ConfirmAccountRestoreDto,
+  ): Promise<void> {
+    await this.authService.confirmAccountRestore(
+      dto,
+    );
   }
 }

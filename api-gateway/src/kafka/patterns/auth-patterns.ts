@@ -22,6 +22,7 @@ export const AUTH_PATTERNS = {
   DELETE_ACCOUNT: 'auth.account.delete',
 
   ACCOUNT_RESTORE_REQUEST: 'auth.account_restore.request',
+  ACCOUNT_RESTORE_CONFIRM: 'auth.account_restore.confirm',
 } as const;
 
 export const AUTH_RESPONSE_PATTERNS = [
@@ -48,4 +49,5 @@ export const AUTH_RESPONSE_PATTERNS = [
   AUTH_PATTERNS.DELETE_ACCOUNT,
 
   AUTH_PATTERNS.ACCOUNT_RESTORE_REQUEST,
+  AUTH_PATTERNS.ACCOUNT_RESTORE_CONFIRM,
 ] as const;
