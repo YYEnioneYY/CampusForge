@@ -15,7 +15,13 @@ import {
 } from 'rxjs';
 import { RpcErrorMapperService } from '../common/errors/rpc-error-mapper.service';
 import { AUTH_RESPONSE_PATTERNS } from './patterns/auth-patterns';
+import { ADMIN_AUTH_RESPONSE_PATTERNS } from './patterns/admin-auth-patterns';
 import { AUTH_KAFKA_CLIENT } from './kafka.constants';
+
+const responsePatterns = [
+  ...AUTH_RESPONSE_PATTERNS,
+  ...ADMIN_AUTH_RESPONSE_PATTERNS,
+];
 
 @Injectable()
 export class AuthKafkaService
@@ -45,7 +51,7 @@ export class AuthKafkaService
 
   async onModuleInit(): Promise<void> {
     for (
-      const pattern of AUTH_RESPONSE_PATTERNS
+      const pattern of responsePatterns
     ) {
       this.client.subscribeToResponseOf(
         pattern,

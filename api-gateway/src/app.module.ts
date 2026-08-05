@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { HttpContextModule } from './common/http/http-context.module';
 import { RedisModule } from './redis/redis.module';
 import { SecurityModule } from './common/security.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { SecurityModule } from './common/security.module';
     HttpContextModule,
     RedisModule,
     SecurityModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
