@@ -9,7 +9,7 @@ import type {
 } from 'express';
 import type { Observable } from 'rxjs';
 
-import { AuthCookieService } from '../auth-cookie.service';
+import { AuthCookieService } from '../services/auth-cookie.service';
 import { ClientContextService } from '../../common/http/client-context.service';
 import { AuthRequest } from '../types/auth-request.type';
 

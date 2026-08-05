@@ -8,7 +8,7 @@ import type {
 } from 'express';
 import { randomUUID } from 'node:crypto';
 
-import { AUTH_COOKIE_NAMES } from './constants/auth-cookie.constants';
+import { AUTH_COOKIE_NAMES } from '../constants/auth-cookie.constants';
 
 @Injectable()
 export class AuthCookieService {

@@ -7,6 +7,10 @@ import {
 
 import { RedisService } from '../../redis/redis.service';
 import type { AuthenticatedUser } from '../types/authenticated-user.type';
+import { 
+  getSessionRevokedKey, 
+  getUserRevokedAfterKey,
+} from '../constants/access-revocation-keys';
 
 @Injectable()
 export class AccessRevocationCheckerService {
@@ -23,12 +27,12 @@ export class AccessRevocationCheckerService {
     payload: AuthenticatedUser,
   ): Promise<void> {
     const sessionRevokedKey =
-      this.getSessionRevokedKey(
+      getSessionRevokedKey(
         payload.sid,
       );
 
     const userRevokedAfterKey =
-      this.getUserRevokedAfterKey(
+      getUserRevokedAfterKey(
         payload.sub,
       );
 
@@ -88,17 +92,5 @@ export class AccessRevocationCheckerService {
         'Access token has been revoked',
       );
     }
-  }
-
-  private getSessionRevokedKey(
-    sessionId: string,
-  ): string {
-    return `auth:session:revoked:${sessionId}`;
-  }
-
-  private getUserRevokedAfterKey(
-    userId: string,
-  ): string {
-    return `auth:user:revoked-after:${userId}`;
   }
 }

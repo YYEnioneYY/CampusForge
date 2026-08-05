@@ -11,7 +11,7 @@ import {
   type Observable,
 } from 'rxjs';
 
-import { AuthCookieService } from '../auth-cookie.service';
+import { AuthCookieService } from '../services/auth-cookie.service';
 
 type AuthSessionControllerResult<TBody> = {
   body: TBody;

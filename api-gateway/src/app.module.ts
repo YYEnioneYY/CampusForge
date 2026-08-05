@@ -5,6 +5,7 @@ import { KafkaModule } from './kafka/kafka.module';
 import { AuthModule } from './auth/auth.module';
 import { HttpContextModule } from './common/http/http-context.module';
 import { RedisModule } from './redis/redis.module';
+import { SecurityModule } from './common/security.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RedisModule } from './redis/redis.module';
     AuthModule,
     HttpContextModule,
     RedisModule,
+    SecurityModule,
   ],
 })
 export class AppModule {}

@@ -28,13 +28,13 @@ import { CurrentClientContext } from './decorators/current-client-context.decora
 import { RefreshTokenCookie } from './decorators/refresh-token-cookie.decorator';
 
 import { ClientContextService } from '../common/http/client-context.service';
-import { AuthCookieService } from './auth-cookie.service';
+import { AuthCookieService } from './services/auth-cookie.service';
 import { AuthService } from './auth.service';
 import type { ClientContext } from '../common/http/types/client-context.type';
 
-import { AccessTokenGuard } from './guards/access-token.guard';
-import { CurrentUser } from './decorators/current-user.decorator';
-import type { AuthenticatedUser } from './types/authenticated-user.type';
+import { AccessTokenGuard } from '../common/guards/access-token.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../common/types/authenticated-user.type';
 import { SessionIdParamsDto } from './dto/session-id-params.dto';
 
 import { RegisterDto } from './dto/register.dto';
