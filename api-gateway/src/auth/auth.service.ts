@@ -50,6 +50,9 @@ import { ChangePasswordRequestDto } from './dto/password-change/change-password-
 import { DeleteAccountKafkaPayload } from './types/account/delete-account-kafka-payload.type';
 import { DeleteAccountRequestDto } from './dto/account/delete-account-request.dto';
 
+import { RequestAccountRestoreKafkaPayload } from './types/account/request-account-restore-kafka-payload.type';
+import { RequestAccountRestoreDto } from './dto/account/request-account-restore.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -567,6 +570,24 @@ export class AuthService {
         DeleteAccountKafkaPayload
       >(
         AUTH_PATTERNS.DELETE_ACCOUNT,
+        payload,
+      ),
+    );
+  }
+
+  async requestAccountRestore(
+    dto: RequestAccountRestoreDto,
+  ): Promise<void> {
+    const payload: RequestAccountRestoreKafkaPayload = {
+      email: dto.email,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        RequestAccountRestoreKafkaPayload
+      >(
+        AUTH_PATTERNS.ACCOUNT_RESTORE_REQUEST,
         payload,
       ),
     );
