@@ -13,6 +13,8 @@ export const AUTH_PATTERNS = {
   VERIFY_EMAIL: 'auth.verify_email',
   RESEND_EMAIL_VERIFICATION: 'auth.resend_email_verification',
 
+  ME: 'auth.me',
+
   PASSWORD_RESET_REQUEST: 'auth.password_reset.request',
   PASSWORD_RESET_CONFIRM: 'auth.password_reset.confirm',
   CHANGE_PASSWORD: 'auth.password.change',
@@ -21,8 +23,6 @@ export const AUTH_PATTERNS = {
 
   ACCOUNT_RESTORE_REQUEST: 'auth.account_restore.request',
   ACCOUNT_RESTORE_CONFIRM: 'auth.account_restore.confirm',
-
-  ME: 'auth.me',
 
   // ADMIN
   ADMIN_GET_USERS: 'auth.admin.users.list',

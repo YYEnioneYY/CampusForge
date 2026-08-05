@@ -190,7 +190,6 @@ export class AdminUsersService {
       );
   
     return {
-      success: true,
       user: {
         ...this.usersService.mapUserForAdminResponse(user),
         activeSessionsCount,
@@ -274,12 +273,12 @@ export class AdminUsersService {
     input: RevokeUserSessionsInput,
   ) {
     await this.assertActiveAdmin(input.actorUserId);
-  
+
     const targetUser =
       await this.usersService.findByIdForAdminAction(
         input.targetUserId,
       );
-    
+
     if (
       !targetUser ||
       targetUser.deletedAt ||
@@ -290,20 +289,20 @@ export class AdminUsersService {
         'User was not found',
       );
     }
-  
+
     const revokedAt = new Date();
-  
+
     const revokedSessionsCount =
       await this.refreshTokenService.revokeAllUserTokens(
         targetUser.id,
         revokedAt,
       );
-    
+
     await this.accessRevocationService.revokeUserAccessTokens(
       targetUser.id,
       revokedAt,
     );
-  
+
     return {
       success: true,
       userId: targetUser.id,
