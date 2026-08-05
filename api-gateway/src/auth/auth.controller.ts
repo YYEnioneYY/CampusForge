@@ -59,6 +59,9 @@ import { MeResponseDto } from './dto/me/me-response.dto';
 import { RequestPasswordResetDto } from './dto/password-reset/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/password-reset/reset-password.dto';
 
+import { ChangePasswordRequestDto } from './dto/password-change/change-password-request.dto';
+import { DeleteAccountRequestDto } from './dto/account/delete-account-request.dto';
+
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -331,5 +334,46 @@ export class AuthController {
     dto: ResetPasswordDto,
   ): Promise<void> {
     await this.authService.resetPassword(dto);
+  }
+
+  @Patch('change-password')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Смена пароля акканута(change)',
+  })
+  async changePassword(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Body()
+    dto: ChangePasswordRequestDto,
+  ): Promise<void> {
+    await this.authService.changePassword(
+      user.sub,
+      user.sid,
+      dto,
+    );
+  }
+
+  @Delete('account')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Удаление аккаунта пользователя',
+  })
+  async deleteAccount(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Body()
+    dto: DeleteAccountRequestDto,
+  ): Promise<void> {
+    await this.authService.deleteAccount(
+      user.sub,
+      dto,
+    );
   }
 }

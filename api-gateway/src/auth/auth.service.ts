@@ -44,6 +44,12 @@ import { RequestPasswordResetDto } from './dto/password-reset/request-password-r
 import { ResetPasswordKafkaPayload } from './types/password-reset/reset-password-kafka-payload.type';
 import { ResetPasswordDto } from './dto/password-reset/reset-password.dto';
 
+import { ChangePasswordKafkaPayload } from './types/password-change/change-password-kafka-payload.type';
+import { ChangePasswordRequestDto } from './dto/password-change/change-password-request.dto';
+
+import { DeleteAccountKafkaPayload } from './types/account/delete-account-kafka-payload.type';
+import { DeleteAccountRequestDto } from './dto/account/delete-account-request.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -518,6 +524,49 @@ export class AuthService {
         ResetPasswordKafkaPayload
       >(
         AUTH_PATTERNS.PASSWORD_RESET_CONFIRM,
+        payload,
+      ),
+    );
+  }
+
+  async changePassword(
+    userId: string,
+    currentSessionId: string,
+    dto: ChangePasswordRequestDto,
+  ): Promise<void> {
+    const payload: ChangePasswordKafkaPayload = {
+      userId,
+      currentSessionId,
+      currentPassword: dto.currentPassword,
+      newPassword: dto.newPassword,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        ChangePasswordKafkaPayload
+      >(
+        AUTH_PATTERNS.CHANGE_PASSWORD,
+        payload,
+      ),
+    );
+  }
+
+  async deleteAccount(
+    userId: string,
+    dto: DeleteAccountRequestDto,
+  ): Promise<void> {
+    const payload: DeleteAccountKafkaPayload = {
+      userId,
+      currentPassword: dto.currentPassword,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        DeleteAccountKafkaPayload
+      >(
+        AUTH_PATTERNS.DELETE_ACCOUNT,
         payload,
       ),
     );
