@@ -7,6 +7,8 @@ import { firstValueFrom } from 'rxjs';
 
 import { ADMIN_AUTH_PATTERNS } from '../../kafka/patterns/admin-auth-patterns';
 
+import { CommandAcknowledgement } from '../../common/types/command-acknowledgement.type';
+
 import { AdminGetUsersQueryDto } from './dto/admin-get-users-query.dto';
 import { AdminGetUsersResponseDto } from './dto/admin-get-users-response.dto';
 import { AdminGetUsersKafkaPayload } from './types/admin-get-users-kafka-payload.type';
@@ -15,6 +17,8 @@ import { AdminGetUsersKafkaResponse } from './types/admin-get-users-kafka-respon
 import { AdminGetUserResponseDto } from './dto/admin-get-user-response.dto';
 import type { AdminGetUserKafkaPayload } from './types/admin-get-user-kafka-payload.type';
 import type { AdminGetUserKafkaResponse } from './types/admin-get-user-kafka-response.type';
+
+import { AdminBlockUserKafkaPayload } from './types/admin-block-user-kafka-payload.type';
 
 @Injectable()
 export class AdminAuthService {
@@ -65,6 +69,26 @@ export class AdminAuthService {
         AdminGetUserKafkaPayload
       >(
         ADMIN_AUTH_PATTERNS.ADMIN_GET_USER,
+        payload,
+      ),
+    );
+  }
+
+  async blockUser(
+    actorUserId: string,
+    targetUserId: string,
+  ): Promise<void> {
+    const payload: AdminBlockUserKafkaPayload = {
+      actorUserId,
+      targetUserId,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        AdminBlockUserKafkaPayload
+      >(
+        ADMIN_AUTH_PATTERNS.ADMIN_BLOCK_USER,
         payload,
       ),
     );

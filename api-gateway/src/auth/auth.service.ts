@@ -7,7 +7,7 @@ import type { ClientContext } from '../common/http/types/client-context.type';
 import { AuthKafkaService } from '../kafka/auth-kafka.service';
 import { AUTH_PATTERNS } from '../kafka/patterns/auth-patterns';
 
-import { CommandAcknowledgement } from './types/command-acknowledgement.type';
+import { CommandAcknowledgement } from '../common/types/command-acknowledgement.type';
 
 import { RegisterDto } from './dto/register.dto';
 import { RegisterKafkaResponse } from './types/register/register-kafka-response.type';

@@ -1,6 +1,9 @@
 import {
+  HttpCode,
+  HttpStatus,
   Controller,
   Get,
+  Patch,
   Param,
   ParseUUIDPipe,
   UseGuards,
@@ -92,6 +95,27 @@ export class AdminAuthController {
     targetUserId: string,
   ): Promise<AdminGetUserResponseDto> {
     return this.adminAuthService.getUser(
+      user.sub,
+      targetUserId,
+    );
+  }
+
+  @Patch(':userId/block')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Блокировка пользователя',
+  })
+  async blockUser(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Param(
+      'userId',
+      ParseUUIDPipe,
+    )
+    targetUserId: string,
+  ): Promise<void> {
+    await this.adminAuthService.blockUser(
       user.sub,
       targetUserId,
     );
