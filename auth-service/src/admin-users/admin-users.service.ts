@@ -100,7 +100,7 @@ export class AdminUsersService {
 
     const now = new Date();
 
-    const blockedUser = await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       const updatedUser = await this.usersService.updateUserStatusInTransaction(
         input.targetUserId,
         UserStatus.BLOCKED,
@@ -123,7 +123,6 @@ export class AdminUsersService {
 
     return {
       success: true,
-      user: this.usersService.mapUserForAdminResponse(blockedUser),
     };
   }
 
