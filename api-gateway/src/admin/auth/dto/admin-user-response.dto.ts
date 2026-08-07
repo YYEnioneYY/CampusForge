@@ -1,13 +1,15 @@
 import {
   SystemRole,
 } from '../../../common/enums/system-role.enum';
+import {
+  UserStatus,
+} from '../../../common/enums/user-status.enum';
 
 export class AdminUserResponseDto {
   id!: string;
   email!: string;
-  
   role!: SystemRole;
-  status!: string;
+  status!: UserStatus;
 
   emailVerified!: boolean;
   emailVerifiedAt!: string | null;
@@ -16,6 +18,4 @@ export class AdminUserResponseDto {
   deletedAt!: string | null;
   createdAt!: string;
   updatedAt!: string;
-
-  activeSessionsCount!: number;
 }

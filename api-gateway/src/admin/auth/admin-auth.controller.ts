@@ -4,6 +4,7 @@ import {
   Param,
   ParseUUIDPipe,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -41,6 +42,9 @@ import {
   AdminGetUserResponseDto,
 } from './dto/admin-get-user-response.dto';
 
+import { AdminGetUsersQueryDto } from './dto/admin-get-users-query.dto';
+import { AdminGetUsersResponseDto } from './dto/admin-get-users-response.dto';
+
 @ApiTags('Admin — Users')
 @ApiBearerAuth('access-token')
 @Controller('admin/users')
@@ -54,6 +58,23 @@ export class AdminAuthController {
     private readonly adminAuthService:
       AdminAuthService,
   ) {}
+
+  @Get()
+  @ApiOperation({
+    summary: 'Получение всех пользователей',
+  })
+  async getUsers(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Query()
+    query: AdminGetUsersQueryDto,
+  ): Promise<AdminGetUsersResponseDto> {
+    return this.adminAuthService.getUsers(
+      user.sub,
+      query,
+    );
+  }
 
   @Get(':userId')
   @ApiOperation({
