@@ -48,9 +48,9 @@ import {
 import { AdminGetUsersQueryDto } from './dto/admin-get-users-query.dto';
 import { AdminGetUsersResponseDto } from './dto/admin-get-users-response.dto';
 
-@ApiTags('Admin — Users')
+@ApiTags('Admin — Auth')
 @ApiBearerAuth('access-token')
-@Controller('admin/users')
+@Controller('admin/auth')
 @UseGuards(
   AccessTokenGuard,
   RolesGuard,
@@ -62,7 +62,7 @@ export class AdminAuthController {
       AdminAuthService,
   ) {}
 
-  @Get()
+  @Get('users')
   @ApiOperation({
     summary: 'Получение всех пользователей',
   })
@@ -79,7 +79,7 @@ export class AdminAuthController {
     );
   }
 
-  @Get(':userId')
+  @Get('users/:userId')
   @ApiOperation({
     summary:
       'Получение информации о конкретном пользователе',
@@ -100,7 +100,7 @@ export class AdminAuthController {
     );
   }
 
-  @Patch(':userId/block')
+  @Patch('users/:userId/block')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Блокировка пользователя',
