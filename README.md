@@ -67,7 +67,7 @@ Frontend
 API Gateway
    |
    |-- Auth Service
-   |-- User Service
+   |-- Profile Service
    |-- Organization Service
    |-- Project Service
    |-- Task Service
@@ -107,7 +107,7 @@ WebSocket
 |---|---|
 | API Gateway | Единая точка входа во внутренние сервисы |
 | Auth Service | Регистрация, вход, JWT, refresh-токены, подтверждение email |
-| User Service | Профили пользователей, навыки, ссылки, документы |
+| Profile Service | Профили пользователей, навыки, ссылки, документы |
 | Organization Service | Университеты, кафедры, компании, рабочие пространства |
 | Project Service | Проекты, участники, роли, заявки, приглашения |
 | Task Service | Доски задач, колонки, задачи, комментарии, вложения |
