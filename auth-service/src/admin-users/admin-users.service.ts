@@ -94,7 +94,6 @@ export class AdminUsersService {
     if (targetUser.status === UserStatus.BLOCKED) {
       return {
         success: true,
-        user: this.usersService.mapUserForAdminResponse(targetUser),
       };
     }
 
@@ -144,9 +143,6 @@ export class AdminUsersService {
     if (targetUser.status !== UserStatus.BLOCKED) {
       return {
         success: true,
-        user: this.usersService.mapUserForAdminResponse(
-          targetUser,
-        ),
       };
     }
   
@@ -154,17 +150,13 @@ export class AdminUsersService {
       ? UserStatus.ACTIVE
       : UserStatus.PENDING;
   
-    const unblockedUser =
-      await this.usersService.updateUserStatus(
-        targetUser.id,
-        nextStatus,
-      );
+    await this.usersService.updateUserStatus(
+      targetUser.id,
+      nextStatus,
+    );
   
     return {
       success: true,
-      user: this.usersService.mapUserForAdminResponse(
-        unblockedUser,
-      ),
     };
   }
 
