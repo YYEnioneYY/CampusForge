@@ -3,6 +3,7 @@ export const ADMIN_AUTH_PATTERNS = {
   ADMIN_GET_USER: 'auth.admin.users.get',
 
   ADMIN_BLOCK_USER: 'auth.admin.users.block',
+  ADMIN_UNBLOCK_USER: 'auth.admin.users.unblock',
 } as const;
 
 export const ADMIN_AUTH_RESPONSE_PATTERNS = [
@@ -10,4 +11,5 @@ export const ADMIN_AUTH_RESPONSE_PATTERNS = [
   ADMIN_AUTH_PATTERNS.ADMIN_GET_USER,
 
   ADMIN_AUTH_PATTERNS.ADMIN_BLOCK_USER,
+  ADMIN_AUTH_PATTERNS.ADMIN_UNBLOCK_USER,
 ] as const;

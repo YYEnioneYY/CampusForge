@@ -120,4 +120,25 @@ export class AdminAuthController {
       targetUserId,
     );
   }
+
+  @Patch('users/:userId/unblock')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Разблокировка пользователя',
+  })
+  async unblockUser(
+    @CurrentUser()
+    actor: AuthenticatedUser,
+  
+    @Param(
+      'userId',
+      ParseUUIDPipe,
+    )
+    targetUserId: string,
+  ): Promise<void> {
+    await this.adminAuthService.unblockUser(
+      actor.sub,
+      targetUserId,
+    );
+  }
 }

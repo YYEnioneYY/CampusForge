@@ -19,6 +19,7 @@ import type { AdminGetUserKafkaPayload } from './types/admin-get-user-kafka-payl
 import type { AdminGetUserKafkaResponse } from './types/admin-get-user-kafka-response.type';
 
 import { AdminBlockUserKafkaPayload } from './types/admin-block-user-kafka-payload.type';
+import { AdminUnblockUserKafkaPayload } from './types/admin-unblock-user-kafka-payload.type';
 
 @Injectable()
 export class AdminAuthService {
@@ -89,6 +90,26 @@ export class AdminAuthService {
         AdminBlockUserKafkaPayload
       >(
         ADMIN_AUTH_PATTERNS.ADMIN_BLOCK_USER,
+        payload,
+      ),
+    );
+  }
+
+  async unblockUser(
+    actorUserId: string,
+    targetUserId: string,
+  ): Promise<void> {
+    const payload: AdminUnblockUserKafkaPayload = {
+      actorUserId,
+      targetUserId,
+    };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        AdminUnblockUserKafkaPayload
+      >(
+        ADMIN_AUTH_PATTERNS.ADMIN_UNBLOCK_USER,
         payload,
       ),
     );
