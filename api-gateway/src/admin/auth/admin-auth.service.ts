@@ -21,6 +21,9 @@ import type { AdminGetUserKafkaResponse } from './types/admin-get-user-kafka-res
 import { AdminBlockUserKafkaPayload } from './types/admin-block-user-kafka-payload.type';
 import { AdminUnblockUserKafkaPayload } from './types/admin-unblock-user-kafka-payload.type';
 
+import { AdminChangeUserRoleDto } from './dto/admin-change-user-role.dto';
+import { AdminChangeUserRoleKafkaPayload } from './types/admin-change-user-role-kafka-payload.type';
+
 @Injectable()
 export class AdminAuthService {
   constructor(
@@ -110,6 +113,29 @@ export class AdminAuthService {
         AdminUnblockUserKafkaPayload
       >(
         ADMIN_AUTH_PATTERNS.ADMIN_UNBLOCK_USER,
+        payload,
+      ),
+    );
+  }
+
+  async changeUserRole(
+    actorUserId: string,
+    targetUserId: string,
+    dto: AdminChangeUserRoleDto,
+  ): Promise<void> {
+    const payload:
+      AdminChangeUserRoleKafkaPayload = {
+        actorUserId,
+        targetUserId,
+        newRole: dto.newRole,
+      };
+  
+    await firstValueFrom(
+      this.authKafkaService.send<
+        CommandAcknowledgement,
+        AdminChangeUserRoleKafkaPayload
+      >(
+        ADMIN_AUTH_PATTERNS.ADMIN_CHANGE_USER_ROLE,
         payload,
       ),
     );
