@@ -291,8 +291,6 @@ export class AdminUsersService {
     );
 
     return {
-      success: true,
-      userId: targetUser.id,
       revokedSessionsCount,
     };
   }
