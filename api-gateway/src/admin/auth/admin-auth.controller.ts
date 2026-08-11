@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Patch,
+  Delete,
   Param,
   ParseUUIDPipe,
   UseGuards,
@@ -12,13 +13,8 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiForbiddenResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -34,6 +30,8 @@ import { AdminGetUsersQueryDto } from './dto/admin-get-users-query.dto';
 import { AdminGetUsersResponseDto } from './dto/admin-get-users-response.dto';
 
 import { AdminChangeUserRoleDto } from './dto/admin-change-user-role.dto';
+
+import { AdminRevokeUserSessionsResponseDto } from './dto/admin-revoke-user-sessions-response.dto';
 
 @ApiTags('Admin — Auth')
 @ApiBearerAuth('access-token')
@@ -151,6 +149,26 @@ export class AdminAuthController {
       user.sub,
       targetUserId,
       dto,
+    );
+  }
+
+  @Delete('auth/:userId/sessions')
+  @ApiOperation({
+    summary: 'Отзыв всех активных сессий пользователя',
+  })
+  async revokeUserSessions(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Param(
+      'userId',
+      ParseUUIDPipe,
+    )
+    targetUserId: string,
+  ): Promise<AdminRevokeUserSessionsResponseDto> {
+    return this.adminAuthService.revokeUserSessions(
+      user.sub,
+      targetUserId,
     );
   }
 }

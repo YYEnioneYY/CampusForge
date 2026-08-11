@@ -6,6 +6,8 @@ export const ADMIN_AUTH_PATTERNS = {
   ADMIN_UNBLOCK_USER: 'auth.admin.users.unblock',
 
   ADMIN_CHANGE_USER_ROLE: 'auth.admin.users.change_role',
+
+  ADMIN_REVOKE_USER_SESSIONS: 'auth.admin.users.revoke_sessions',
 } as const;
 
 export const ADMIN_AUTH_RESPONSE_PATTERNS = [
@@ -16,4 +18,6 @@ export const ADMIN_AUTH_RESPONSE_PATTERNS = [
   ADMIN_AUTH_PATTERNS.ADMIN_UNBLOCK_USER,
 
   ADMIN_AUTH_PATTERNS.ADMIN_CHANGE_USER_ROLE,
+
+  ADMIN_AUTH_PATTERNS.ADMIN_REVOKE_USER_SESSIONS,
 ] as const;

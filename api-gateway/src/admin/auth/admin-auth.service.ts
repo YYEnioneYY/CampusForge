@@ -24,6 +24,10 @@ import { AdminUnblockUserKafkaPayload } from './types/admin-unblock-user-kafka-p
 import { AdminChangeUserRoleDto } from './dto/admin-change-user-role.dto';
 import { AdminChangeUserRoleKafkaPayload } from './types/admin-change-user-role-kafka-payload.type';
 
+import { AdminRevokeUserSessionsKafkaPayload } from './types/admin-revoke-user-sessions-kafka-payload.type';
+import { AdminRevokeUserSessionsKafkaResponse } from './types/admin-revoke-user-sessions-kafka-response.type';
+import { AdminRevokeUserSessionsResponseDto } from './dto/admin-revoke-user-sessions-response.dto';
+
 @Injectable()
 export class AdminAuthService {
   constructor(
@@ -136,6 +140,27 @@ export class AdminAuthService {
         AdminChangeUserRoleKafkaPayload
       >(
         ADMIN_AUTH_PATTERNS.ADMIN_CHANGE_USER_ROLE,
+        payload,
+      ),
+    );
+  }
+
+  async revokeUserSessions(
+    actorUserId: string,
+    targetUserId: string,
+  ): Promise<AdminRevokeUserSessionsResponseDto> {
+    const payload:
+      AdminRevokeUserSessionsKafkaPayload = {
+        actorUserId,
+        targetUserId,
+      };
+  
+    return firstValueFrom(
+      this.authKafkaService.send<
+        AdminRevokeUserSessionsKafkaResponse,
+        AdminRevokeUserSessionsKafkaPayload
+      >(
+        ADMIN_AUTH_PATTERNS.ADMIN_REVOKE_USER_SESSIONS,
         payload,
       ),
     );
