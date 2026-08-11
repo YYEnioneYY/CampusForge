@@ -219,10 +219,6 @@ export class AdminUsersService {
     if (targetUser.systemRole === input.newRole) {
       return {
         success: true,
-        user:
-          this.usersService.mapUserForAdminResponse(
-            targetUser,
-          ),
       };
     }
   
