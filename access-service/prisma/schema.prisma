@@ -8,3 +8,95 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum AccessScopeType {
+  GLOBAL
+  ORGANIZATION
+  PROJECT
+}
+
+model Permission {
+  id          String @id @default(uuid()) @db.Uuid
+
+  code        String          @unique @db.VarChar(150)
+  name        String          @db.VarChar(150)
+  description String?
+  scopeType   AccessScopeType @map("scope_type")
+
+  roles       RolePermission[]
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([scopeType])
+  @@map("permissions")
+}
+
+model Role {
+  id           String @id @default(uuid()) @db.Uuid
+
+  key          String          @unique @db.VarChar(255)
+  code         String          @db.VarChar(100)
+  name         String          @db.VarChar(150)
+  description  String?
+  scopeType    AccessScopeType @map("scope_type")
+
+  ownerScopeId String? @db.Uuid @map("owner_scope_id")
+
+  isSystem     Boolean @default(false) @map("is_system")
+
+  permissions  RolePermission[]
+  assignments  RoleAssignment[]
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([scopeType])
+  @@index([scopeType, ownerScopeId])
+  @@index([code])
+
+  @@map("roles")
+}
+
+model RolePermission {
+  roleId       String @db.Uuid @map("role_id")
+  permissionId String @db.Uuid @map("permission_id")
+
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@id([roleId, permissionId])
+
+  @@index([permissionId])
+
+  @@map("role_permissions")
+}
+
+model RoleAssignment {
+  id               String @id @default(uuid()) @db.Uuid
+
+  userId           String @db.Uuid @map("user_id")
+  roleId           String @db.Uuid @map("role_id")
+      
+  scopeType        AccessScopeType @map("scope_type")
+  scopeId          String?         @db.Uuid @map("scope_id")
+      
+  scopeKey         String @db.VarChar(128) @map("scope_key")
+
+  assignedByUserId String? @db.Uuid @map("assigned_by_user_id")
+
+  role             Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, roleId, scopeKey])
+
+  @@index([userId])
+  @@index([userId, scopeKey])
+  @@index([scopeType, scopeId])
+  @@index([roleId])
+
+  @@map("role_assignments")
+}
