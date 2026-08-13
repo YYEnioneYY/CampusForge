@@ -10,9 +10,11 @@ datasource db {
 }
 
 enum AccessScopeType {
-  GLOBAL
-  ORGANIZATION
-  PROJECT
+  GLOBAL       @map("global")
+  ORGANIZATION @map("organization")
+  PROJECT      @map("project")
+
+  @@map("access_scope_type")
 }
 
 model Permission {
