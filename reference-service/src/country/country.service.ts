@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
 
+import { throwRpcError } from 'src/common/rpc/throw-rpc-error';
+import { RpcErrorCode } from 'src/common/rpc/rpc-error-code';
+
 import { PrismaService } from '../prisma/prisma.service';
 
 import { GetCountriesDto } from './dto/get-countries.dto';
 import { ReferenceLocale } from './enums/reference-locale.enum';
 import type { GetCountriesResponse } from './types/get-countries-response.type';
+
+import { GetCountryDto } from './dto/get-country.dto';
+import type { GetCountryResponse } from './types/get-country-response.type';
 
 @Injectable()
 export class CountryService {
@@ -53,6 +59,47 @@ export class CountryService {
               : country.nameEn,
         }),
       ),
+    };
+  }
+
+  async getCountry(
+    dto: GetCountryDto,
+  ): Promise<GetCountryResponse> {
+    const country =
+      await this.prisma.country.findUnique({
+        where: {
+          code2: dto.code,
+        },
+  
+        select: {
+          code2: true,
+          code3: true,
+  
+          nameEn: true,
+          nameRu: true,
+  
+          isActive: true,
+        },
+      });
+  
+    if (
+      !country ||
+      !country.isActive
+    ) {
+      throwRpcError(
+        RpcErrorCode.COUNTRY_NOT_FOUND,
+        'Country not found',
+      );
+    }
+  
+    return {
+      country: {
+        code2: country.code2,
+        code3: country.code3,
+  
+        nameEn: country.nameEn,
+        nameRu: country.nameRu,
+      },
     };
   }
 }

@@ -14,6 +14,9 @@ import { CountryService } from './country.service';
 import { GetCountriesDto } from './dto/get-countries.dto';
 import type { GetCountriesResponse } from './types/get-countries-response.type';
 
+import { GetCountryDto } from './dto/get-country.dto';
+import type { GetCountryResponse } from './types/get-country-response.type';
+
 @Controller()
 export class CountryController {
   constructor(
@@ -27,6 +30,16 @@ export class CountryController {
     dto: GetCountriesDto,
   ): Promise<GetCountriesResponse> {
     return this.countryService.getCountries(
+      dto,
+    );
+  }
+
+  @MessagePattern(REFERENCE_PATTERNS.GET_COUNTRY)
+  getCountry(
+    @Payload()
+    dto: GetCountryDto,
+  ): Promise<GetCountryResponse> {
+    return this.countryService.getCountry(
       dto,
     );
   }
