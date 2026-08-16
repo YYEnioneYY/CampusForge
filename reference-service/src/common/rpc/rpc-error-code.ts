@@ -1,0 +1,4 @@
+export enum RpcErrorCode {
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  INTERNAL_ERROR = 'INTERNAL_ERROR',
+}
