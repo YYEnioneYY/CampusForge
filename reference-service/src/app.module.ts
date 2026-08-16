@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { validateEnv } from './config/env.validation';
+import { CountryModule } from './country/country.module';
 
 @Module({
   imports: [
@@ -9,7 +10,8 @@ import { validateEnv } from './config/env.validation';
       isGlobal: true,
       validate: validateEnv,
     }),
-    PrismaModule
+    PrismaModule,
+    CountryModule
   ],
   controllers: [],
   providers: [],
