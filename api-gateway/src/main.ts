@@ -1,5 +1,6 @@
 import {
   ValidationPipe,
+  VersioningType,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -32,6 +33,11 @@ async function bootstrap(): Promise<void> {
 
   app.enableShutdownHooks();
   app.setGlobalPrefix('api');
+
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
