@@ -29,8 +29,8 @@ model UserProfile {
   avatarUrl   String?           @map("avatar_url") @db.Text
   bio         String?           @db.Text
 
-  city        String?           @db.VarChar(255)
-  country     String?           @db.VarChar(255)
+  countryCode String?           @map("country_code") @db.Char(2)
+  countryName String?           @map("country_name") @db.VarChar(150)
 
   dateOfBirth DateTime?         @map("date_of_birth") @db.Date
 
