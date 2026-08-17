@@ -14,14 +14,6 @@ import {
   REFERENCE_PATTERNS,
 } from '../../kafka/patterns/reference-patterns';
 
-import {
-  GetCountriesQueryDto,
-} from './dto/get-countries-query.dto';
-
-import type {
-  GetCountriesKafkaPayload,
-} from './types/get-countries-kafka-payload.type';
-
 import type {
   GetCountriesKafkaResponse,
 } from './types/get-countries-kafka-response.type';
@@ -33,20 +25,14 @@ export class CountryService {
       ReferenceKafkaService,
   ) {}
 
-  async getCountries(
-    query: GetCountriesQueryDto,
-  ): Promise<GetCountriesKafkaResponse> {
-    const payload: GetCountriesKafkaPayload = {
-      locale: query.locale,
-    };
-
+  async getCountries(): Promise<GetCountriesKafkaResponse> {
     return firstValueFrom(
       this.referenceKafkaService.send<
         GetCountriesKafkaResponse,
-        GetCountriesKafkaPayload
+        Record<string, never>
       >(
         REFERENCE_PATTERNS.GET_COUNTRIES,
-        payload,
+        {},
       ),
     );
   }

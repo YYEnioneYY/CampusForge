@@ -15,10 +15,6 @@ import {
 } from './country.service';
 
 import {
-  GetCountriesQueryDto,
-} from './dto/get-countries-query.dto';
-
-import {
   GetCountriesResponseDto,
 } from './dto/get-countries-response.dto';
 
@@ -35,10 +31,7 @@ export class CountryController {
     summary:
       'Список доступных стран',
   })
-  getCountries(
-    @Query()
-    query: GetCountriesQueryDto,
-  ): Promise<GetCountriesResponseDto> {
-    return this.countryService.getCountries(query);
+  getCountries(): Promise<GetCountriesResponseDto> {
+    return this.countryService.getCountries();
   }
 }
