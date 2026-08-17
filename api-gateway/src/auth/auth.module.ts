@@ -16,8 +16,6 @@ import { SecurityModule } from 'src/common/security.module';
   imports: [
     KafkaModule,
     HttpContextModule,
-    JwtModule.register({}),
-    RedisModule,
     SecurityModule,
   ],
   controllers: [
