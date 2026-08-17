@@ -11,7 +11,6 @@ import { REFERENCE_PATTERNS } from '../kafka/patterns/reference-patterns';
 
 import { CountryService } from './country.service';
 
-import { GetCountriesDto } from './dto/get-countries.dto';
 import type { GetCountriesResponse } from './types/get-countries-response.type';
 
 import { GetCountryDto } from './dto/get-country.dto';
@@ -25,13 +24,8 @@ export class CountryController {
   ) {}
 
   @MessagePattern(REFERENCE_PATTERNS.GET_COUNTRIES)
-  getCountries(
-    @Payload()
-    dto: GetCountriesDto,
-  ): Promise<GetCountriesResponse> {
-    return this.countryService.getCountries(
-      dto,
-    );
+  getCountries(): Promise<GetCountriesResponse> {
+    return this.countryService.getCountries();
   }
 
   @MessagePattern(REFERENCE_PATTERNS.GET_COUNTRY)

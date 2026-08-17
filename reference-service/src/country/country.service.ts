@@ -5,8 +5,6 @@ import { RpcErrorCode } from 'src/common/rpc/rpc-error-code';
 
 import { PrismaService } from '../prisma/prisma.service';
 
-import { GetCountriesDto } from './dto/get-countries.dto';
-import { ReferenceLocale } from './enums/reference-locale.enum';
 import type { GetCountriesResponse } from './types/get-countries-response.type';
 
 import { GetCountryDto } from './dto/get-country.dto';
@@ -18,13 +16,7 @@ export class CountryService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async getCountries(
-    dto: GetCountriesDto,
-  ): Promise<GetCountriesResponse> {
-    const locale =
-      dto.locale ??
-      ReferenceLocale.EN;
-
+  async getCountries(): Promise<GetCountriesResponse> {
     const countries =
       await this.prisma.country.findMany({
         where: {
@@ -33,30 +25,19 @@ export class CountryService {
 
         select: {
           code2: true,
-          nameEn: true,
-          nameRu: true,
+          name: true,
         },
 
-        orderBy:
-          locale === ReferenceLocale.RU
-            ? {
-                nameRu: 'asc',
-              }
-            : {
-                nameEn: 'asc',
-              },
+        orderBy: {
+          name: 'asc',
+        },
       });
 
     return {
       items: countries.map(
         (country) => ({
           code: country.code2,
-
-          name:
-            locale ===
-            ReferenceLocale.RU
-              ? country.nameRu
-              : country.nameEn,
+          name: country.name,
         }),
       ),
     };
@@ -75,8 +56,7 @@ export class CountryService {
           code2: true,
           code3: true,
   
-          nameEn: true,
-          nameRu: true,
+          name: true,
   
           isActive: true,
         },
@@ -96,9 +76,7 @@ export class CountryService {
       country: {
         code2: country.code2,
         code3: country.code3,
-  
-        nameEn: country.nameEn,
-        nameRu: country.nameRu,
+        name: country.name,
       },
     };
   }

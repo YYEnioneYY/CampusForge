@@ -15,16 +15,14 @@ model Country {
   code2     String @unique @map("code_2") @db.Char(2)
   code3     String @unique @map("code_3") @db.Char(3)
 
-  nameEn    String @map("name_en") @db.VarChar(150)
-  nameRu    String @map("name_ru") @db.VarChar(150)
+  name      String @db.VarChar(150)
 
   isActive  Boolean @default(true) @map("is_active")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([nameEn])
-  @@index([nameRu])
+  @@index([name])
   @@index([isActive])
 
   @@map("countries")

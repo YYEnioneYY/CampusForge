@@ -1,9 +1,7 @@
 export type CountryDetails = {
   code2: string;
   code3: string;
-
-  nameEn: string;
-  nameRu: string;
+  name: string;
 };
 
 export type GetCountryResponse = {

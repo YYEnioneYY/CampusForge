@@ -1,7 +1,10 @@
 import 'dotenv/config';
+
 import * as countries from 'i18n-iso-countries';
 
-import { PrismaClient } from '../src/generated/prisma/client';
+import {
+  PrismaClient,
+} from '../src/generated/prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -14,20 +17,9 @@ async function main() {
     async (tx) => {
       for (const code2 of alpha2Codes) {
         const code3 =
-          countries.alpha2ToAlpha3(
-            code2,
-          );
+          countries.alpha2ToAlpha3(code2);
 
-        const nameEn =
-          countries.getName(
-            code2,
-            'en',
-            {
-              select: 'official',
-            },
-          );
-
-        const nameRu =
+        const name =
           countries.getName(
             code2,
             'ru',
@@ -38,8 +30,7 @@ async function main() {
 
         if (
           !code3 ||
-          typeof nameEn !== 'string' ||
-          typeof nameRu !== 'string'
+          typeof name !== 'string'
         ) {
           throw new Error(
             `Country data is incomplete for ${code2}`,
@@ -54,15 +45,13 @@ async function main() {
           create: {
             code2,
             code3,
-            nameEn,
-            nameRu,
+            name,
             isActive: true,
           },
 
           update: {
             code3,
-            nameEn,
-            nameRu,
+            name,
           },
         });
       }
