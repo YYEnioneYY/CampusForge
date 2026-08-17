@@ -49,6 +49,29 @@ services:
     networks:
       - studenthub-network
 
+  reference-db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${REFERENCE_DB_NAME}
+      POSTGRES_USER: ${REFERENCE_DB_USER}
+      POSTGRES_PASSWORD: ${REFERENCE_DB_PASSWORD}
+    ports:
+      - "5435:5432"
+    volumes:
+      - reference_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - studenthub-network
   redis:
     image: redis:7.4-alpine
     restart: unless-stopped
@@ -158,6 +181,22 @@ services:
     networks:
       - studenthub-network
 
+  reference-migrate:
+    build:
+      context: ./reference-service
+      target: migrate
+    env_file:
+      - ./reference-service/.env.docker
+    environment:
+      DATABASE_URL: >-
+        postgresql://${REFERENCE_DB_USER}:${REFERENCE_DB_PASSWORD}@reference-db:5432/${REFERENCE_DB_NAME}?schema=public
+    depends_on:
+      reference-db:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - studenthub-network
+
   profile-service:
     build:
       context: ./profile-service
@@ -220,6 +259,27 @@ services:
     networks:
       - studenthub-network
 
+  reference-service:
+    build:
+      context: ./reference-service
+      target: runner
+    restart: unless-stopped
+    init: true
+    env_file:
+      - ./reference-service/.env.docker
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: >-
+        postgresql://${REFERENCE_DB_USER}:${REFERENCE_DB_PASSWORD}@reference-db:5432/${REFERENCE_DB_NAME}?schema=public
+      KAFKA_BROKERS: kafka:9092
+    depends_on:
+      reference-migrate:
+        condition: service_completed_successfully
+      kafka:
+        condition: service_healthy
+    networks:
+      - studenthub-network
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -244,12 +304,15 @@ services:
         condition: service_healthy
       auth-service:
         condition: service_started
+      reference-service:
+        condition: service_started
     networks:
       - studenthub-network
 
 volumes:
   auth_db_data:
   profile_db_data:
+  reference_db_data:
   redis_data:
   kafka_data:
 
