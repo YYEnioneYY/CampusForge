@@ -49,10 +49,7 @@ async function main() {
             isActive: true,
           },
 
-          update: {
-            code3,
-            name,
-          },
+          update: {},
         });
       }
     },
