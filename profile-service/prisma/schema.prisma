@@ -10,9 +10,9 @@ datasource db {
 }
 
 enum ProfileVisibility {
-  PUBLIC            @map("public")
-  PRIVATE           @map("private")
-  ORGANIZATION_ONLY @map("organization_only")
+  PUBLIC                @map("public")
+  PRIVATE               @map("private")
+  SHARED_ORGANIZATION   @map("shared_organization")
 
   @@map("profile_visibility")
 }
