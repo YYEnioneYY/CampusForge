@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../prisma/prisma.module';
 import { ProfilesController } from './profile.controller';
 import { ProfileService } from './profile.service';
 import { ProfileRepository } from './profile.repository';
+import { KafkaModule } from 'src/kafka/kafka.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [KafkaModule],
   controllers: [ProfilesController],
   providers: [
     ProfileService,

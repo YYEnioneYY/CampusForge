@@ -1,9 +1,11 @@
-import { plainToInstance } from 'class-transformer';
+import { plainToInstance, Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUrl,
+  IsInt,
+  Min,
   Matches,
   MinLength,
   validateSync,
@@ -29,6 +31,11 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   KAFKA_GROUP_ID?: string;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(100)
+  KAFKA_REQUEST_TIMEOUT_MS!: number;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

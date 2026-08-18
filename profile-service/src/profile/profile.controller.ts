@@ -4,7 +4,7 @@ import {
   EventPattern, 
   Payload,
  } from '@nestjs/microservices';
-import { PROFILE_PATTERNS } from '../common/kafka/profile-patterns';
+import { PROFILE_PATTERNS } from '../kafka/patterns/profile-patterns';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 import { ProfileService } from './profile.service';
 
