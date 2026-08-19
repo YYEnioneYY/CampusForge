@@ -8,6 +8,7 @@ import { RedisModule } from './redis/redis.module';
 import { SecurityModule } from './common/security.module';
 import { AdminModule } from './admin/admin.module';
 import { ReferenceModule } from './reference/reference.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ReferenceModule } from './reference/reference.module';
     SecurityModule,
     AdminModule,
     ReferenceModule,
+    ProfileModule,
   ],
 })
 export class AppModule {}

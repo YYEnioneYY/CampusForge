@@ -26,7 +26,7 @@ export class RpcErrorMapperService {
             HttpStatus.GATEWAY_TIMEOUT,
           code: 'UPSTREAM_TIMEOUT',
           message:
-            'Auth service did not respond in time',
+            'Upstream service did not respond in time',
         },
         HttpStatus.GATEWAY_TIMEOUT,
         { cause: error },
@@ -49,9 +49,9 @@ export class RpcErrorMapperService {
         {
           statusCode:
             HttpStatus.SERVICE_UNAVAILABLE,
-          code: 'AUTH_SERVICE_UNAVAILABLE',
+          code: 'UPSTREAM_SERVICE_UNAVAILABLE',
           message:
-            'Auth service is temporarily unavailable',
+            'Upstream service is temporarily unavailable',
         },
         HttpStatus.SERVICE_UNAVAILABLE,
         { cause: error },
@@ -63,7 +63,7 @@ export class RpcErrorMapperService {
         statusCode: HttpStatus.BAD_GATEWAY,
         code: 'INVALID_UPSTREAM_RESPONSE',
         message:
-          'Auth service returned an unexpected error',
+          'Upstream service returned an unexpected error',
       },
       HttpStatus.BAD_GATEWAY,
       { cause: error },
@@ -89,6 +89,8 @@ export class RpcErrorMapperService {
 
       case RpcErrorCode.USER_NOT_FOUND:
       case RpcErrorCode.SESSION_NOT_FOUND:
+      case RpcErrorCode.PROFILE_NOT_FOUND:
+      case RpcErrorCode.COUNTRY_NOT_FOUND:
         return HttpStatus.NOT_FOUND;
 
       case RpcErrorCode.EMAIL_VERIFICATION_RESEND_TOO_SOON:

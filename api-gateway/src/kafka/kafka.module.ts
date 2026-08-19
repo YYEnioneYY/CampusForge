@@ -12,6 +12,8 @@ import { AuthKafkaService } from './auth-kafka.service';
 import { ReferenceKafkaService } from './reference-kafka.service';
 import { AUTH_KAFKA_CLIENT } from './kafka.constants';
 import { REFERENCE_KAFKA_CLIENT } from './kafka.constants';
+import { PROFILE_KAFKA_CLIENT } from './kafka.constants';
+import { ProfileKafkaService } from './profile-kafka.service';
 
 @Module({
   imports: [
@@ -96,15 +98,57 @@ import { REFERENCE_KAFKA_CLIENT } from './kafka.constants';
           },
         }),
       },
+
+      {
+        name: PROFILE_KAFKA_CLIENT,
+
+        inject: [
+          ConfigService,
+        ],
+      
+        useFactory: (
+          configService: ConfigService,
+        ) => {
+          const brokers =
+            configService
+              .getOrThrow<string>(
+                'KAFKA_BROKERS',
+              )
+              .split(',')
+              .map((broker) =>
+                broker.trim(),
+              )
+              .filter(Boolean);
+            
+          return {
+            transport: Transport.KAFKA,
+          
+            options: {
+              client: {
+                clientId:
+                  'KAFKA_PROFILE_CLIENT_ID',
+                brokers,
+              },
+            
+              consumer: {
+                groupId:
+                  'KAFKA_PROFILE_CONSUMER_GROUP_ID',
+              },
+            },
+          };
+        },
+      },
     ]),
   ],
   providers: [
     AuthKafkaService,
     ReferenceKafkaService,
+    ProfileKafkaService,
   ],
   exports: [
     AuthKafkaService,
     ReferenceKafkaService,
+    ProfileKafkaService,
   ],
 })
 export class KafkaModule {}
