@@ -1,6 +1,4 @@
 export class ProfileDataResponseDto {
-  id!: string;
-
   firstName!: string;
   lastName!: string;
   middleName!: string | null;
@@ -15,9 +13,6 @@ export class ProfileDataResponseDto {
   dateOfBirth!: string | null;
 
   visibility!: string;
-
-  createdAt!: string;
-  updatedAt!: string;
 }
 
 export class ProfileResponseDto {

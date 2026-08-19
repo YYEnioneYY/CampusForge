@@ -1,7 +1,5 @@
 export type GetMyProfileResponse = {
   profile: {
-    id: string;
-
     firstName: string;
     lastName: string;
     middleName: string | null;
@@ -15,8 +13,5 @@ export type GetMyProfileResponse = {
     dateOfBirth: string | null;
 
     visibility: string;
-
-    createdAt: string;
-    updatedAt: string;
   };
 };
