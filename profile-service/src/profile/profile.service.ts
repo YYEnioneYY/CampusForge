@@ -45,36 +45,7 @@ export class ProfileService {
       );
     }
   
-    return {
-      profile: {
-        id: profile.id,
-  
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        middleName: profile.middleName,
-  
-        avatarUrl: profile.avatarUrl,
-        bio: profile.bio,
-  
-        countryCode: profile.countryCode,
-        countryName: profile.countryName,
-  
-        dateOfBirth:
-          profile.dateOfBirth
-            ? profile.dateOfBirth
-                .toISOString()
-                .slice(0, 10)
-            : null,
-  
-        visibility: profile.visibility,
-  
-        createdAt:
-          profile.createdAt.toISOString(),
-  
-        updatedAt:
-          profile.updatedAt.toISOString(),
-      },
-    };
+    return this.mapProfile(profile);
   }
 
   async updateMyProfile(
@@ -143,9 +114,7 @@ export class ProfileService {
           updateData,
         );
   
-    return this.mapProfile(
-      updatedProfile,
-    );
+    return this.mapProfile(updatedProfile);
   }
 
   private mapProfile(
@@ -153,8 +122,6 @@ export class ProfileService {
   ): ProfileResponse {
     return {
       profile: {
-        id: profile.id,
-  
         firstName: profile.firstName,
         lastName: profile.lastName,
         middleName: profile.middleName,
@@ -173,12 +140,6 @@ export class ProfileService {
             : null,
   
         visibility: profile.visibility,
-  
-        createdAt:
-          profile.createdAt.toISOString(),
-  
-        updatedAt:
-          profile.updatedAt.toISOString(),
       },
     };
   }

@@ -4,8 +4,6 @@ import {
 
 export type ProfileResponse = {
   profile: {
-    id: string;
-
     firstName: string;
     lastName: string;
     middleName: string | null;
@@ -19,8 +17,5 @@ export type ProfileResponse = {
     dateOfBirth: string | null;
 
     visibility: ProfileVisibility;
-
-    createdAt: string;
-    updatedAt: string;
   };
 };

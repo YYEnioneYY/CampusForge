@@ -7,6 +7,7 @@ import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 
 const profileSelect = {
   id: true,
+  userId: true,
 
   firstName: true,
   lastName: true,
