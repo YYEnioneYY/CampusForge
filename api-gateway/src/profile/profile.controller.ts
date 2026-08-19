@@ -32,7 +32,7 @@ import {
 } from './dto/profile-response.dto';
 
 @ApiTags('Profile')
-@ApiBearerAuth()
+@ApiBearerAuth('access-token')
 @Controller('profile')
 @UseGuards(AccessTokenGuard)
 export class ProfileController {
