@@ -5,7 +5,6 @@ import {
 export type ProfileResponse = {
   profile: {
     id: string;
-    userId: string;
 
     firstName: string;
     lastName: string;

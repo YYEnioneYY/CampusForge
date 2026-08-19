@@ -48,7 +48,6 @@ export class ProfileService {
     return {
       profile: {
         id: profile.id,
-        userId: profile.userId,
   
         firstName: profile.firstName,
         lastName: profile.lastName,
@@ -155,7 +154,6 @@ export class ProfileService {
     return {
       profile: {
         id: profile.id,
-        userId: profile.userId,
   
         firstName: profile.firstName,
         lastName: profile.lastName,
