@@ -72,6 +72,31 @@ services:
       start_period: 10s
     networks:
       - studenthub-network
+
+  media-db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${MEDIA_DB_NAME}
+      POSTGRES_USER: ${MEDIA_DB_USER}
+      POSTGRES_PASSWORD: ${MEDIA_DB_PASSWORD}
+    ports:
+      - "5436:5432"
+    volumes:
+      - media_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - studenthub-network
+    
   redis:
     image: redis:7.4-alpine
     restart: unless-stopped
@@ -170,6 +195,7 @@ services:
 
   minio-init:
     image: quay.io/minio/mc:latest
+    restart: "no"
   
     env_file:
       - ./media-service/.env.docker
@@ -181,25 +207,28 @@ services:
     depends_on:
       - minio
   
-    restart: "no"
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
   
-    entrypoint: >
-      /bin/sh -c "
-        until mc alias set local http://minio:9000
-        $${MINIO_ROOT_USER}
-        $${MINIO_ROOT_PASSWORD}; do
-          echo 'Waiting for MinIO...';
-          sleep 2;
-        done;
+        echo "Waiting for MinIO..."
   
-        mc mb --ignore-existing
-        local/$${S3_PUBLIC_BUCKET};
+        until mc alias set local http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}"; do
+          echo "MinIO is not ready yet..."
+          sleep 2
+        done
   
-        mc anonymous set download
-        local/$${S3_PUBLIC_BUCKET};
+        echo "Connected to MinIO"
   
-        echo 'MinIO initialization completed';
-      "
+        echo "Creating bucket: $${S3_PUBLIC_BUCKET}"
+        mc mb --ignore-existing "local/$${S3_PUBLIC_BUCKET}"
+  
+        echo "Configuring public download access"
+        mc anonymous set download "local/$${S3_PUBLIC_BUCKET}"
+  
+        echo "MinIO initialization completed"
   
     networks:
       - studenthub-network
@@ -247,6 +276,22 @@ services:
         postgresql://${REFERENCE_DB_USER}:${REFERENCE_DB_PASSWORD}@reference-db:5432/${REFERENCE_DB_NAME}?schema=public
     depends_on:
       reference-db:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - studenthub-network
+
+  media-migrate:
+    build:
+      context: ./media-service
+      target: migrate
+    env_file:
+      - ./media-service/.env.docker
+    environment:
+      DATABASE_URL: >-
+        postgresql://${MEDIA_DB_USER}:${MEDIA_DB_PASSWORD}@media-db:5432/${MEDIA_DB_NAME}?schema=public
+    depends_on:
+      media-db:
         condition: service_healthy
     restart: "no"
     networks:
@@ -337,6 +382,38 @@ services:
     networks:
       - studenthub-network
 
+  media-service:
+    build:
+      context: ./media-service
+      target: runner
+    restart: unless-stopped
+    init: true
+    env_file:
+      - ./media-service/.env.docker
+    environment:
+      NODE_ENV: production
+
+      DATABASE_URL: >-
+        postgresql://${MEDIA_DB_USER}:${MEDIA_DB_PASSWORD}@media-db:5432/${MEDIA_DB_NAME}?schema=public
+
+      KAFKA_BROKERS: kafka:9092
+
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+
+    depends_on:
+      media-migrate:
+        condition: service_completed_successfully
+
+      kafka:
+        condition: service_healthy
+
+      minio-init:
+        condition: service_completed_successfully
+
+    networks:
+      - studenthub-network
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -370,6 +447,7 @@ volumes:
   auth_db_data:
   profile_db_data:
   reference_db_data:
+  media_db_data:
   redis_data:
   kafka_data:
   minio_data:
