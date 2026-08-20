@@ -1,5 +1,6 @@
 import {
   Controller,
+  Post,
   Get,
   UseGuards,
 } from '@nestjs/common';
@@ -30,6 +31,7 @@ import {
 import {
   ProfileResponseDto,
 } from './dto/profile-response.dto';
+import { CreateAvatarUploadResponseDto } from './dto/create-avatar-upload-response.dto';
 
 @ApiTags('Profile')
 @ApiBearerAuth('access-token')
@@ -46,10 +48,22 @@ export class ProfileController {
     summary:
       'Получение профиля данного пользователя',
   })
-  getMyProfile(
+  async getMyProfile(
     @CurrentUser()
-    actor: AuthenticatedUser,
+    user: AuthenticatedUser,
   ): Promise<ProfileResponseDto> {
-    return this.profileService.getMyProfile(actor.sub);
+    return this.profileService.getMyProfile(user.sub);
+  }
+
+  @Post('me/avatar/upload')
+  @ApiOperation({
+    summary:
+      'Получение url на загрузку аватарки',
+  })
+  async createAvatarUpload(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  ): Promise<CreateAvatarUploadResponseDto> {
+    return this.profileService.createAvatarUpload(user.sub);
   }
 }

@@ -54,11 +54,11 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 
 COPY --from=build \
-    /app/src/generated/prisma/libquery_engine-*.so.node \
-    ./dist/src/generated/prisma/
+    /app/src/generated/prisma \
+    ./dist/generated/prisma
 
 COPY package.json ./
 
 USER node
 
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]

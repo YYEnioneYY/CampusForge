@@ -14,6 +14,8 @@ import { AUTH_KAFKA_CLIENT } from './kafka.constants';
 import { REFERENCE_KAFKA_CLIENT } from './kafka.constants';
 import { PROFILE_KAFKA_CLIENT } from './kafka.constants';
 import { ProfileKafkaService } from './profile-kafka.service';
+import { MEDIA_KAFKA_CLIENT } from './kafka.constants';
+import { MediaKafkaService } from './media-kafka.service';
 
 @Module({
   imports: [
@@ -138,17 +140,54 @@ import { ProfileKafkaService } from './profile-kafka.service';
           };
         },
       },
+
+      {
+        name: MEDIA_KAFKA_CLIENT,
+
+        useFactory: (
+          configService: ConfigService,
+        ) => ({
+          transport: Transport.KAFKA,
+        
+          options: {
+            client: {
+              clientId: 'KAFKA_MEDIA_CLIENT_ID',
+            
+              brokers:
+                configService
+                  .getOrThrow<string>(
+                    'KAFKA_BROKERS',
+                  )
+                  .split(',')
+                  .map((broker) =>
+                    broker.trim(),
+                  ),
+            },
+          
+            consumer: {
+              groupId:
+                'KAFKA_MEDIA_CONSUMER_GROUP_ID',
+            },
+          },
+        }),
+      
+        inject: [
+          ConfigService,
+        ],
+      },
     ]),
   ],
   providers: [
     AuthKafkaService,
     ReferenceKafkaService,
     ProfileKafkaService,
+    MediaKafkaService,
   ],
   exports: [
     AuthKafkaService,
     ReferenceKafkaService,
     ProfileKafkaService,
+    MediaKafkaService,
   ],
 })
 export class KafkaModule {}
