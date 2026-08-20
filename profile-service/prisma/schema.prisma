@@ -26,7 +26,8 @@ model UserProfile {
   lastName    String            @map("last_name") @db.VarChar(255)
   middleName  String?           @map("middle_name") @db.VarChar(255)
 
-  avatarUrl   String?           @map("avatar_url") @db.Text
+  avatarId    String?           @map("avatar_id") @db.Uuid
+  
   bio         String?           @db.Text
 
   countryCode String?           @map("country_code") @db.Char(2)

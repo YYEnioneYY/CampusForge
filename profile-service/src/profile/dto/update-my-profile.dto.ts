@@ -33,7 +33,7 @@ export class UpdateMyProfileDto {
   @IsOptional()
   @IsString()
   @MaxLength(2048)
-  avatarUrl?: string | null;
+  avatarId?: string | null;
 
   @IsOptional()
   @IsString()

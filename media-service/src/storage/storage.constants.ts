@@ -1,0 +1,3 @@
+export const S3_INTERNAL_CLIENT = 'S3_INTERNAL_CLIENT';
+
+export const S3_UPLOAD_CLIENT = 'S3_UPLOAD_CLIENT';

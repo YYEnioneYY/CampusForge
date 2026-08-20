@@ -8,7 +8,7 @@ export type ProfileResponse = {
     lastName: string;
     middleName: string | null;
 
-    avatarUrl: string | null;
+    avatarId: string | null;
     bio: string | null;
 
     countryCode: string | null;

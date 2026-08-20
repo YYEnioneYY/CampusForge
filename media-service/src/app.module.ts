@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { validateEnv } from './config/env.validation';
+import { StorageModule } from './storage/storage.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -9,7 +11,9 @@ import { validateEnv } from './config/env.validation';
       isGlobal: true,
       validate: validateEnv,
     }),
-    PrismaModule
+    PrismaModule,
+    StorageModule,
+    MediaModule
   ],
   controllers: [],
   providers: [],

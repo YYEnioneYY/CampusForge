@@ -13,7 +13,7 @@ const profileSelect = {
   lastName: true,
   middleName: true,
 
-  avatarUrl: true,
+  avatarId: true,
   bio: true,
 
   countryCode: true,
@@ -33,7 +33,7 @@ export type UpdateProfileData = {
 
   middleName?: string | null;
 
-  avatarUrl?: string | null;
+  avatarId?: string | null;
   bio?: string | null;
 
   countryCode?: string | null;

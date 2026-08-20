@@ -66,7 +66,7 @@ export class ProfileService {
   
       middleName: dto.middleName,
   
-      avatarUrl: dto.avatarUrl,
+      avatarId: dto.avatarId,
       bio: dto.bio,
   
       dateOfBirth:
@@ -126,7 +126,7 @@ export class ProfileService {
         lastName: profile.lastName,
         middleName: profile.middleName,
   
-        avatarUrl: profile.avatarUrl,
+        avatarId: profile.avatarId,
         bio: profile.bio,
   
         countryCode: profile.countryCode,
