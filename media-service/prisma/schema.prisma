@@ -8,3 +8,59 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum MediaOwnerType {
+  USER         @map("user")
+  ORGANIZATION @map("organization")
+  PROJECT      @map("project")
+
+  @@map("media_owner_type")
+}
+
+enum MediaPurpose {
+  PROFILE_AVATAR @map("profile_avatar")
+
+  @@map("media_purpose")
+}
+
+enum MediaStatus {
+  PENDING @map("pending")
+  READY   @map("ready")
+  EXPIRED @map("expired")
+  DELETED @map("deleted")
+
+  @@map("media_status")
+}
+
+model MediaFile {
+  id String @id @default(uuid()) @db.Uuid
+
+  ownerType MediaOwnerType @map("owner_type")
+  ownerId   String         @map("owner_id") @db.Uuid
+
+  uploadedByUserId String @map("uploaded_by_user_id") @db.Uuid
+
+  purpose MediaPurpose
+
+  objectKey String @unique @map("object_key") @db.VarChar(1024)
+
+  contentType String @map("content_type") @db.VarChar(150)
+  sizeBytes   BigInt? @map("size_bytes")
+
+  status MediaStatus @default(PENDING)
+
+  expiresAt   DateTime? @map("expires_at") @db.Timestamptz
+  completedAt DateTime? @map("completed_at") @db.Timestamptz
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([ownerType, ownerId])
+  @@index([ownerType, ownerId, purpose])
+  @@index([uploadedByUserId])
+  @@index([status])
+  @@index([status, expiresAt])
+
+  @@map("media_files")
+}
