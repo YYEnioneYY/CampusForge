@@ -68,13 +68,15 @@ API Gateway
    |
    |-- Auth Service
    |-- Profile Service
+   |-- Reference Service
+   |-- Access Service
    |-- Organization Service
    |-- Project Service
    |-- Task Service
    |-- Evaluation Service
    |-- Notification Service
    |-- Subscription Service
-   |-- File Service
+   |-- Media Service
    |-- Search Service
    |-- Analytics Service
    |-- Moderation Service
@@ -107,6 +109,7 @@ WebSocket
 |---|---|
 | API Gateway | Единая точка входа во внутренние сервисы |
 | Auth Service | Регистрация, вход, JWT, refresh-токены, подтверждение email |
+| Access Service | Права пользователя |
 | Profile Service | Профили пользователей, навыки, ссылки, документы |
 | Organization Service | Университеты, кафедры, компании, рабочие пространства |
 | Project Service | Проекты, участники, роли, заявки, приглашения |
@@ -114,7 +117,7 @@ WebSocket
 | Evaluation Service | Критерии, оценки, баллы, отзывы |
 | Notification Service | Уведомления и настройки доставки |
 | Subscription Service | Тарифы, лимиты, подписки, использование |
-| File Service | Загрузка и выдача файлов |
+| Media Service | Загрузка и выдача файлов |
 | Search Service | Поиск по проектам, пользователям и организациям |
 | Analytics Service | Отчёты, статистика и дашборды |
 | Moderation Service | Модерация организаций, проектов и жалоб |
@@ -257,7 +260,6 @@ MINIO_ENDPOINT=minio
 MINIO_PORT=9000
 MINIO_ACCESS_KEY=campusforge
 MINIO_SECRET_KEY=campusforge
-MINIO_BUCKET=campusforge-files
 ```
 
 ---
