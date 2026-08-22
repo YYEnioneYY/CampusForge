@@ -15,10 +15,12 @@ import {
 import {
   MediaService,
 } from './media.service';
+import { MediaEventProducerModule } from 'src/media-event-producer/media-event-producer.module';
 
 @Module({
   imports: [
     StorageModule,
+    MediaEventProducerModule,
   ],
 
   controllers: [

@@ -80,4 +80,83 @@ export class MediaRepository {
       },
     });
   }
+
+  async findByObjectKey(
+    objectKey: string,
+  ) {
+    return this.prisma.mediaFile.findUnique({
+      where: {
+        objectKey,
+      },
+  
+      select: {
+        id: true,
+  
+        ownerType: true,
+        ownerId: true,
+  
+        purpose: true,
+  
+        objectKey: true,
+        contentType: true,
+  
+        status: true,
+        expiresAt: true,
+      },
+    });
+  }
+
+  async markReadyIfPending(
+    objectKey: string,
+    sizeBytes: bigint,
+  ) {
+    const now = new Date();
+  
+    const result =
+      await this.prisma.mediaFile.updateMany({
+        where: {
+          objectKey,
+  
+          status:
+            MediaStatus.PENDING,
+  
+          expiresAt: {
+            gt: now,
+          },
+        },
+  
+        data: {
+          status:
+            MediaStatus.READY,
+  
+          sizeBytes,
+  
+          completedAt: now,
+          expiresAt: null,
+        },
+      });
+  
+    if (result.count === 0) {
+      return null;
+    }
+  
+    return this.prisma.mediaFile.findUnique({
+      where: {
+        objectKey,
+      },
+  
+      select: {
+        id: true,
+  
+        ownerType: true,
+        ownerId: true,
+  
+        purpose: true,
+  
+        objectKey: true,
+  
+        status: true,
+      },
+    });
+  }
 }
