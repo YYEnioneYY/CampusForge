@@ -20,6 +20,8 @@ import { ProfileRecord } from './profile.repository';
 import { GetReferenceCountryPayload } from './types/reference-country.type';
 import { GetReferenceCountryResponse } from './types/reference-country.type';
 
+import { MediaFileReadyDto } from './dto/media-file-ready.dto';
+
 @Injectable()
 export class ProfileService {
   constructor(
@@ -66,7 +68,6 @@ export class ProfileService {
   
       middleName: dto.middleName,
   
-      avatarId: dto.avatarId,
       bio: dto.bio,
   
       dateOfBirth:
@@ -115,6 +116,37 @@ export class ProfileService {
         );
   
     return this.mapProfile(updatedProfile);
+  }
+
+  async handleMediaFileReady(
+    dto: MediaFileReadyDto,
+  ): Promise<void> {
+    if (
+      dto.ownerType !== 'user' ||
+      dto.purpose !== 'profile_avatar'
+    ) {
+      return;
+    }
+  
+    const existingProfile =
+      await this.profileRepository
+        .findByUserId(
+          dto.ownerId,
+        );
+  
+    if (!existingProfile) {
+      throw new Error(
+        `Profile not found for media owner: ${dto.ownerId}`,
+      );
+    }
+  
+    await this.profileRepository
+      .updateByUserId(
+        dto.ownerId,
+        {
+          avatarId: dto.mediaId,
+        },
+      );
   }
 
   private mapProfile(

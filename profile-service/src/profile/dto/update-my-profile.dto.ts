@@ -32,11 +32,6 @@ export class UpdateMyProfileDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(2048)
-  avatarId?: string | null;
-
-  @IsOptional()
-  @IsString()
   bio?: string | null;
 
   @IsOptional()

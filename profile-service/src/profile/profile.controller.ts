@@ -13,6 +13,10 @@ import { ProfileResponse } from './types/profile-response.type';
 
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 
+import { MEDIA_EVENT_PATTERNS } from '../kafka/patterns/media-event-patterns';
+
+import { MediaFileReadyDto } from './dto/media-file-ready.dto';
+
 @Controller()
 export class ProfilesController {
   constructor(private readonly profileService: ProfileService) {}
@@ -22,6 +26,14 @@ export class ProfilesController {
     @Payload() dto: CreateUserProfileDto,
   ): Promise<void> {
     await this.profileService.createForUser(dto);
+  }
+
+  @EventPattern(MEDIA_EVENT_PATTERNS.FILE_READY)
+  async handleMediaFileReady(
+    @Payload()
+    dto: MediaFileReadyDto,
+  ): Promise<void> {
+    await this.profileService.handleMediaFileReady(dto);
   }
 
   @MessagePattern(PROFILE_PATTERNS.ME)
