@@ -185,6 +185,12 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
+      MINIO_NOTIFY_KAFKA_ENABLE_PRIMARY: "on"
+      MINIO_NOTIFY_KAFKA_BROKERS_PRIMARY: "kafka:9092"
+      MINIO_NOTIFY_KAFKA_TOPIC_PRIMARY: "storage.object.created"
+
+      MINIO_NOTIFY_KAFKA_QUEUE_DIR_PRIMARY: "/data/events"
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -227,6 +233,16 @@ services:
   
         echo "Configuring public download access"
         mc anonymous set download "local/$${S3_PUBLIC_BUCKET}"
+
+        echo "Configuring Kafka bucket notifications"
+
+        mc event add \
+          --ignore-existing \
+          --event put \
+          --prefix "profile-avatars/" \
+          --suffix ".webp" \
+          "local/$${S3_PUBLIC_BUCKET}" \
+          arn:minio:sqs::primary:kafka
   
         echo "MinIO initialization completed"
   
