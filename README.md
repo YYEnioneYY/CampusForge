@@ -303,14 +303,15 @@ campusforge/
 
 ```text
 auth
-users
+profile
+reference
 organizations
 projects
 tasks
 evaluations
 notifications
 subscriptions
-files
+mefia
 search
 analytics
 moderation
