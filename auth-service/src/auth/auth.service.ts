@@ -171,8 +171,6 @@ export class AuthService {
               userId: user.id,
               firstName: dto.firstName,
               lastName: dto.lastName,
-              middleName:
-                dto.middleName ?? null,
             },
           },
         );
