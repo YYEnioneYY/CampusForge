@@ -3,4 +3,5 @@ export const PROFILE_PATTERNS = {
 
   ME: 'profile.me',
   UPDATE_ME: 'profile.me.update',
+  CHANGE_USERNAME: 'profile.username.change',
 } as const;

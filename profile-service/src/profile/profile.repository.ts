@@ -3,11 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { ProfileVisibility } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
-import { CreateUserProfileDto } from './dto/create-user-profile.dto';
+import { CreateProfileData } from './types/create-profile-data.type';
 
 const profileSelect = {
   id: true,
   userId: true,
+
+  username: true,
 
   firstName: true,
   lastName: true,
@@ -58,19 +60,24 @@ export class ProfileRepository {
   ) {}
 
   async createForUser(
-    dto: CreateUserProfileDto,
+    data: CreateProfileData,
   ) {
     return this.prisma.userProfile.upsert({
       where: {
-        userId: dto.userId,
+        userId: data.userId,
       },
 
       create: {
-        userId: dto.userId,
+        userId: data.userId,
 
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        middleName: dto.middleName ?? null,
+        username:
+          data.username,
+
+        firstName:
+          data.firstName,
+
+        lastName:
+          data.lastName,
 
         visibility:
           ProfileVisibility.PUBLIC,
@@ -106,6 +113,25 @@ export class ProfileRepository {
       data,
 
       select: profileSelect,
+    });
+  }
+
+  async updateUsername(
+    userId: string,
+    username: string,
+  ) {
+    return this.prisma.userProfile.update({
+      where: {
+        userId,
+      },
+
+      data: {
+        username,
+      },
+
+      select: {
+        username: true,
+      },
     });
   }
 }

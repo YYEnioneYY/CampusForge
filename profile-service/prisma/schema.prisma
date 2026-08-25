@@ -22,12 +22,14 @@ model UserProfile {
 
   userId      String            @unique @map("user_id") @db.Uuid
 
+  username    String            @unique @db.VarChar(30)
+
   firstName   String            @map("first_name") @db.VarChar(255)
   lastName    String            @map("last_name") @db.VarChar(255)
   middleName  String?           @map("middle_name") @db.VarChar(255)
 
   avatarId    String?           @map("avatar_id") @db.Uuid
-  
+
   bio         String?           @db.Text
 
   countryCode String?           @map("country_code") @db.Char(2)

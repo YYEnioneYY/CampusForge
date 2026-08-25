@@ -4,6 +4,8 @@ import {
 
 export type ProfileResponse = {
   profile: {
+    username: string;
+    
     firstName: string;
     lastName: string;
     middleName: string | null;

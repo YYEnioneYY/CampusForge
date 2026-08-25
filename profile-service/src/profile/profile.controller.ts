@@ -13,6 +13,9 @@ import { ProfileResponse } from './types/profile-response.type';
 
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 
+import { ChangeUsernameDto } from './dto/change-username.dto';
+import { ChangeUsernameResponse } from './types/change-username-response.type';
+
 import { MEDIA_EVENT_PATTERNS } from '../kafka/patterns/media-event-patterns';
 
 import { MediaFileReadyDto } from './dto/media-file-ready.dto';
@@ -50,5 +53,13 @@ export class ProfilesController {
     dto: UpdateMyProfileDto,
   ): Promise<ProfileResponse> {
     return this.profileService.updateMyProfile(dto);
+  }
+
+  @MessagePattern(PROFILE_PATTERNS.CHANGE_USERNAME)
+  changeUsername(
+    @Payload()
+    dto: ChangeUsernameDto,
+  ): Promise<ChangeUsernameResponse> {
+    return this.profileService.changeUsername(dto);
   }
 }
