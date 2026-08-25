@@ -2,6 +2,8 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
+  Body,
   UseGuards,
 } from '@nestjs/common';
 
@@ -33,6 +35,9 @@ import {
 } from './dto/profile-response.dto';
 import { CreateAvatarUploadResponseDto } from './dto/create-avatar-upload-response.dto';
 
+import { ChangeUsernameDto } from './dto/change-username.dto';
+import { ChangeUsernameResponseDto } from './dto/change-username-response.dto';
+
 @ApiTags('Profile')
 @ApiBearerAuth('access-token')
 @Controller('profile')
@@ -53,6 +58,25 @@ export class ProfileController {
     user: AuthenticatedUser,
   ): Promise<ProfileResponseDto> {
     return this.profileService.getMyProfile(user.sub);
+  }
+
+  @Patch('me/username')
+  @ApiOperation({
+    summary:
+      'Изменение username пользователя',
+  })
+  async changeUsername(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Body()
+    dto: ChangeUsernameDto,
+  ): Promise<ChangeUsernameResponseDto> {
+    return this.profileService
+      .changeUsername(
+        user.sub,
+        dto.username,
+      );
   }
 
   @Post('me/avatar/upload')

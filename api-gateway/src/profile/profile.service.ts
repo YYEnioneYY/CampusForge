@@ -29,6 +29,11 @@ import type {
   CreateProfileAvatarUploadResponse,
 } from './types/create-profile-avatar-upload.types';
 import { MediaKafkaService } from 'src/kafka/media-kafka.service';
+import { CreateAvatarUploadResponseDto } from './dto/create-avatar-upload-response.dto';
+
+import { ChangeUsernameResponseDto } from './dto/change-username-response.dto';
+import { ChangeUsernamePayload } from './types/change-username.types';
+import { ChangeUsernameResponse } from './types/change-username.types';
 
 @Injectable()
 export class ProfileService {
@@ -57,9 +62,36 @@ export class ProfileService {
     return result;
   }
 
+  async changeUsername(
+    userId: string,
+    username: string,
+  ): Promise<ChangeUsernameResponseDto> {
+    const payload:
+      ChangeUsernamePayload = {
+        userId,
+        username,
+      };
+  
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          ChangeUsernameResponse,
+          ChangeUsernamePayload
+        >(
+          PROFILE_PATTERNS.CHANGE_USERNAME,
+          payload,
+        ),
+      );
+  
+    return {
+      username:
+        result.username,
+    };
+  }
+
   async createAvatarUpload(
     userId: string,
-  ): Promise<CreateProfileAvatarUploadResponse> {
+  ): Promise<CreateAvatarUploadResponseDto> {
     const payload: CreateProfileAvatarUploadPayload = {
       userId,
     };
@@ -73,7 +105,7 @@ export class ProfileService {
         payload,
       ),
     );
-    
+
     return {
       uploadUrl: result.uploadUrl,
       expiresAt: result.expiresAt,
