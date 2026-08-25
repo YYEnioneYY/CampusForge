@@ -237,53 +237,28 @@ docker compose down -v
 
 Основные переменные окружения хранятся в `.env`.
 
-Пример:
-
-```env
-NODE_ENV=development
-
-POSTGRES_HOST=postgres
-POSTGRES_PORT=5432
-POSTGRES_USER=campusforge
-POSTGRES_PASSWORD=campusforge
-POSTGRES_DB=campusforge
-
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-KAFKA_BROKER=kafka:9092
-
-JWT_ACCESS_SECRET=change_me
-JWT_REFRESH_SECRET=change_me
-
-MINIO_ENDPOINT=minio
-MINIO_PORT=9000
-MINIO_ACCESS_KEY=campusforge
-MINIO_SECRET_KEY=campusforge
-```
-
 ---
 
 ## Структура репозитория
 
 ```text
 campusforge/
-  apps/
-    frontend/
-    api-gateway/
-    auth-service/
-    user-service/
-    organization-service/
-    project-service/
-    task-service/
-    evaluation-service/
-    notification-service/
-    subscription-service/
-    file-service/
-    search-service/
-    analytics-service/
-    moderation-service/
-    admin-service/
+  frontend/
+  api-gateway/
+  auth-service/
+  profile-service/
+  organization-service/
+  project-service/
+  task-service/
+  evaluation-service/
+  notification-service/
+  subscription-service/
+  media-service/
+  reference-servuce/
+  search-service/
+  analytics-service/
+  moderation-service/
+  admin-service/
 
   libs/
     common/
@@ -328,14 +303,15 @@ campusforge/
 
 ```text
 auth
-users
+profile
+reference
 organizations
 projects
 tasks
 evaluations
 notifications
 subscriptions
-files
+mefia
 search
 analytics
 moderation
