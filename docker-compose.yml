@@ -242,7 +242,7 @@ services:
           --prefix "profile-avatars/" \
           --suffix ".webp" \
           "local/$${S3_PUBLIC_BUCKET}" \
-          arn:minio:sqs::primary:kafka
+          arn:minio:sqs::PRIMARY:kafka
   
         echo "MinIO initialization completed"
   
