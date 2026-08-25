@@ -41,14 +41,4 @@ export class RegisterDto {
   @MinLength(1)
   @MaxLength(100)
   lastName!: string;
-
-  @Transform(({ value }) =>
-    typeof value === 'string'
-      ? value.trim()
-      : value,
-  )
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  middleName?: string;
 }
