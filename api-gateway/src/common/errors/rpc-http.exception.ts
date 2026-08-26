@@ -2,7 +2,10 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import type { RpcErrorPayload } from './rpc-error.type';
+
+import type {
+  RpcErrorPayload,
+} from './rpc-error.type';
 
 export class RpcHttpException
   extends HttpException
@@ -16,7 +19,15 @@ export class RpcHttpException
       {
         statusCode: status,
         code: rpcError.code,
-        message: rpcError.message,
+        message:
+          rpcError.message,
+
+        ...(rpcError.details
+          ? {
+              details:
+                rpcError.details,
+            }
+          : {}),
       },
       status,
       cause === undefined

@@ -115,7 +115,8 @@ export class RpcErrorMapperService {
   private extractRpcError(
     error: unknown,
   ): RpcErrorPayload | null {
-    const root = this.toRecord(error);
+    const root =
+      this.toRecord(error);
 
     const candidates: unknown[] = [
       error,
@@ -125,28 +126,94 @@ export class RpcErrorMapperService {
     ];
 
     for (const candidate of candidates) {
-      const record = this.toRecord(candidate);
+      const record =
+        this.toRecord(candidate);
 
       if (!record) {
         continue;
       }
 
-      const code = record.code;
+      const code =
+        record.code;
+
       const message =
-        this.normalizeMessage(record.message);
+        this.normalizeMessage(
+          record.message,
+        );
 
       if (
         typeof code === 'string' &&
         message
       ) {
+        const details =
+          this.normalizeDetails(
+            record.details,
+          );
+
         return {
           code,
           message,
+
+          ...(details
+            ? { details }
+            : {}),
         };
       }
     }
 
     return null;
+  }
+
+  private normalizeDetails(
+    details: unknown,
+  ): RpcErrorPayload['details'] {
+    if (!Array.isArray(details)) {
+      return undefined;
+    }
+  
+    const normalized = details
+      .map((detail) => {
+        const record =
+          this.toRecord(detail);
+      
+        if (!record) {
+          return null;
+        }
+      
+        const field =
+          record.field;
+      
+        const messages =
+          record.messages;
+      
+        if (
+          typeof field !== 'string' ||
+          !Array.isArray(messages) ||
+          !messages.every(
+            (message) =>
+              typeof message === 'string',
+          )
+        ) {
+          return null;
+        }
+      
+        return {
+          field,
+          messages,
+        };
+      })
+      .filter(
+        (
+          detail,
+        ): detail is {
+          field: string;
+          messages: string[];
+        } => detail !== null,
+      );
+    
+    return normalized.length > 0
+      ? normalized
+      : undefined;
   }
 
   private normalizeMessage(
