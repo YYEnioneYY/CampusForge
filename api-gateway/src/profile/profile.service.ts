@@ -35,6 +35,13 @@ import { ChangeUsernameResponseDto } from './dto/change-username-response.dto';
 import { ChangeUsernamePayload } from './types/change-username.types';
 import { ChangeUsernameResponse } from './types/change-username.types';
 
+import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
+import { UpdateMyProfileResponseDto } from './dto/update-my-profile-response.dto';
+import type {
+  UpdateMyProfilePayload,
+  UpdateMyProfileResponse,
+} from './types/update-my-profile.types';
+
 @Injectable()
 export class ProfileService {
   constructor(
@@ -109,6 +116,79 @@ export class ProfileService {
     return {
       uploadUrl: result.uploadUrl,
       expiresAt: result.expiresAt,
+    };
+  }
+
+  async updateMyProfile(
+    userId: string,
+    dto: UpdateMyProfileDto,
+  ): Promise<UpdateMyProfileResponseDto> {
+    const payload:
+      UpdateMyProfilePayload = {
+        userId,
+      
+        firstName:
+          dto.firstName,
+      
+        lastName:
+          dto.lastName,
+      
+        middleName:
+          dto.middleName,
+      
+        bio:
+          dto.bio,
+      
+        countryCode:
+          dto.countryCode,
+      
+        dateOfBirth:
+          dto.dateOfBirth,
+      
+        visibility:
+          dto.visibility,
+      };
+  
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          UpdateMyProfileResponse,
+          UpdateMyProfilePayload
+        >(
+          PROFILE_PATTERNS.UPDATE_ME,
+          payload,
+        ),
+      );
+  
+    return {
+      profile: {
+        username:
+          result.profile.username,
+      
+        firstName:
+          result.profile.firstName,
+      
+        lastName:
+          result.profile.lastName,
+      
+        middleName:
+          result.profile.middleName,
+      
+        bio:
+          result.profile.bio,
+      
+        countryCode:
+          result.profile.countryCode,
+      
+        countryName:
+          result.profile.countryName,
+      
+        dateOfBirth:
+          result.profile.dateOfBirth,
+      
+        visibility:
+          result.profile.visibility,
+      },
     };
   }
 }

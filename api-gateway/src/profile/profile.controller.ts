@@ -38,6 +38,9 @@ import { CreateAvatarUploadResponseDto } from './dto/create-avatar-upload-respon
 import { ChangeUsernameDto } from './dto/change-username.dto';
 import { ChangeUsernameResponseDto } from './dto/change-username-response.dto';
 
+import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
+import { UpdateMyProfileResponseDto } from './dto/update-my-profile-response.dto';
+
 @ApiTags('Profile')
 @ApiBearerAuth('access-token')
 @Controller('profile')
@@ -58,6 +61,24 @@ export class ProfileController {
     user: AuthenticatedUser,
   ): Promise<ProfileResponseDto> {
     return this.profileService.getMyProfile(user.sub);
+  }
+
+  @Patch('me')
+  @ApiOperation({
+    summary:
+      'Изменение профиля пользователя',
+  })
+  async updateMyProfile(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Body()
+    dto: UpdateMyProfileDto,
+  ): Promise<UpdateMyProfileResponseDto> {
+    return this.profileService.updateMyProfile(
+      user.sub,
+      dto,
+    );
   }
 
   @Patch('me/username')
