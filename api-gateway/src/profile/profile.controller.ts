@@ -41,6 +41,7 @@ import { ChangeUsernameResponseDto } from './dto/change-username-response.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileResponseDto } from './dto/update-my-profile-response.dto';
 
+import { ProfileVisibilityOptionsResponseDto } from './dto/profile-visibility-options-response.dto';
 import { ChangeProfileVisibilityDto } from './dto/change-profile-visibility.dto';
 import { ChangeProfileVisibilityResponseDto } from './dto/change-profile-visibility-response.dto';
 
@@ -96,11 +97,19 @@ export class ProfileController {
     @Body()
     dto: ChangeUsernameDto,
   ): Promise<ChangeUsernameResponseDto> {
-    return this.profileService
-      .changeUsername(
-        user.sub,
-        dto.username,
-      );
+    return this.profileService.changeUsername(
+      user.sub,
+      dto.username,
+    );
+  }
+
+  @Get('visibility-options')
+  @ApiOperation({
+    summary:
+      'Получение доступных вариантов видимости профиля',
+  })
+  async getVisibilityOptions(): Promise<ProfileVisibilityOptionsResponseDto> {
+    return this.profileService.getVisibilityOptions();
   }
 
   @Patch('me/visibility')

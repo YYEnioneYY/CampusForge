@@ -42,7 +42,8 @@ import type {
   UpdateMyProfileResponse,
 } from './types/update-my-profile.types';
 
-import { ProfileVisibilityValue } from './dto/change-profile-visibility.dto';
+import { ProfileVisibilityOptionsResponseDto } from './dto/profile-visibility-options-response.dto';
+import type { ProfileVisibilityOptionsResponse } from './types/profile-visibility-options.types';
 import { ChangeProfileVisibilityPayload } from './types/change-profile-visibility.types';
 import { ChangeProfileVisibilityResponse } from './types/change-profile-visibility.types';
 import { ChangeProfileVisibilityResponseDto } from './dto/change-profile-visibility-response.dto';
@@ -194,9 +195,25 @@ export class ProfileService {
     };
   }
 
+  async getVisibilityOptions(): Promise<ProfileVisibilityOptionsResponseDto> {
+    const result =
+      await firstValueFrom(this.profileKafkaService.send<
+          ProfileVisibilityOptionsResponse,
+          Record<string, never>
+        >(
+          PROFILE_PATTERNS.VISIBILITY_OPTIONS,
+          {},
+        ),
+      );
+  
+    return {
+      options: result.options,
+    };
+  }
+
   async changeVisibility(
     userId: string,
-    visibility: ProfileVisibilityValue,
+    visibility: string,
   ): Promise<ChangeProfileVisibilityResponseDto> {
     const payload:
       ChangeProfileVisibilityPayload = {

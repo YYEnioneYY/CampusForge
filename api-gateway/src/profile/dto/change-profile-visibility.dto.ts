@@ -1,11 +1,10 @@
-import { IsIn } from 'class-validator';
-
-import { PROFILE_VISIBILITIES } from '../enums/profile-visibility-value.enum';
-
-export type ProfileVisibilityValue =
-  (typeof PROFILE_VISIBILITIES)[number];
+import {
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
 
 export class ChangeProfileVisibilityDto {
-  @IsIn(PROFILE_VISIBILITIES)
-  visibility!: ProfileVisibilityValue;
+  @IsString()
+  @IsNotEmpty()
+  visibility!: string;
 }

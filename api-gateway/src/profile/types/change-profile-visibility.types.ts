@@ -1,10 +1,8 @@
-import type { ProfileVisibilityValue } from '../dto/change-profile-visibility.dto';
-
 export type ChangeProfileVisibilityPayload = {
   userId: string;
-  visibility: ProfileVisibilityValue;
+  visibility: string;
 };
 
 export type ChangeProfileVisibilityResponse = {
-  visibility: ProfileVisibilityValue;
+  visibility: string;
 };

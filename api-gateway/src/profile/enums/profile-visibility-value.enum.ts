@@ -1,5 +1,0 @@
-export const PROFILE_VISIBILITIES = [
-  'PUBLIC',
-  'PRIVATE',
-  'SHARED_ORGANIZATION',
-] as const;
