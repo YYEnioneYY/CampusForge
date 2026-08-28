@@ -29,6 +29,9 @@ import { ProfileRecord } from './profile.repository';
 import { GetReferenceCountryPayload } from './types/reference-country.type';
 import { GetReferenceCountryResponse } from './types/reference-country.type';
 
+import { ChangeProfileVisibilityDto } from './dto/change-profile-visibility.dto';
+import { ChangeProfileVisibilityResponse } from './types/change-profile-visibility-response.type';
+
 import { MediaFileReadyDto } from './dto/media-file-ready.dto';
 
 @Injectable()
@@ -96,8 +99,6 @@ export class ProfileService {
             : new Date(
                 `${dto.dateOfBirth}T00:00:00.000Z`,
               ),
-  
-      visibility: dto.visibility,
     };
   
     if (dto.countryCode === null) {
@@ -171,6 +172,34 @@ export class ProfileService {
         }
       }
   
+      throw error;
+    }
+  }
+
+  async changeVisibility(
+    dto: ChangeProfileVisibilityDto,
+  ): Promise<ChangeProfileVisibilityResponse> {
+    try {
+      const result = await this.profileRepository.updateVisibility(
+        dto.userId,
+        dto.visibility,
+      );
+
+      return {
+        visibility: result.visibility,
+      };
+    } catch (error) {
+      if (
+        error instanceof
+          Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throwRpcError(
+          RpcErrorCode.PROFILE_NOT_FOUND,
+          'Profile not found',
+        );
+      }
+
       throw error;
     }
   }

@@ -1,16 +1,12 @@
 import { Transform } from 'class-transformer';
 import {
-  IsEnum,
   IsOptional,
   IsString,
   IsUUID,
   Length,
   Matches,
-  MinLength,
   MaxLength,
 } from 'class-validator';
-
-import { ProfileVisibility } from '../../generated/prisma/client';
 
 export class UpdateMyProfileDto {
   @IsUUID()
@@ -49,8 +45,4 @@ export class UpdateMyProfileDto {
   @IsOptional()
   @Matches(/^\d{4}-\d{2}-\d{2}$/)
   dateOfBirth?: string | null;
-
-  @IsOptional()
-  @IsEnum(ProfileVisibility)
-  visibility?: ProfileVisibility;
 }

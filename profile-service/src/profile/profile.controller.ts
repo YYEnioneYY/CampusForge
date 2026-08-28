@@ -16,6 +16,9 @@ import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { ChangeUsernameDto } from './dto/change-username.dto';
 import { ChangeUsernameResponse } from './types/change-username-response.type';
 
+import { ChangeProfileVisibilityDto } from './dto/change-profile-visibility.dto';
+import { ChangeProfileVisibilityResponse } from './types/change-profile-visibility-response.type';
+
 import { MEDIA_EVENT_PATTERNS } from '../kafka/patterns/media-event-patterns';
 
 import { MediaFileReadyDto } from './dto/media-file-ready.dto';
@@ -61,5 +64,13 @@ export class ProfilesController {
     dto: ChangeUsernameDto,
   ): Promise<ChangeUsernameResponse> {
     return this.profileService.changeUsername(dto);
+  }
+
+  @MessagePattern(PROFILE_PATTERNS.CHANGE_VISIBILITY)
+  changeVisibility(
+    @Payload()
+    dto: ChangeProfileVisibilityDto,
+  ): Promise<ChangeProfileVisibilityResponse> {
+    return this.profileService.changeVisibility(dto);
   }
 }

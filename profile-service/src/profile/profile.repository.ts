@@ -42,8 +42,6 @@ export type UpdateProfileData = {
   countryName?: string | null;
 
   dateOfBirth?: Date | null;
-
-  visibility?: ProfileVisibility;
 };
 
 export type ProfileRecord =
@@ -131,6 +129,25 @@ export class ProfileRepository {
 
       select: {
         username: true,
+      },
+    });
+  }
+
+  async updateVisibility(
+    userId: string,
+    visibility: ProfileVisibility,
+  ) {
+    return this.prisma.userProfile.update({
+      where: {
+        userId,
+      },
+    
+      data: {
+        visibility,
+      },
+    
+      select: {
+        visibility: true,
       },
     });
   }
