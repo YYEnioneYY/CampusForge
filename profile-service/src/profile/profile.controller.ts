@@ -16,6 +16,8 @@ import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { ChangeUsernameDto } from './dto/change-username.dto';
 import { ChangeUsernameResponse } from './types/change-username-response.type';
 
+import type { ProfileVisibilityOptionsResponse } from './types/profile-visibility-options-response.type';
+
 import { ChangeProfileVisibilityDto } from './dto/change-profile-visibility.dto';
 import { ChangeProfileVisibilityResponse } from './types/change-profile-visibility-response.type';
 
@@ -64,6 +66,11 @@ export class ProfilesController {
     dto: ChangeUsernameDto,
   ): Promise<ChangeUsernameResponse> {
     return this.profileService.changeUsername(dto);
+  }
+
+  @MessagePattern(PROFILE_PATTERNS.VISIBILITY_OPTIONS)
+  getVisibilityOptions(): ProfileVisibilityOptionsResponse {
+    return this.profileService.getVisibilityOptions();
   }
 
   @MessagePattern(PROFILE_PATTERNS.CHANGE_VISIBILITY)

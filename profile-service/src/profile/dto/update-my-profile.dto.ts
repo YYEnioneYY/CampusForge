@@ -6,6 +6,7 @@ import {
   Length,
   Matches,
   MaxLength,
+  IsDateString,
 } from 'class-validator';
 
 export class UpdateMyProfileDto {
@@ -44,5 +45,15 @@ export class UpdateMyProfileDto {
 
   @IsOptional()
   @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  @IsDateString(
+    {
+      strict: true,
+      strictSeparator: true,
+    },
+    {
+      message:
+        'dateOfBirth must be a valid date in YYYY-MM-DD format',
+    },
+  )
   dateOfBirth?: string | null;
 }

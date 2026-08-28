@@ -12,6 +12,7 @@ import { ReferenceKafkaService } from 'src/kafka/reference-kafka.service';
 
 // Utils
 import { generateUsername } from './utils/generate-username';
+import { getProfileVisibilityOptions } from './utils/get-profile-visibility-options';
 
 // Dto & Response
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
@@ -28,6 +29,8 @@ import { ProfileRecord } from './profile.repository';
 
 import { GetReferenceCountryPayload } from './types/reference-country.type';
 import { GetReferenceCountryResponse } from './types/reference-country.type';
+
+import type { ProfileVisibilityOptionsResponse } from './types/profile-visibility-options-response.type';
 
 import { ChangeProfileVisibilityDto } from './dto/change-profile-visibility.dto';
 import { ChangeProfileVisibilityResponse } from './types/change-profile-visibility-response.type';
@@ -96,8 +99,8 @@ export class ProfileService {
           ? undefined
           : dto.dateOfBirth === null
             ? null
-            : new Date(
-                `${dto.dateOfBirth}T00:00:00.000Z`,
+            : this.parseDateOfBirth(
+                dto.dateOfBirth,
               ),
     };
   
@@ -176,6 +179,12 @@ export class ProfileService {
     }
   }
 
+  getVisibilityOptions(): ProfileVisibilityOptionsResponse {
+    return {
+      options: getProfileVisibilityOptions()
+    };
+  }
+
   async changeVisibility(
     dto: ChangeProfileVisibilityDto,
   ): Promise<ChangeProfileVisibilityResponse> {
@@ -233,6 +242,36 @@ export class ProfileService {
           avatarId: dto.mediaId,
         },
       );
+  }
+
+  private parseDateOfBirth(
+    value: string,
+  ): Date {
+    const [year, month, day] =
+      value
+        .split('-')
+        .map(Number);
+
+    const date = new Date(
+      Date.UTC(
+        year,
+        month - 1,
+        day,
+      ),
+    );
+
+    if (
+      date.getUTCFullYear() !== year ||
+      date.getUTCMonth() !== month - 1 ||
+      date.getUTCDate() !== day
+    ) {
+      throwRpcError(
+        RpcErrorCode.VALIDATION_ERROR,
+        'Invalid date of birth',
+      );
+    }
+
+    return date;
   }
 
   private mapProfile(
