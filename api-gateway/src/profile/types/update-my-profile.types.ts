@@ -1,7 +1,3 @@
-import type {
-  ProfileVisibilityValue,
-} from '../dto/update-my-profile.dto';
-
 export type UpdateMyProfilePayload = {
   userId: string;
 
@@ -15,8 +11,6 @@ export type UpdateMyProfilePayload = {
   countryCode?: string | null;
 
   dateOfBirth?: string | null;
-
-  visibility?: ProfileVisibilityValue;
 };
 
 export type UpdateMyProfileResponse = {

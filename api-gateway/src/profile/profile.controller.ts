@@ -41,6 +41,9 @@ import { ChangeUsernameResponseDto } from './dto/change-username-response.dto';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { UpdateMyProfileResponseDto } from './dto/update-my-profile-response.dto';
 
+import { ChangeProfileVisibilityDto } from './dto/change-profile-visibility.dto';
+import { ChangeProfileVisibilityResponseDto } from './dto/change-profile-visibility-response.dto';
+
 @ApiTags('Profile')
 @ApiBearerAuth('access-token')
 @Controller('profile')
@@ -98,6 +101,24 @@ export class ProfileController {
         user.sub,
         dto.username,
       );
+  }
+
+  @Patch('me/visibility')
+  @ApiOperation({
+    summary:
+      'Изменение видимости профиля',
+  })
+  async changeVisibility(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Body()
+    dto: ChangeProfileVisibilityDto,
+  ): Promise<ChangeProfileVisibilityResponseDto> {
+    return this.profileService.changeVisibility(
+      user.sub,
+      dto.visibility,
+    );
   }
 
   @Post('me/avatar/upload')

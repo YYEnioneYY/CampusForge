@@ -12,15 +12,6 @@ import {
   MinLength,
 } from 'class-validator';
 
-export const PROFILE_VISIBILITIES = [
-  'PUBLIC',
-  'PRIVATE',
-  'SHARED_ORGANIZATION',
-] as const;
-
-export type ProfileVisibilityValue =
-  (typeof PROFILE_VISIBILITIES)[number];
-
 export class UpdateMyProfileDto {
   @IsOptional()
   @Transform(({ value }) =>
@@ -73,8 +64,4 @@ export class UpdateMyProfileDto {
   @IsOptional()
   @Matches(/^\d{4}-\d{2}-\d{2}$/)
   dateOfBirth?: string | null;
-
-  @IsOptional()
-  @IsIn(PROFILE_VISIBILITIES)
-  visibility?: ProfileVisibilityValue;
 }

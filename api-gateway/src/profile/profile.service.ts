@@ -42,6 +42,11 @@ import type {
   UpdateMyProfileResponse,
 } from './types/update-my-profile.types';
 
+import { ProfileVisibilityValue } from './dto/change-profile-visibility.dto';
+import { ChangeProfileVisibilityPayload } from './types/change-profile-visibility.types';
+import { ChangeProfileVisibilityResponse } from './types/change-profile-visibility.types';
+import { ChangeProfileVisibilityResponseDto } from './dto/change-profile-visibility-response.dto';
+
 @Injectable()
 export class ProfileService {
   constructor(
@@ -144,9 +149,6 @@ export class ProfileService {
       
         dateOfBirth:
           dto.dateOfBirth,
-      
-        visibility:
-          dto.visibility,
       };
   
     const result =
@@ -189,6 +191,33 @@ export class ProfileService {
         visibility:
           result.profile.visibility,
       },
+    };
+  }
+
+  async changeVisibility(
+    userId: string,
+    visibility: ProfileVisibilityValue,
+  ): Promise<ChangeProfileVisibilityResponseDto> {
+    const payload:
+      ChangeProfileVisibilityPayload = {
+        userId,
+        visibility,
+      };
+  
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          ChangeProfileVisibilityResponse,
+          ChangeProfileVisibilityPayload
+        >(
+          PROFILE_PATTERNS.CHANGE_VISIBILITY,
+          payload,
+        ),
+      );
+  
+    return {
+      visibility:
+        result.visibility,
     };
   }
 }
