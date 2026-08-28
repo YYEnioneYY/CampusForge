@@ -5,6 +5,8 @@ export class UpdatedProfileDataDto {
   lastName!: string;
   middleName!: string | null;
 
+  avatarUrl!: string | null;
+
   bio!: string | null;
 
   countryCode!: string | null;

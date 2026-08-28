@@ -1,14 +1,9 @@
 import {
   Injectable,
 } from '@nestjs/common';
-
-import {
-  firstValueFrom,
-} from 'rxjs';
-
-import {
-  ProfileKafkaService,
-} from '../kafka/profile-kafka.service';
+import { ConfigService } from '@nestjs/config';
+import { firstValueFrom } from 'rxjs';
+import { ProfileKafkaService } from '../kafka/profile-kafka.service';
 
 import {
   PROFILE_PATTERNS,
@@ -30,6 +25,8 @@ import type {
 } from './types/create-profile-avatar-upload.types';
 import { MediaKafkaService } from 'src/kafka/media-kafka.service';
 import { CreateAvatarUploadResponseDto } from './dto/create-avatar-upload-response.dto';
+
+import { ProfileResponseDto } from './dto/profile-response.dto';
 
 import { ChangeUsernameResponseDto } from './dto/change-username-response.dto';
 import { ChangeUsernamePayload } from './types/change-username.types';
@@ -53,11 +50,12 @@ export class ProfileService {
   constructor(
     private readonly profileKafkaService: ProfileKafkaService,
     private readonly mediaKafkaService: MediaKafkaService,
+    private readonly configService: ConfigService,
   ) {}
 
   async getMyProfile(
     userId: string,
-  ): Promise<GetMyProfileResponse> {
+  ): Promise<ProfileResponseDto> {
     const payload: GetMyProfilePayload = {
       userId,
     };
@@ -72,7 +70,38 @@ export class ProfileService {
       ),
     );
 
-    return result;
+    return {
+      profile: {
+        username:
+          result.profile.username,
+
+        firstName:
+          result.profile.firstName,
+
+        lastName:
+          result.profile.lastName,
+
+        middleName:
+          result.profile.middleName,
+
+        avatarUrl: this.getAvatarUrl(result.profile.avatarId),
+
+        bio:
+          result.profile.bio,
+
+        countryCode:
+          result.profile.countryCode,
+
+        countryName:
+          result.profile.countryName,
+
+        dateOfBirth:
+          result.profile.dateOfBirth,
+
+        visibility:
+          result.profile.visibility,
+      },
+    };
   }
 
   async changeUsername(
@@ -176,6 +205,8 @@ export class ProfileService {
       
         middleName:
           result.profile.middleName,
+
+        avatarUrl: this.getAvatarUrl(result.profile.avatarId),
       
         bio:
           result.profile.bio,
@@ -236,5 +267,25 @@ export class ProfileService {
       visibility:
         result.visibility,
     };
+  }
+
+  private getAvatarUrl(
+    avatarId: string | null,
+  ): string | null {
+    if (!avatarId) {
+      return null;
+    }
+  
+    const baseUrl =
+      this.configService
+        .getOrThrow<string>(
+          'MEDIA_PUBLIC_BASE_URL',
+        )
+        .replace(/\/+$/, '');
+      
+    return (
+      `${baseUrl}/profile-avatars/` +
+      `${avatarId}.webp`
+    );
   }
 }

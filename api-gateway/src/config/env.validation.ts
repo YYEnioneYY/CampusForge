@@ -82,6 +82,10 @@ class EnvironmentVariables {
   @IsString()
   @Matches(/^rediss?:\/\/.+/)
   REDIS_URL!: string;
+
+  @IsString()
+  @Matches(/^https?:\/\/.+/)
+  MEDIA_PUBLIC_BASE_URL!: string;
 }
 
 export function validateEnv(

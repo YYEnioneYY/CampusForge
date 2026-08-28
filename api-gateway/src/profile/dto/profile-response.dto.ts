@@ -1,4 +1,6 @@
 export class ProfileDataResponseDto {
+  username!: string;
+  
   firstName!: string;
   lastName!: string;
   middleName!: string | null;
