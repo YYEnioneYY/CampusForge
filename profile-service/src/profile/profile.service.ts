@@ -37,6 +37,9 @@ import { ChangeProfileVisibilityResponse } from './types/change-profile-visibili
 
 import { MediaFileReadyDto } from './dto/media-file-ready.dto';
 
+import { SearchProfilesDto } from './dto/search-profiles.dto';
+import type { SearchProfilesResponse } from './types/search-profiles-response.type';
+
 @Injectable()
 export class ProfileService {
   constructor(
@@ -72,6 +75,66 @@ export class ProfileService {
     }
   
     return this.mapProfile(profile);
+  }
+
+  async searchProfiles(
+    dto: SearchProfilesDto,
+  ): Promise<SearchProfilesResponse> {
+    const result =
+      await this.profileRepository
+        .searchPublicProfiles(
+          dto.q,
+          dto.page,
+          dto.limit,
+        );
+      
+    const totalPages =
+      Math.ceil(
+        result.total / dto.limit,
+      );
+    
+    return {
+      items: result.profiles.map(
+        (profile) => ({
+          userId:
+            profile.userId,
+        
+          username:
+            profile.username,
+        
+          firstName:
+            profile.firstName,
+        
+          lastName:
+            profile.lastName,
+        
+          middleName:
+            profile.middleName,
+        
+          avatarId:
+            profile.avatarId,
+        }),
+      ),
+    
+      meta: {
+        page:
+          dto.page,
+      
+        limit:
+          dto.limit,
+      
+        total:
+          result.total,
+      
+        totalPages,
+      
+        hasNextPage:
+          dto.page < totalPages,
+      
+        hasPreviousPage:
+          dto.page > 1,
+      },
+    };
   }
 
   async updateMyProfile(

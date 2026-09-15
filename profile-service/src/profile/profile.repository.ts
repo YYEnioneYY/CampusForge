@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
-import { ProfileVisibility } from '../generated/prisma/client';
+import { 
+  Prisma,
+  ProfileVisibility,
+} from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 import { CreateProfileData } from './types/create-profile-data.type';
@@ -27,6 +30,18 @@ const profileSelect = {
 
   createdAt: true,
   updatedAt: true,
+} as const;
+
+const searchProfileSelect = {
+  userId: true,
+
+  username: true,
+
+  firstName: true,
+  lastName: true,
+  middleName: true,
+
+  avatarId: true,
 } as const;
 
 export type UpdateProfileData = {
@@ -141,14 +156,89 @@ export class ProfileRepository {
       where: {
         userId,
       },
-    
+
       data: {
         visibility,
       },
-    
+
       select: {
         visibility: true,
       },
     });
+  }
+
+  async searchPublicProfiles(
+    query: string,
+    page: number,
+    limit: number,
+  ) {
+    const terms = query
+      .split(/\s+/)
+      .filter(Boolean);
+  
+    const where:
+      Prisma.UserProfileWhereInput = {
+        visibility:
+          ProfileVisibility.PUBLIC,
+  
+        AND: terms.map((term) => ({
+          OR: [
+            {
+              username: {
+                contains: term,
+                mode: 'insensitive',
+              },
+            },
+  
+            {
+              firstName: {
+                contains: term,
+                mode: 'insensitive',
+              },
+            },
+  
+            {
+              lastName: {
+                contains: term,
+                mode: 'insensitive',
+              },
+            },
+  
+            {
+              middleName: {
+                contains: term,
+                mode: 'insensitive',
+              },
+            },
+          ],
+        })),
+      };
+  
+    const [profiles, total] =
+      await this.prisma.$transaction([
+        this.prisma.userProfile.findMany({
+          where,
+  
+          select: searchProfileSelect,
+  
+          orderBy: {
+            username: 'asc',
+          },
+  
+          skip:
+            (page - 1) * limit,
+  
+          take: limit,
+        }),
+  
+        this.prisma.userProfile.count({
+          where,
+        }),
+      ]);
+  
+    return {
+      profiles,
+      total,
+    };
   }
 }

@@ -25,6 +25,9 @@ import { MEDIA_EVENT_PATTERNS } from '../kafka/patterns/media-event-patterns';
 
 import { MediaFileReadyDto } from './dto/media-file-ready.dto';
 
+import { SearchProfilesDto } from './dto/search-profiles.dto';
+import type { SearchProfilesResponse } from './types/search-profiles-response.type';
+
 @Controller()
 export class ProfilesController {
   constructor(private readonly profileService: ProfileService) {}
@@ -79,5 +82,15 @@ export class ProfilesController {
     dto: ChangeProfileVisibilityDto,
   ): Promise<ChangeProfileVisibilityResponse> {
     return this.profileService.changeVisibility(dto);
+  }
+
+  @MessagePattern(
+    PROFILE_PATTERNS.SEARCH,
+  )
+  searchProfiles(
+    @Payload()
+    dto: SearchProfilesDto,
+  ): Promise<SearchProfilesResponse> {
+    return this.profileService.searchProfiles(dto);
   }
 }
