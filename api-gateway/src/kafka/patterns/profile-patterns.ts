@@ -1,5 +1,6 @@
 export const PROFILE_PATTERNS = {
   ME: 'profile.me',
+  SEARCH: 'profile.search',
 
   UPDATE_ME: 'profile.me.update',
   CHANGE_USERNAME: 'profile.username.change',
@@ -10,6 +11,7 @@ export const PROFILE_PATTERNS = {
 
 export const PROFILE_RESPONSE_PATTERNS = [
   PROFILE_PATTERNS.ME,
+  PROFILE_PATTERNS.SEARCH,
 
   PROFILE_PATTERNS.UPDATE_ME,
   PROFILE_PATTERNS.CHANGE_USERNAME,

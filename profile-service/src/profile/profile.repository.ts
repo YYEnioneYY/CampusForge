@@ -176,43 +176,41 @@ export class ProfileRepository {
       .split(/\s+/)
       .filter(Boolean);
   
-    const where:
-      Prisma.UserProfileWhereInput = {
-        visibility:
-          ProfileVisibility.PUBLIC,
-  
-        AND: terms.map((term) => ({
-          OR: [
-            {
-              username: {
-                contains: term,
-                mode: 'insensitive',
-              },
+    const where = {
+      visibility: ProfileVisibility.PUBLIC,
+
+      AND: terms.map((term) => ({
+        OR: [
+          {
+            username: {
+              contains: term,
+              mode: 'insensitive',
             },
-  
-            {
-              firstName: {
-                contains: term,
-                mode: 'insensitive',
-              },
+          },
+
+          {
+            firstName: {
+              contains: term,
+              mode: 'insensitive',
             },
-  
-            {
-              lastName: {
-                contains: term,
-                mode: 'insensitive',
-              },
+          },
+
+          {
+            lastName: {
+              contains: term,
+              mode: 'insensitive',
             },
-  
-            {
-              middleName: {
-                contains: term,
-                mode: 'insensitive',
-              },
+          },
+
+          {
+            middleName: {
+              contains: term,
+              mode: 'insensitive',
             },
-          ],
-        })),
-      };
+          },
+        ],
+      })),
+    } satisfies Prisma.UserProfileWhereInput;
   
     const [profiles, total] =
       await this.prisma.$transaction([

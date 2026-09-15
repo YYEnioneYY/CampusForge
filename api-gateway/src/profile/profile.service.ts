@@ -45,6 +45,13 @@ import { ChangeProfileVisibilityPayload } from './types/change-profile-visibilit
 import { ChangeProfileVisibilityResponse } from './types/change-profile-visibility.types';
 import { ChangeProfileVisibilityResponseDto } from './dto/change-profile-visibility-response.dto';
 
+import { SearchProfilesQueryDto } from './dto/search-profiles-query.dto';
+import { SearchProfilesResponseDto } from './dto/search-profiles-response.dto';
+import type {
+  SearchProfilesKafkaResponse,
+  SearchProfilesPayload,
+} from './types/search-profiles.types';
+
 @Injectable()
 export class ProfileService {
   constructor(
@@ -100,6 +107,74 @@ export class ProfileService {
 
         visibility:
           result.profile.visibility,
+      },
+    };
+  }
+
+  async searchProfiles(
+    dto: SearchProfilesQueryDto,
+  ): Promise<SearchProfilesResponseDto> {
+    const payload:
+      SearchProfilesPayload = {
+        q: dto.q,
+        page: dto.page,
+        limit: dto.limit,
+      };
+  
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          SearchProfilesKafkaResponse,
+          SearchProfilesPayload
+        >(
+          PROFILE_PATTERNS.SEARCH,
+          payload,
+        ),
+      );
+  
+    return {
+      items: result.items.map(
+        (profile) => ({
+          userId:
+            profile.userId,
+  
+          username:
+            profile.username,
+  
+          firstName:
+            profile.firstName,
+  
+          lastName:
+            profile.lastName,
+  
+          middleName:
+            profile.middleName,
+  
+          avatarUrl:
+            this.getAvatarUrl(
+              profile.avatarId,
+            ),
+        }),
+      ),
+  
+      meta: {
+        page:
+          result.meta.page,
+  
+        limit:
+          result.meta.limit,
+  
+        total:
+          result.meta.total,
+  
+        totalPages:
+          result.meta.totalPages,
+  
+        hasNextPage:
+          result.meta.hasNextPage,
+  
+        hasPreviousPage:
+          result.meta.hasPreviousPage,
       },
     };
   }

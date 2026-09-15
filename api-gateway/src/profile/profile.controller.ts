@@ -4,12 +4,12 @@ import {
   Get,
   Patch,
   Body,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
 import {
   ApiBearerAuth,
-  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -45,6 +45,9 @@ import { ProfileVisibilityOptionsResponseDto } from './dto/profile-visibility-op
 import { ChangeProfileVisibilityDto } from './dto/change-profile-visibility.dto';
 import { ChangeProfileVisibilityResponseDto } from './dto/change-profile-visibility-response.dto';
 
+import { SearchProfilesQueryDto } from './dto/search-profiles-query.dto';
+import { SearchProfilesResponseDto } from './dto/search-profiles-response.dto';
+
 @ApiTags('Profile')
 @ApiBearerAuth('access-token')
 @Controller('profile')
@@ -65,6 +68,18 @@ export class ProfileController {
     user: AuthenticatedUser,
   ): Promise<ProfileResponseDto> {
     return this.profileService.getMyProfile(user.sub);
+  }
+
+  @Get('search')
+  @ApiOperation({
+    summary:
+      'Поиск публичных профилей пользователей',
+  })
+  async searchProfiles(
+    @Query()
+    dto: SearchProfilesQueryDto,
+  ): Promise<SearchProfilesResponseDto> {
+    return this.profileService.searchProfiles(dto);
   }
 
   @Patch('me')
