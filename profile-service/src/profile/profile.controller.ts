@@ -28,6 +28,9 @@ import { MediaFileReadyDto } from './dto/media-file-ready.dto';
 import { SearchProfilesDto } from './dto/search-profiles.dto';
 import type { SearchProfilesResponse } from './types/search-profiles-response.type';
 
+import { GetPublicProfileDto } from './dto/get-public-profile.dto';
+import type { PublicProfileResponse } from './types/public-profile-response.type';
+
 @Controller()
 export class ProfilesController {
   constructor(private readonly profileService: ProfileService) {}
@@ -84,13 +87,19 @@ export class ProfilesController {
     return this.profileService.changeVisibility(dto);
   }
 
-  @MessagePattern(
-    PROFILE_PATTERNS.SEARCH,
-  )
+  @MessagePattern(PROFILE_PATTERNS.SEARCH)
   searchProfiles(
     @Payload()
     dto: SearchProfilesDto,
   ): Promise<SearchProfilesResponse> {
     return this.profileService.searchProfiles(dto);
+  }
+
+  @MessagePattern(PROFILE_PATTERNS.PUBLIC_BY_USERNAME)
+  getPublicProfile(
+    @Payload()
+    dto: GetPublicProfileDto,
+  ): Promise<PublicProfileResponse> {
+    return this.profileService.getPublicProfile(dto);
   }
 }

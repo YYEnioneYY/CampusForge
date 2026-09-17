@@ -3,7 +3,8 @@ export const PROFILE_PATTERNS = {
 
   ME: 'profile.me',
   SEARCH: 'profile.search',
-  
+  PUBLIC_BY_USERNAME: 'profile.public.by_username',
+
   UPDATE_ME: 'profile.me.update',
   CHANGE_USERNAME: 'profile.username.change',
 

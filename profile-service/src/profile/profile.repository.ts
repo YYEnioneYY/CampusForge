@@ -32,6 +32,23 @@ const profileSelect = {
   updatedAt: true,
 } as const;
 
+const publicProfileSelect = {
+  userId: true,
+
+  username: true,
+
+  firstName: true,
+  lastName: true,
+  middleName: true,
+
+  avatarId: true,
+
+  bio: true,
+
+  countryCode: true,
+  countryName: true,
+} as const;
+
 const searchProfileSelect = {
   userId: true,
 
@@ -238,5 +255,21 @@ export class ProfileRepository {
       profiles,
       total,
     };
+  }
+
+  async findPublicByUsername(
+    username: string,
+  ) {
+    return this.prisma.userProfile.findFirst({
+      where: {
+        username,
+  
+        visibility:
+          ProfileVisibility.PUBLIC,
+      },
+  
+      select:
+        publicProfileSelect,
+    });
   }
 }

@@ -40,6 +40,9 @@ import { MediaFileReadyDto } from './dto/media-file-ready.dto';
 import { SearchProfilesDto } from './dto/search-profiles.dto';
 import type { SearchProfilesResponse } from './types/search-profiles-response.type';
 
+import { GetPublicProfileDto } from './dto/get-public-profile.dto';
+import type { PublicProfileResponse } from './types/public-profile-response.type';
+
 @Injectable()
 export class ProfileService {
   constructor(
@@ -87,52 +90,99 @@ export class ProfileService {
           dto.page,
           dto.limit,
         );
-      
+
     const totalPages =
       Math.ceil(
         result.total / dto.limit,
       );
-    
+
     return {
       items: result.profiles.map(
         (profile) => ({
           userId:
             profile.userId,
-        
+
           username:
             profile.username,
-        
+
           firstName:
             profile.firstName,
-        
+
           lastName:
             profile.lastName,
-        
+
           middleName:
             profile.middleName,
-        
+
           avatarId:
             profile.avatarId,
         }),
       ),
-    
+
       meta: {
         page:
           dto.page,
-      
+
         limit:
           dto.limit,
-      
+
         total:
           result.total,
-      
+
         totalPages,
-      
+
         hasNextPage:
           dto.page < totalPages,
-      
+
         hasPreviousPage:
           dto.page > 1,
+      },
+    };
+  }
+
+  async getPublicProfile(
+    dto: GetPublicProfileDto,
+  ): Promise<PublicProfileResponse> {
+    const profile =
+      await this.profileRepository.findPublicByUsername(
+        dto.username,
+      );
+
+    if (!profile) {
+      throwRpcError(
+        RpcErrorCode.PROFILE_NOT_FOUND,
+        'Profile not found',
+      );
+    }
+
+    return {
+      profile: {
+        userId:
+          profile.userId,
+
+        username:
+          profile.username,
+
+        firstName:
+          profile.firstName,
+
+        lastName:
+          profile.lastName,
+
+        middleName:
+          profile.middleName,
+
+        avatarId:
+          profile.avatarId,
+
+        bio:
+          profile.bio,
+
+        countryCode:
+          profile.countryCode,
+
+        countryName:
+          profile.countryName,
       },
     };
   }
