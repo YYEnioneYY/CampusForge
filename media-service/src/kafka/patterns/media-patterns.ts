@@ -2,4 +2,6 @@ export const MEDIA_PATTERNS = {
   CREATE_PROFILE_AVATAR_UPLOAD: 'media.profile_avatar.create_upload',
 
   FILE_READY: 'media.file.ready',
+
+  DELETE_PROFILE_AVATAR: 'media.profile_avatar.delete',
 } as const;

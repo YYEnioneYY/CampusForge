@@ -159,4 +159,52 @@ export class MediaRepository {
       },
     });
   }
+
+  async findProfileAvatarById(
+    id: string,
+    userId: string,
+  ) {
+    return this.prisma.mediaFile.findFirst({
+      where: {
+        id,
+  
+        ownerType:
+          MediaOwnerType.USER,
+  
+        ownerId:
+          userId,
+  
+        purpose:
+          MediaPurpose.PROFILE_AVATAR,
+      },
+  
+      select: {
+        id: true,
+        objectKey: true,
+        status: true,
+      },
+    });
+  }
+
+  async markDeleted(
+    id: string,
+  ): Promise<void> {
+    await this.prisma.mediaFile.updateMany({
+      where: {
+        id,
+  
+        status: {
+          not: MediaStatus.DELETED,
+        },
+      },
+  
+      data: {
+        status:
+          MediaStatus.DELETED,
+  
+        deletedAt:
+          new Date(),
+      },
+    });
+  }
 }

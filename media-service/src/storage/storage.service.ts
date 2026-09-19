@@ -10,6 +10,7 @@ import {
 import {
   HeadObjectCommand,
   PutObjectCommand,
+  DeleteObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 
@@ -75,6 +76,17 @@ export class StorageService {
       {
         expiresIn,
       },
+    );
+  }
+
+  async deleteObject(
+    objectKey: string,
+  ): Promise<void> {
+    await this.internalClient.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: objectKey,
+      }),
     );
   }
 }

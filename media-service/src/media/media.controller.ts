@@ -21,6 +21,7 @@ import {
 } from './media.service';
 
 import type { MinioObjectCreatedEvent } from 'src/storage/types/minio-object-created-event.type';
+import { DeleteProfileAvatarDto } from './dto/delete-profile-avatar.dto';
 
 @Controller()
 export class MediaController {
@@ -43,5 +44,13 @@ export class MediaController {
     event: MinioObjectCreatedEvent,
   ): Promise<void> {
     await this.mediaService.handleObjectCreated(event);
+  }
+
+  @MessagePattern(MEDIA_PATTERNS.DELETE_PROFILE_AVATAR)
+  deleteProfileAvatar(
+    @Payload()
+    dto: DeleteProfileAvatarDto,
+  ): Promise<{ success: true }> {
+    return this.mediaService.deleteProfileAvatar(dto);
   }
 }

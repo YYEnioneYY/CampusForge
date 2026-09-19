@@ -18,6 +18,7 @@ import {
 
 import { MinioObjectCreatedEvent } from 'src/storage/types/minio-object-created-event.type';
 import { MediaStatus } from '../generated/prisma/enums';
+import { DeleteProfileAvatarDto } from './dto/delete-profile-avatar.dto';
 
 @Injectable()
 export class MediaService {
@@ -201,5 +202,41 @@ export class MediaService {
           'profile_avatar',
       });
     }
+  }
+
+  async deleteProfileAvatar(
+    dto: DeleteProfileAvatarDto,
+  ): Promise<{ success: true }> {
+    const mediaFile = await this.mediaRepository.findProfileAvatarById(
+      dto.mediaId,
+      dto.userId,
+    );
+  
+    if (!mediaFile) {
+      return {
+        success: true,
+      };
+    }
+  
+    if (
+      mediaFile.status ===
+      MediaStatus.DELETED
+    ) {
+      return {
+        success: true,
+      };
+    }
+  
+    await this.storageService.deleteObject(
+      mediaFile.objectKey,
+    );
+  
+    await this.mediaRepository.markDeleted(
+      mediaFile.id,
+    );
+  
+    return {
+      success: true,
+    };
   }
 }
