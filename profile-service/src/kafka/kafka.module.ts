@@ -10,11 +10,11 @@ import {
 
 import {
   REFERENCE_KAFKA_CLIENT,
+  MEDIA_KAFKA_CLIENT,
 } from './kafka.constants';
 
-import {
-  ReferenceKafkaService,
-} from './reference-kafka.service';
+import { ReferenceKafkaService } from './reference-kafka.service';
+import { MediaKafkaService } from './media-kafka.service';
 
 @Module({
   imports: [
@@ -74,11 +74,73 @@ import {
           };
         },
       },
+      {
+        name:
+          MEDIA_KAFKA_CLIENT,
+          
+        imports: [
+          ConfigModule,
+        ],
+      
+        inject: [
+          ConfigService,
+        ],
+      
+        useFactory: (
+          configService: ConfigService,
+        ) => {
+          const brokers =
+            configService
+              .getOrThrow<string>(
+                'KAFKA_BROKERS',
+              )
+              .split(',')
+              .map((broker) =>
+                broker.trim(),
+              )
+              .filter(Boolean);
+          
+          const clientId =
+            configService.getOrThrow<string>(
+              'KAFKA_CLIENT_ID',
+            );
+          
+          const groupId =
+            configService.getOrThrow<string>(
+              'KAFKA_GROUP_ID',
+            );
+          
+          return {
+            transport:
+              Transport.KAFKA,
+          
+            options: {
+              client: {
+                clientId:
+                  `${clientId}-media`,
+              
+                brokers,
+              },
+          
+              consumer: {
+                groupId:
+                  `${groupId}-media`,
+              },
+            },
+          };
+        },
+      },
     ]),
   ],
 
-  providers: [ReferenceKafkaService],
+  providers: [
+    ReferenceKafkaService,
+    MediaKafkaService,
+  ],
 
-  exports: [ReferenceKafkaService],
+  exports: [
+    ReferenceKafkaService,
+    MediaKafkaService,
+  ],
 })
 export class KafkaModule {}

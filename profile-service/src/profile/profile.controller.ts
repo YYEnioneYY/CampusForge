@@ -31,6 +31,8 @@ import type { SearchProfilesResponse } from './types/search-profiles-response.ty
 import { GetPublicProfileDto } from './dto/get-public-profile.dto';
 import type { PublicProfileResponse } from './types/public-profile-response.type';
 
+import { DeleteMyAvatarDto } from './dto/delete-my-avatar.dto';
+
 @Controller()
 export class ProfilesController {
   constructor(private readonly profileService: ProfileService) {}
@@ -101,5 +103,13 @@ export class ProfilesController {
     dto: GetPublicProfileDto,
   ): Promise<PublicProfileResponse> {
     return this.profileService.getPublicProfile(dto);
+  }
+
+  @MessagePattern(PROFILE_PATTERNS.DELETE_AVATAR)
+  deleteMyAvatar(
+    @Payload()
+    dto: DeleteMyAvatarDto,
+  ): Promise<{ success: true }> {
+    return this.profileService.deleteMyAvatar(dto);
   }
 }

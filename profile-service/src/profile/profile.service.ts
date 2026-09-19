@@ -6,9 +6,11 @@ import { Prisma } from '../generated/prisma/client';
 
 import { firstValueFrom } from 'rxjs';
 import { REFERENCE_PATTERNS } from 'src/kafka/patterns/reference-patterns';
+import { MEDIA_PATTERNS } from 'src/kafka/patterns/media-patterns';
 
 import { ProfileRepository, UpdateProfileData } from './profile.repository';
 import { ReferenceKafkaService } from 'src/kafka/reference-kafka.service';
+import { MediaKafkaService } from 'src/kafka/media-kafka.service';
 
 // Utils
 import { generateUsername } from './utils/generate-username';
@@ -43,9 +45,12 @@ import type { SearchProfilesResponse } from './types/search-profiles-response.ty
 import { GetPublicProfileDto } from './dto/get-public-profile.dto';
 import type { PublicProfileResponse } from './types/public-profile-response.type';
 
+import { DeleteMyAvatarDto } from './dto/delete-my-avatar.dto';
+
 @Injectable()
 export class ProfileService {
   constructor(
+    private readonly mediaKafkaService: MediaKafkaService,
     private readonly profileRepository: ProfileRepository,
     private readonly referenceKafkaService: ReferenceKafkaService,
   ) {}
@@ -355,6 +360,53 @@ export class ProfileService {
           avatarId: dto.mediaId,
         },
       );
+  }
+
+  async deleteMyAvatar(
+    dto: DeleteMyAvatarDto,
+  ): Promise<{ success: true }> {
+    const profile = await this.profileRepository.findByUserId(dto.userId);
+  
+    if (!profile) {
+      throwRpcError(
+        RpcErrorCode.PROFILE_NOT_FOUND,
+        'Profile not found',
+      );
+    }
+  
+    if (!profile.avatarId) {
+      return {
+        success: true,
+      };
+    }
+  
+    await firstValueFrom(
+      this.mediaKafkaService.send<
+        { success: true },
+        {
+          userId: string;
+          mediaId: string;
+        }
+      >(
+        MEDIA_PATTERNS.DELETE_PROFILE_AVATAR,
+        {
+          userId:
+            dto.userId,
+  
+          mediaId:
+            profile.avatarId,
+        },
+      ),
+    );
+  
+    await this.profileRepository.clearAvatarIfCurrent(
+      dto.userId,
+      profile.avatarId,
+    );
+  
+    return {
+      success: true,
+    };
   }
 
   private parseDateOfBirth(

@@ -272,4 +272,20 @@ export class ProfileRepository {
         publicProfileSelect,
     });
   }
+
+  async clearAvatarIfCurrent(
+    userId: string,
+    avatarId: string,
+  ): Promise<void> {
+    await this.prisma.userProfile.updateMany({
+      where: {
+        userId,
+        avatarId,
+      },
+  
+      data: {
+        avatarId: null,
+      },
+    });
+  }
 }

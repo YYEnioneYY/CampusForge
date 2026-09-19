@@ -10,4 +10,6 @@ export const PROFILE_PATTERNS = {
 
   CHANGE_VISIBILITY: 'profile.visibility.change',
   VISIBILITY_OPTIONS: 'profile.visibility.options',
+
+  DELETE_AVATAR: 'profile.avatar.delete',
 } as const;
