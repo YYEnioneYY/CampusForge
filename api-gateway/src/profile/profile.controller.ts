@@ -3,9 +3,13 @@ import {
   Post,
   Get,
   Patch,
+  Delete,
   Body,
   Query,
   UseGuards,
+  HttpCode,
+  HttpStatus,
+  Param,
 } from '@nestjs/common';
 
 import {
@@ -47,6 +51,9 @@ import { ChangeProfileVisibilityResponseDto } from './dto/change-profile-visibil
 
 import { SearchProfilesQueryDto } from './dto/search-profiles-query.dto';
 import { SearchProfilesResponseDto } from './dto/search-profiles-response.dto';
+
+import { GetPublicProfileParamsDto } from './dto/get-public-profile-params.dto';
+import { PublicProfileResponseDto } from './dto/public-profile-response.dto';
 
 @ApiTags('Profile')
 @ApiBearerAuth('access-token')
@@ -155,5 +162,32 @@ export class ProfileController {
     user: AuthenticatedUser,
   ): Promise<CreateAvatarUploadResponseDto> {
     return this.profileService.createAvatarUpload(user.sub);
+  }
+
+  @Delete('me/avatar')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Удаление аватарки пользователя',
+  })
+  async deleteMyAvatar(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  ): Promise<void> {
+    await this.profileService.deleteMyAvatar(user.sub);
+  }
+
+  @Get(':username')
+  @ApiOperation({
+    summary:
+      'Получение публичного профиля по username',
+  })
+  async getPublicProfile(
+    @Param()
+    params: GetPublicProfileParamsDto,
+  ): Promise<PublicProfileResponseDto> {
+    return this.profileService.getPublicProfile(
+      params.username,
+    );
   }
 }

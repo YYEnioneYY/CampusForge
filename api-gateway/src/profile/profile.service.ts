@@ -52,6 +52,23 @@ import type {
   SearchProfilesPayload,
 } from './types/search-profiles.types';
 
+import type {
+  GetPublicProfileKafkaResponse,
+  GetPublicProfilePayload,
+} from './types/get-public-profile.types';
+
+import {
+  PublicProfileResponseDto,
+} from './dto/public-profile-response.dto';
+
+import type {
+  DeleteMyAvatarPayload,
+} from './types/delete-my-avatar.types';
+
+import type {
+  CommandAcknowledgement,
+} from '../common/types/command-acknowledgement.type';
+
 @Injectable()
 export class ProfileService {
   constructor(
@@ -344,6 +361,78 @@ export class ProfileService {
     };
   }
 
+  async getPublicProfile(
+    username: string,
+  ): Promise<PublicProfileResponseDto> {
+    const payload:
+      GetPublicProfilePayload = {
+        username,
+      };
+  
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          GetPublicProfileKafkaResponse,
+          GetPublicProfilePayload
+        >(
+          PROFILE_PATTERNS.PUBLIC_BY_USERNAME,
+          payload,
+        ),
+      );
+  
+    return {
+      profile: {
+        userId:
+          result.profile.userId,
+  
+        username:
+          result.profile.username,
+  
+        firstName:
+          result.profile.firstName,
+  
+        lastName:
+          result.profile.lastName,
+  
+        middleName:
+          result.profile.middleName,
+  
+        avatarUrl:
+          this.getAvatarUrl(
+            result.profile.avatarId,
+          ),
+  
+        bio:
+          result.profile.bio,
+  
+        countryCode:
+          result.profile.countryCode,
+  
+        countryName:
+          result.profile.countryName,
+      },
+    };
+  }
+
+  async deleteMyAvatar(
+    userId: string,
+  ): Promise<void> {
+    const payload:
+      DeleteMyAvatarPayload = {
+        userId,
+      };
+  
+    await firstValueFrom(
+      this.profileKafkaService.send<
+        CommandAcknowledgement,
+        DeleteMyAvatarPayload
+      >(
+        PROFILE_PATTERNS.DELETE_AVATAR,
+        payload,
+      ),
+    );
+  }
+  
   private getAvatarUrl(
     avatarId: string | null,
   ): string | null {
