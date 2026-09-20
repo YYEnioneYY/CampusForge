@@ -116,7 +116,7 @@ export class ProfilesController {
     return this.profileService.deleteMyAvatar(dto);
   }
 
-  @MessagePattern(PROFILE_PATTERNS.PUBLIC_BY_USER_IDS)
+  @MessagePattern(PROFILE_PATTERNS.SUMMARY_BY_USER_IDS)
   getPublicProfilesByUserIds(
     @Payload()
     dto: GetPublicProfilesByUserIdsDto,

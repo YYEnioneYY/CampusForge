@@ -4,7 +4,7 @@ export const PROFILE_PATTERNS = {
   ME: 'profile.me',
   SEARCH: 'profile.search',
   PUBLIC_BY_USERNAME: 'profile.public.by_username',
-  PUBLIC_BY_USER_IDS: 'profile.summary.by_user_ids',
+  SUMMARY_BY_USER_IDS: 'profile.summary.by_user_ids',
 
   UPDATE_ME: 'profile.me.update',
   CHANGE_USERNAME: 'profile.username.change',
