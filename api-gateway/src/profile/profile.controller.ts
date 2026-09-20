@@ -80,7 +80,7 @@ export class ProfileController {
   @Get('search')
   @ApiOperation({
     summary:
-      'Поиск публичных профилей пользователей',
+      'Поиск профилей пользователей',
   })
   async searchProfiles(
     @Query()
@@ -180,7 +180,7 @@ export class ProfileController {
   @Get(':username')
   @ApiOperation({
     summary:
-      'Получение публичного профиля по username',
+      'Получение профиля пользователя по username',
   })
   async getPublicProfile(
     @Param()

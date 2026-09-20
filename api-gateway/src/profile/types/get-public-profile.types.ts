@@ -18,5 +18,7 @@ export type GetPublicProfileKafkaResponse = {
 
     countryCode: string | null;
     countryName: string | null;
+
+    isPrivate: boolean;
   };
 };

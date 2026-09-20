@@ -12,6 +12,8 @@ class PublicProfileDto {
 
   countryCode!: string | null;
   countryName!: string | null;
+
+  isPrivate!: boolean;
 }
 
 export class PublicProfileResponseDto {

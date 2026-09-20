@@ -8,6 +8,8 @@ export class SearchProfileItemResponseDto {
   middleName!: string | null;
 
   avatarUrl!: string | null;
+
+  isPrivate!: boolean;
 }
 
 export class SearchProfilesPaginationMetaDto {

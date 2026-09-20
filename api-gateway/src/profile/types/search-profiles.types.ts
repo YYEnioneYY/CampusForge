@@ -15,6 +15,8 @@ export type SearchProfilesKafkaResponse = {
     middleName: string | null;
 
     avatarId: string | null;
+
+    isPrivate: boolean;
   }>;
 
   meta: {

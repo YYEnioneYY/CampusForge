@@ -171,6 +171,9 @@ export class ProfileService {
             this.getAvatarUrl(
               profile.avatarId,
             ),
+        
+          isPrivate:
+            profile.isPrivate,
         }),
       ),
   
@@ -410,6 +413,9 @@ export class ProfileService {
   
         countryName:
           result.profile.countryName,
+
+        isPrivate:
+          result.profile.isPrivate,
       },
     };
   }
@@ -432,7 +438,7 @@ export class ProfileService {
       ),
     );
   }
-  
+
   private getAvatarUrl(
     avatarId: string | null,
   ): string | null {
