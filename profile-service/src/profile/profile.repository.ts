@@ -288,4 +288,19 @@ export class ProfileRepository {
       },
     });
   }
+
+  async findPublicByUserIds(
+    userIds: string[],
+  ) {
+    return this.prisma.userProfile.findMany({
+      where: {
+        userId: {
+          in: userIds,
+        },
+      },
+  
+      select:
+        searchProfileSelect,
+    });
+  }
 }

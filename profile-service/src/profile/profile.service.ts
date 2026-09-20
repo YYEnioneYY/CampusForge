@@ -47,6 +47,9 @@ import type { PublicProfileResponse } from './types/public-profile-response.type
 
 import { DeleteMyAvatarDto } from './dto/delete-my-avatar.dto';
 
+import { GetPublicProfilesByUserIdsDto } from './dto/get-public-profiles-by-user-ids.dto';
+import type { GetPublicProfilesByUserIdsResponse } from './types/get-public-profiles-by-user-ids-response.type';
+
 @Injectable()
 export class ProfileService {
   constructor(
@@ -406,6 +409,62 @@ export class ProfileService {
   
     return {
       success: true,
+    };
+  }
+
+  async getPublicProfilesByUserIds(
+    dto: GetPublicProfilesByUserIdsDto,
+  ): Promise<GetPublicProfilesByUserIdsResponse> {
+    const profiles = await this.profileRepository.findPublicByUserIds(
+      dto.userIds,
+    );
+
+    const profilesByUserId =
+      new Map(
+        profiles.map(
+          (profile) => [
+            profile.userId,
+            profile,
+          ],
+        ),
+      );
+
+    return {
+      profiles:
+        dto.userIds.flatMap(
+          (userId) => {
+            const profile =
+              profilesByUserId.get(
+                userId,
+              );
+
+            if (!profile) {
+              return [];
+            }
+
+            return [
+              {
+                userId:
+                  profile.userId,
+
+                username:
+                  profile.username,
+
+                firstName:
+                  profile.firstName,
+
+                lastName:
+                  profile.lastName,
+
+                middleName:
+                  profile.middleName,
+
+                avatarId:
+                  profile.avatarId,
+              },
+            ];
+          },
+        ),
     };
   }
 
