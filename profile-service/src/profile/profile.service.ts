@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { throwRpcError } from 'src/common/rpc/throw-rpc-error';
 import { RpcErrorCode } from 'src/common/rpc/rpc-error-code';
 
-import { Prisma } from '../generated/prisma/client';
+import { 
+  Prisma,
+  ProfileVisibility,
+ } from '../generated/prisma/client';
 
 import { firstValueFrom } from 'rxjs';
 import { REFERENCE_PATTERNS } from 'src/kafka/patterns/reference-patterns';
@@ -43,7 +46,7 @@ import { SearchProfilesDto } from './dto/search-profiles.dto';
 import type { SearchProfilesResponse } from './types/search-profiles-response.type';
 
 import { GetPublicProfileDto } from './dto/get-public-profile.dto';
-import type { PublicProfileResponse } from './types/public-profile-response.type';
+import type { ProfileByUsernameResponse } from './types/profile-by-username-response.type';
 
 import { DeleteMyAvatarDto } from './dto/delete-my-avatar.dto';
 
@@ -93,7 +96,7 @@ export class ProfileService {
   ): Promise<SearchProfilesResponse> {
     const result =
       await this.profileRepository
-        .searchPublicProfiles(
+        .searchProfiles(
           dto.q,
           dto.page,
           dto.limit,
@@ -124,6 +127,10 @@ export class ProfileService {
 
           avatarId:
             profile.avatarId,
+
+          isPrivate:
+            profile.visibility ===
+            ProfileVisibility.PRIVATE,
         }),
       ),
 
@@ -148,11 +155,11 @@ export class ProfileService {
     };
   }
 
-  async getPublicProfile(
+  async getProfileByUsername(
     dto: GetPublicProfileDto,
-  ): Promise<PublicProfileResponse> {
+  ): Promise<ProfileByUsernameResponse> {
     const profile =
-      await this.profileRepository.findPublicByUsername(
+      await this.profileRepository.findByUsername(
         dto.username,
       );
 
@@ -162,6 +169,10 @@ export class ProfileService {
         'Profile not found',
       );
     }
+
+    const isPrivate =
+      profile.visibility ===
+      ProfileVisibility.PRIVATE;
 
     return {
       profile: {
@@ -184,13 +195,21 @@ export class ProfileService {
           profile.avatarId,
 
         bio:
-          profile.bio,
+          isPrivate
+            ? null
+            : profile.bio,
 
         countryCode:
-          profile.countryCode,
+          isPrivate
+            ? null
+            : profile.countryCode,
 
         countryName:
-          profile.countryName,
+          isPrivate
+            ? null
+            : profile.countryName,
+
+        isPrivate,
       },
     };
   }
@@ -415,7 +434,7 @@ export class ProfileService {
   async getPublicProfilesByUserIds(
     dto: GetPublicProfilesByUserIdsDto,
   ): Promise<GetPublicProfilesByUserIdsResponse> {
-    const profiles = await this.profileRepository.findPublicByUserIds(
+    const profiles = await this.profileRepository.findSummariesByUserIds(
       dto.userIds,
     );
 

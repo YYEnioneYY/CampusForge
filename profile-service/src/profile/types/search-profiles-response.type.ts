@@ -9,6 +9,8 @@ export type SearchProfilesResponse = {
     middleName: string | null;
 
     avatarId: string | null;
+
+    isPrivate: boolean;
   }>;
 
   meta: {

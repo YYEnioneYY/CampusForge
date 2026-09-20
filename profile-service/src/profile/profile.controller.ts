@@ -29,7 +29,7 @@ import { SearchProfilesDto } from './dto/search-profiles.dto';
 import type { SearchProfilesResponse } from './types/search-profiles-response.type';
 
 import { GetPublicProfileDto } from './dto/get-public-profile.dto';
-import type { PublicProfileResponse } from './types/public-profile-response.type';
+import type { ProfileByUsernameResponse } from './types/profile-by-username-response.type';
 
 import { DeleteMyAvatarDto } from './dto/delete-my-avatar.dto';
 
@@ -104,8 +104,8 @@ export class ProfilesController {
   getPublicProfile(
     @Payload()
     dto: GetPublicProfileDto,
-  ): Promise<PublicProfileResponse> {
-    return this.profileService.getPublicProfile(dto);
+  ): Promise<ProfileByUsernameResponse> {
+    return this.profileService.getProfileByUsername(dto);
   }
 
   @MessagePattern(PROFILE_PATTERNS.DELETE_AVATAR)

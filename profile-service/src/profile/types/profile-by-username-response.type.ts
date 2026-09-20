@@ -1,4 +1,4 @@
-export type PublicProfileResponse = {
+export type ProfileByUsernameResponse = {
   profile: {
     userId: string;
 
@@ -14,5 +14,7 @@ export type PublicProfileResponse = {
 
     countryCode: string | null;
     countryName: string | null;
+
+    isPrivate: boolean;
   };
 };

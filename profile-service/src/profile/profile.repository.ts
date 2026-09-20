@@ -32,7 +32,7 @@ const profileSelect = {
   updatedAt: true,
 } as const;
 
-const publicProfileSelect = {
+const profileByUsernameSelect = {
   userId: true,
 
   username: true,
@@ -47,6 +47,8 @@ const publicProfileSelect = {
 
   countryCode: true,
   countryName: true,
+
+  visibility: true,
 } as const;
 
 const searchProfileSelect = {
@@ -59,6 +61,8 @@ const searchProfileSelect = {
   middleName: true,
 
   avatarId: true,
+
+  visibility: true,
 } as const;
 
 export type UpdateProfileData = {
@@ -184,7 +188,7 @@ export class ProfileRepository {
     });
   }
 
-  async searchPublicProfiles(
+  async searchProfiles(
     query: string,
     page: number,
     limit: number,
@@ -194,8 +198,6 @@ export class ProfileRepository {
       .filter(Boolean);
   
     const where = {
-      visibility: ProfileVisibility.PUBLIC,
-
       AND: terms.map((term) => ({
         OR: [
           {
@@ -257,19 +259,16 @@ export class ProfileRepository {
     };
   }
 
-  async findPublicByUsername(
+  async findByUsername(
     username: string,
   ) {
-    return this.prisma.userProfile.findFirst({
+    return this.prisma.userProfile.findUnique({
       where: {
         username,
-  
-        visibility:
-          ProfileVisibility.PUBLIC,
       },
   
       select:
-        publicProfileSelect,
+        profileByUsernameSelect,
     });
   }
 
@@ -289,7 +288,7 @@ export class ProfileRepository {
     });
   }
 
-  async findPublicByUserIds(
+  async findSummariesByUserIds(
     userIds: string[],
   ) {
     return this.prisma.userProfile.findMany({
