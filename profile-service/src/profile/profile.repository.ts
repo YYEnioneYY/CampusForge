@@ -173,6 +173,13 @@ export class ProfileRepository {
         )
       }
 
+      if (currentProfile.username === username) {
+        throwRpcError(
+          RpcErrorCode.USERNAME_SAME_AS_CURRENT,
+          'New username must be different from current username',
+        );
+      }
+
       if(currentProfile.usernameChangedAt) {
         const cooldownMs = 30 * 24 * 60 * 60 * 1000;
         const timeElapsed = Date.now() - new Date(currentProfile.usernameChangedAt).getTime();
@@ -191,7 +198,7 @@ export class ProfileRepository {
         data: {
           username: username,
           previousUsername: currentProfile.username,
-          date: new Date(),
+          usernameChangedAt: new Date(),
         },
       });
 
