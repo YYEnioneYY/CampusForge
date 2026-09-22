@@ -17,29 +17,31 @@ enum ProfileVisibility {
 }
 
 model UserProfile {
-  id          String            @id @default(uuid()) @db.Uuid
+  id                String            @id @default(uuid()) @db.Uuid
 
-  userId      String            @unique @map("user_id") @db.Uuid
+  userId            String            @unique @map("user_id") @db.Uuid
 
-  username    String            @unique @db.VarChar(30)
+  username          String            @unique @db.VarChar(30)
+  previousUsername  String?           @db.VarChar(30) @map("previous_username")
+  usernameChangedAt DateTime?         @map("username_changed_at") @db.Timestamptz  
 
-  firstName   String            @map("first_name") @db.VarChar(255)
-  lastName    String            @map("last_name") @db.VarChar(255)
-  middleName  String?           @map("middle_name") @db.VarChar(255)
+  firstName         String            @map("first_name") @db.VarChar(255)
+  lastName          String            @map("last_name") @db.VarChar(255)
+  middleName        String?           @map("middle_name") @db.VarChar(255)
 
-  avatarId    String?           @map("avatar_id") @db.Uuid
+  avatarId          String?           @map("avatar_id") @db.Uuid
 
-  bio         String?           @db.Text
+  bio               String?           @db.Text
 
-  countryCode String?           @map("country_code") @db.Char(2)
-  countryName String?           @map("country_name") @db.VarChar(150)
+  countryCode       String?           @map("country_code") @db.Char(2)
+  countryName       String?           @map("country_name") @db.VarChar(150)
 
-  dateOfBirth DateTime?         @map("date_of_birth") @db.Date
+  dateOfBirth       DateTime?         @map("date_of_birth") @db.Date
 
-  visibility  ProfileVisibility @default(PUBLIC)
+  visibility        ProfileVisibility @default(PUBLIC)
 
-  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz
 
   @@map("user_profiles")
 }

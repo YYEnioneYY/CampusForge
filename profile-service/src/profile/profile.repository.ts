@@ -7,6 +7,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 
 import { CreateProfileData } from './types/create-profile-data.type';
+import { throwRpcError } from 'src/common/rpc/throw-rpc-error';
+import { RpcErrorCode } from 'src/common/rpc/rpc-error-code';
 
 const profileSelect = {
   id: true,
@@ -154,18 +156,46 @@ export class ProfileRepository {
     userId: string,
     username: string,
   ) {
-    return this.prisma.userProfile.update({
-      where: {
-        userId,
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const currentProfile = await tx.userProfile.findUnique({
+        where: { userId },
 
-      data: {
-        username,
-      },
+        select: { 
+          username: true,
+          usernameChangedAt: true,
+        }   
+      });
 
-      select: {
-        username: true,
-      },
+      if(!currentProfile) {
+        throwRpcError(
+          RpcErrorCode.PROFILE_NOT_FOUND,
+          "Profile not found"
+        )
+      }
+
+      if(currentProfile.usernameChangedAt) {
+        const cooldownMs = 30 * 24 * 60 * 60 * 1000;
+        const timeElapsed = Date.now() - new Date(currentProfile.usernameChangedAt).getTime();
+
+        if (timeElapsed < cooldownMs) {
+          const daysLeft = Math.ceil((cooldownMs - timeElapsed) / (1000 * 60 * 60 * 24));
+          throwRpcError(
+            RpcErrorCode.USERNAME_CHANGE_TIMEOUT,
+            `You can change your username only once every 30 days. Try again in ${daysLeft} days.`
+          );
+        }
+      }
+
+      const updatedProfile = await tx.userProfile.update({
+        where: { userId },
+        data: {
+          username: username,
+          previousUsername: currentProfile.username,
+          date: new Date(),
+        },
+      });
+
+      return updatedProfile;
     });
   }
 

@@ -284,16 +284,13 @@ export class ProfileService {
     dto: ChangeUsernameDto,
   ): Promise<ChangeUsernameResponse> {
     try {
-      const result =
-        await this.profileRepository
-          .updateUsername(
-            dto.userId,
-            dto.username,
-          );
+      const result = await this.profileRepository.updateUsername(
+        dto.userId,
+        dto.username,
+      );
   
       return {
-        username:
-          result.username,
+        username: result.username
       };
     } catch (error) {
       if (
@@ -304,13 +301,6 @@ export class ProfileService {
           throwRpcError(
             RpcErrorCode.USERNAME_ALREADY_TAKEN,
             'Username is already taken',
-          );
-        }
-  
-        if (error.code === 'P2025') {
-          throwRpcError(
-            RpcErrorCode.PROFILE_NOT_FOUND,
-            'Profile not found',
           );
         }
       }
