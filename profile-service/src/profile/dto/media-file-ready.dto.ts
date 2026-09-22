@@ -18,13 +18,11 @@ export class MediaFileReadyDto {
   mediaId!: string;
 
   @IsIn(MEDIA_OWNER_TYPES)
-  ownerType!:
-    (typeof MEDIA_OWNER_TYPES)[number];
+  ownerType!: (typeof MEDIA_OWNER_TYPES)[number];
 
   @IsUUID()
   ownerId!: string;
 
   @IsIn(MEDIA_PURPOSES)
-  purpose!:
-    (typeof MEDIA_PURPOSES)[number];
+  purpose!: (typeof MEDIA_PURPOSES)[number];
 }

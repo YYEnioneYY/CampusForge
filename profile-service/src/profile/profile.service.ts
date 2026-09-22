@@ -362,26 +362,55 @@ export class ProfileService {
     ) {
       return;
     }
-  
-    const existingProfile =
-      await this.profileRepository
-        .findByUserId(
-          dto.ownerId,
-        );
-  
+
+    const existingProfile = await this.profileRepository.findByUserId(
+      dto.ownerId,
+    );
+
     if (!existingProfile) {
       throw new Error(
         `Profile not found for media owner: ${dto.ownerId}`,
       );
     }
-  
-    await this.profileRepository
-      .updateByUserId(
-        dto.ownerId,
-        {
-          avatarId: dto.mediaId,
-        },
+
+    if (
+      existingProfile.avatarId ===
+      dto.mediaId
+    ) {
+      return;
+    }
+
+    const previousAvatarId =
+      existingProfile.avatarId;
+
+    if (previousAvatarId) {
+      await firstValueFrom(
+        this.mediaKafkaService.send<
+          { success: true },
+          {
+            userId: string;
+            mediaId: string;
+          }
+        >(
+          MEDIA_PATTERNS.DELETE_PROFILE_AVATAR,
+          {
+            userId:
+              dto.ownerId,
+
+            mediaId:
+              previousAvatarId,
+          },
+        ),
       );
+    }
+
+    await this.profileRepository.updateByUserId(
+      dto.ownerId,
+      {
+        avatarId:
+          dto.mediaId,
+      },
+    );
   }
 
   async deleteMyAvatar(
