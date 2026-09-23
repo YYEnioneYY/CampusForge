@@ -128,9 +128,10 @@ export class ProfileRepository {
   async findByUserId(
     userId: string,
   ) {
-    return this.prisma.userProfile.findUnique({
+    return this.prisma.userProfile.findFirst({
       where: {
         userId,
+        deletedAt: null,
       },
 
       select: profileSelect,
@@ -193,16 +194,15 @@ export class ProfileRepository {
         }
       }
 
-      const updatedProfile = await tx.userProfile.update({
+      return await tx.userProfile.update({
         where: { userId },
         data: {
           username: username,
           previousUsername: currentProfile.username,
           usernameChangedAt: new Date(),
         },
+        select: { username: true }
       });
-
-      return updatedProfile;
     });
   }
 
@@ -235,6 +235,8 @@ export class ProfileRepository {
       .filter(Boolean);
   
     const where = {
+      deletedAt: null,
+
       AND: terms.map((term) => ({
         OR: [
           {
@@ -299,9 +301,10 @@ export class ProfileRepository {
   async findByUsername(
     username: string,
   ) {
-    return this.prisma.userProfile.findUnique({
+    return this.prisma.userProfile.findFirst({
       where: {
         username,
+        deletedAt: null,
       },
   
       select:
@@ -333,10 +336,46 @@ export class ProfileRepository {
         userId: {
           in: userIds,
         },
+
+        deletedAt: null,
       },
   
       select:
         searchProfileSelect,
+    });
+  }
+
+  async softDeleteByUserId(
+    userId: string,
+    deletedAt: Date,
+  ): Promise<void> {
+    await this.prisma.userProfile.updateMany({
+      where: {
+        userId,
+        deletedAt: null,
+      },
+
+      data: {
+        deletedAt,
+      },
+    });
+  }
+
+  async restoreByUserId(
+    userId: string,
+  ): Promise<void> {
+    await this.prisma.userProfile.updateMany({
+      where: {
+        userId,
+
+        deletedAt: {
+          not: null,
+        },
+      },
+
+      data: {
+        deletedAt: null,
+      },
     });
   }
 }

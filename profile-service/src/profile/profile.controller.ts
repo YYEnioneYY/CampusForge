@@ -36,6 +36,10 @@ import { DeleteMyAvatarDto } from './dto/delete-my-avatar.dto';
 import { GetPublicProfilesByUserIdsDto } from './dto/get-public-profiles-by-user-ids.dto';
 import type { GetPublicProfilesByUserIdsResponse } from './types/get-public-profiles-by-user-ids-response.type';
 
+import { USER_EVENT_PATTERNS } from '../kafka/patterns/user-event-patterns';
+import { AccountDeletedEventDto } from './dto/account-deleted-event.dto';
+import { AccountRestoredEventDto } from './dto/account-restored-event.dto';
+
 @Controller()
 export class ProfilesController {
   constructor(private readonly profileService: ProfileService) {}
@@ -122,5 +126,21 @@ export class ProfilesController {
     dto: GetPublicProfilesByUserIdsDto,
   ): Promise<GetPublicProfilesByUserIdsResponse> {
     return this.profileService.getPublicProfilesByUserIds(dto);
+  }
+
+  @EventPattern(USER_EVENT_PATTERNS.ACCOUNT_DELETED)
+  async handleAccountDeleted(
+    @Payload()
+    dto: AccountDeletedEventDto,
+  ): Promise<void> {
+    await this.profileService.handleAccountDeleted(dto);
+  }
+
+  @EventPattern(USER_EVENT_PATTERNS.ACCOUNT_RESTORED)
+  async handleAccountRestored(
+    @Payload()
+    dto: AccountRestoredEventDto,
+  ): Promise<void> {
+    await this.profileService.handleAccountRestored(dto);
   }
 }

@@ -53,6 +53,9 @@ import { DeleteMyAvatarDto } from './dto/delete-my-avatar.dto';
 import { GetPublicProfilesByUserIdsDto } from './dto/get-public-profiles-by-user-ids.dto';
 import type { GetPublicProfilesByUserIdsResponse } from './types/get-public-profiles-by-user-ids-response.type';
 
+import { AccountDeletedEventDto } from './dto/account-deleted-event.dto';
+import { AccountRestoredEventDto } from './dto/account-restored-event.dto';
+
 @Injectable()
 export class ProfileService {
   constructor(
@@ -504,6 +507,23 @@ export class ProfileService {
           },
         ),
     };
+  }
+
+  async handleAccountDeleted(
+    dto: AccountDeletedEventDto,
+  ): Promise<void> {
+    await this.profileRepository.softDeleteByUserId(
+      dto.userId,
+      new Date(dto.deletedAt),
+    );
+  }
+
+  async handleAccountRestored(
+    dto: AccountRestoredEventDto,
+  ): Promise<void> {
+    await this.profileRepository.restoreByUserId(
+      dto.userId,
+    );
   }
 
   private parseDateOfBirth(
