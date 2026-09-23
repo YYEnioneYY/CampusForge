@@ -95,12 +95,14 @@ export class RpcErrorMapperService {
         return HttpStatus.NOT_FOUND;
 
       case RpcErrorCode.EMAIL_VERIFICATION_RESEND_TOO_SOON:
+      case RpcErrorCode.USERNAME_CHANGE_TIMEOUT:
         return HttpStatus.TOO_MANY_REQUESTS;
 
       case RpcErrorCode.INVALID_CURRENT_PASSWORD:
       case RpcErrorCode.INVALID_EMAIL_VERIFICATION_TOKEN:
       case RpcErrorCode.INVALID_PASSWORD_RESET_TOKEN:
       case RpcErrorCode.INVALID_ACCOUNT_RESTORE_TOKEN:
+      case RpcErrorCode.USERNAME_SAME_AS_CURRENT:
       case RpcErrorCode.VALIDATION_ERROR:
         return HttpStatus.BAD_REQUEST;
 
