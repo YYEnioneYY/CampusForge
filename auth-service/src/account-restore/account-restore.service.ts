@@ -11,16 +11,18 @@ import { AccountRestoreRepository } from './account-restore.repository';
 import { CreateAccountRestoreTokenResult } from './types/create-account-restore-token-result.type';
 import { RequestAccountRestoreEmailInput } from './types/request-account-restore-email.input';
 
+import { OutboxService } from '../outbox/outbox.service';
+import { USER_EVENT_PATTERNS } from '../common/kafka/user-event-patterns';
+
 @Injectable()
 export class AccountRestoreService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
-    private readonly notificationProducerService:
-      NotificationProducerService,
-    private readonly accountRestoreRepository:
-      AccountRestoreRepository,
+    private readonly notificationProducerService: NotificationProducerService,
+    private readonly accountRestoreRepository: AccountRestoreRepository,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async requestAccountRestoreEmail(
@@ -113,11 +115,43 @@ export class AccountRestoreService {
           tx,
         );
 
-        return this.usersService.restoreUserInTransaction(
+        const restoredUser = await this.usersService.restoreUserInTransaction(
           restoreToken.userId,
           nextStatus,
           tx,
         );
+
+        await this.outboxService.enqueue(
+          tx,
+          {
+            topic:
+              USER_EVENT_PATTERNS.ACCOUNT_RESTORED,
+          
+            eventType:
+              'user.account.restored',
+          
+            eventVersion: 1,
+          
+            aggregateType:
+              'User',
+          
+            aggregateId:
+              restoreToken.userId,
+          
+            partitionKey:
+              restoreToken.userId,
+          
+            payload: {
+              userId:
+                restoreToken.userId,
+            
+              restoredAt:
+                now.toISOString(),
+            },
+          },
+        );
+
+        return restoredUser;
       });
 
     return {

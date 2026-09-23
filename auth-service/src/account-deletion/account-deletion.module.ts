@@ -5,6 +5,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 import { UsersModule } from '../users/users.module';
 import { AccountDeletionService } from './account-deletion.service';
+import { OutboxModule } from '../outbox/outbox.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AccountDeletionService } from './account-deletion.service';
     PasswordModule,
     RefreshTokenModule,
     AccessRevocationModule,
+    OutboxModule,
   ],
   providers: [AccountDeletionService],
   exports: [AccountDeletionService],

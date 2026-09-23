@@ -9,6 +9,9 @@ import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { UsersService } from '../users/users.service';
 import { DeleteAccountInput } from './types/delete-account.input';
 
+import { OutboxService } from '../outbox/outbox.service';
+import { USER_EVENT_PATTERNS } from '../common/kafka/user-event-patterns';
+
 @Injectable()
 export class AccountDeletionService {
   constructor(
@@ -17,6 +20,7 @@ export class AccountDeletionService {
     private readonly passwordService: PasswordService,
     private readonly refreshTokenService: RefreshTokenService,
     private readonly accessRevocationService: AccessRevocationService,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async deleteAccount(input: DeleteAccountInput) {
@@ -75,6 +79,36 @@ export class AccountDeletionService {
         input.userId,
         now,
         tx,
+      );
+
+      await this.outboxService.enqueue(
+        tx,
+        {
+          topic:
+            USER_EVENT_PATTERNS.ACCOUNT_DELETED,
+        
+          eventType:
+            'user.account.deleted',
+        
+          eventVersion: 1,
+        
+          aggregateType:
+            'User',
+        
+          aggregateId:
+            input.userId,
+        
+          partitionKey:
+            input.userId,
+        
+          payload: {
+            userId:
+              input.userId,
+          
+            deletedAt:
+              now.toISOString(),
+          },
+        },
       );
     });
 
