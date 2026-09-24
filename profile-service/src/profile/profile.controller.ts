@@ -45,7 +45,7 @@ export class ProfilesController {
   constructor(private readonly profileService: ProfileService) {}
 
   @EventPattern(USER_EVENT_PATTERNS.ACCOUNT_CREATED)
-  async createProfileAfterUserRegistered(
+  async createProfileAfterAccountCreated(
     @Payload() dto: CreateUserProfileDto,
   ): Promise<void> {
     await this.profileService.createForUser(dto);

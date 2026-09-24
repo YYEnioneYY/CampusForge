@@ -39,7 +39,6 @@ import { TokenService } from '../token/token.service';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { EmailVerificationService } from '../email-verification/email-verification.service';
 import { PasswordChangeService } from '../password-change/password-change.service';
-import { ProfileProducerService } from '../profile-producer/profile-producer.service';
 import { AdminUsersService } from '../admin-users/admin-users.service';
 import { AccessRevocationService } from '../access-revocation/access-revocation.service';
 import { AccountDeletionService } from 'src/account-deletion/account-deletion.service';
@@ -59,7 +58,6 @@ export class AuthService {
     private readonly emailVerificationService: EmailVerificationService,
     private readonly passwordResetService: PasswordResetService,
     private readonly passwordChangeService: PasswordChangeService,
-    private readonly profileProducerService: ProfileProducerService,
     private readonly adminUsersService: AdminUsersService,
     private readonly accessRevocationService: AccessRevocationService,
     private readonly accountDeletionService: AccountDeletionService,
@@ -159,7 +157,7 @@ export class AuthService {
             topic:
               USER_EVENT_PATTERNS.ACCOUNT_CREATED,
             eventType:
-              'user.registered',
+              'user.account.created',
             eventVersion: 1,
             aggregateType:
               'User',

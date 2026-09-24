@@ -8,7 +8,6 @@ import { RefreshTokenModule } from '../refresh-token/refresh-token.module';
 import { EmailVerificationModule } from '../email-verification/email-verification.module';
 import { PasswordResetModule } from '../password-reset/password-reset.module';
 import { PasswordChangeModule } from '../password-change/password-change.module';
-import { ProfileProducerModule } from '../profile-producer/profile-producer.module';
 import { AdminUsersModule } from '../admin-users/admin-users.module';
 import { AccessRevocationModule } from 'src/access-revocation/access-revocation.module';
 import { AccountDeletionModule } from '../account-deletion/account-deletion.module';
@@ -24,7 +23,6 @@ import { OutboxModule } from '../outbox/outbox.module';
     EmailVerificationModule,
     PasswordResetModule,
     PasswordChangeModule,
-    ProfileProducerModule,
     AdminUsersModule,
     AccessRevocationModule,
     AccountDeletionModule,

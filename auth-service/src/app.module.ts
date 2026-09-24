@@ -13,7 +13,6 @@ import { EmailVerificationModule } from './email-verification/email-verification
 import { PasswordResetModule } from './password-reset/password-reset.module';
 import { validateEnv } from './config/env.validation';
 import { PasswordChangeModule } from './password-change/password-change.module';
-import { ProfileProducerModule } from './profile-producer/profile-producer.module';
 import { AdminUsersModule } from './admin-users/admin-users.module';
 import { RedisModule } from './redis/redis.module';
 import { AccessRevocationModule } from './access-revocation/access-revocation.module';
@@ -38,7 +37,6 @@ import { OutboxModule } from './outbox/outbox.module';
     EmailVerificationModule,
     PasswordResetModule,
     PasswordChangeModule,
-    ProfileProducerModule,
     AdminUsersModule,
     RedisModule,
     AccessRevocationModule,
