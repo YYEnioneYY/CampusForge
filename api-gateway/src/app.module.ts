@@ -9,6 +9,7 @@ import { SecurityModule } from './common/security.module';
 import { AdminModule } from './admin/admin.module';
 import { ReferenceModule } from './reference/reference.module';
 import { ProfileModule } from './profile/profile.module';
+import { UserLinksModule } from './user-links/user-links.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProfileModule } from './profile/profile.module';
     AdminModule,
     ReferenceModule,
     ProfileModule,
+    UserLinksModule,
   ],
 })
 export class AppModule {}

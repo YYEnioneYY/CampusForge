@@ -25,6 +25,9 @@ import {
 import {
   PROFILE_RESPONSE_PATTERNS,
 } from './patterns/profile-patterns';
+import {
+  USER_LINK_RESPONSE_PATTERNS,
+} from './patterns/user-link-patterns';
 
 @Injectable()
 export class ProfileKafkaService
@@ -39,12 +42,8 @@ export class ProfileKafkaService
   constructor(
     @Inject(PROFILE_KAFKA_CLIENT)
     private readonly client: ClientKafka,
-
-    private readonly configService:
-      ConfigService,
-
-    private readonly rpcErrorMapper:
-      RpcErrorMapperService,
+    private readonly configService: ConfigService,
+    private readonly rpcErrorMapper: RpcErrorMapperService,
   ) {
     this.requestTimeoutMs =
       this.configService.getOrThrow<number>(
@@ -53,14 +52,19 @@ export class ProfileKafkaService
   }
 
   async onModuleInit(): Promise<void> {
+    const responsePatterns = [
+      ...PROFILE_RESPONSE_PATTERNS,
+      ...USER_LINK_RESPONSE_PATTERNS,
+    ];
+  
     for (
-      const pattern of PROFILE_RESPONSE_PATTERNS
+      const pattern of responsePatterns
     ) {
       this.client.subscribeToResponseOf(
         pattern,
       );
     }
-
+  
     this.client.status.subscribe(
       (status) => {
         this.logger.log(
@@ -68,7 +72,7 @@ export class ProfileKafkaService
         );
       },
     );
-
+  
     await this.client.connect();
   }
 
