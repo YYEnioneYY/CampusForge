@@ -1,6 +1,8 @@
 import {
+  Body,
   Controller,
   Get,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 
@@ -30,6 +32,14 @@ import {
   UserLinksService,
 } from './user-links.service';
 
+import {
+  CreateUserLinkDto,
+} from './dto/create-user-link.dto';
+
+import {
+  CreateUserLinkResponseDto,
+} from './dto/create-user-link-response.dto';
+
 @ApiTags('User links')
 @ApiBearerAuth('access-token')
 @Controller('profile/me/links')
@@ -50,6 +60,24 @@ export class UserLinksController {
   ): Promise<GetMyLinksResponseDto> {
     return this.userLinksService.getMyLinks(
       user.sub,
+    );
+  }
+
+  @Post()
+  @ApiOperation({
+    summary:
+      'Добавление ссылки текущему пользователю',
+  })
+  createUserLink(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Body()
+    dto: CreateUserLinkDto,
+  ): Promise<CreateUserLinkResponseDto> {
+    return this.userLinksService.createUserLink(
+      user.sub,
+      dto,
     );
   }
 }

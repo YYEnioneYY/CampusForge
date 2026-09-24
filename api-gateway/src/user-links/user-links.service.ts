@@ -23,6 +23,19 @@ import type {
   GetMyLinksPayload,
 } from './types/get-my-links.types';
 
+import {
+  CreateUserLinkDto,
+} from './dto/create-user-link.dto';
+
+import {
+  CreateUserLinkResponseDto,
+} from './dto/create-user-link-response.dto';
+
+import type {
+  CreateUserLinkKafkaResponse,
+  CreateUserLinkPayload,
+} from './types/create-user-link.types';
+
 @Injectable()
 export class UserLinksService {
   constructor(
@@ -61,6 +74,55 @@ export class UserLinksService {
             sortOrder: link.sortOrder,
           }),
         ),
+    };
+  }
+
+  async createUserLink(
+    userId: string,
+    dto: CreateUserLinkDto,
+  ): Promise<CreateUserLinkResponseDto> {
+    const payload:
+      CreateUserLinkPayload = {
+        userId,
+
+        type:
+          dto.type,
+
+        url:
+          dto.url,
+
+        title:
+          dto.title,
+      };
+
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          CreateUserLinkKafkaResponse,
+          CreateUserLinkPayload
+        >(
+          USER_LINK_PATTERNS.CREATE,
+          payload,
+        ),
+      );
+
+    return {
+      link: {
+        id:
+          result.link.id,
+
+        type:
+          result.link.type,
+
+        url:
+          result.link.url,
+
+        title:
+          result.link.title,
+
+        sortOrder:
+          result.link.sortOrder,
+      },
     };
   }
 }

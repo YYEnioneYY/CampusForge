@@ -77,6 +77,7 @@ export class RpcErrorMapperService {
       case RpcErrorCode.USER_ALREADY_EXISTS:
       case RpcErrorCode.EMAIL_ALREADY_VERIFIED:
       case RpcErrorCode.USERNAME_ALREADY_TAKEN:
+      case RpcErrorCode.USER_LINK_LIMIT_REACHED:
         return HttpStatus.CONFLICT;
 
       case RpcErrorCode.INVALID_CREDENTIALS:
