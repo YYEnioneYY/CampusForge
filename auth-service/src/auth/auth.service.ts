@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 
 import { UserStatus } from '../generated/prisma/client';
 
-import { PROFILE_PATTERNS } from 'src/common/kafka/profile-patterns';
+import { USER_EVENT_PATTERNS } from 'src/common/kafka/user-event-patterns';
 
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -157,7 +157,7 @@ export class AuthService {
           transaction,
           {
             topic:
-              PROFILE_PATTERNS.USER_REGISTERED,
+              USER_EVENT_PATTERNS.ACCOUNT_CREATED,
             eventType:
               'user.registered',
             eventVersion: 1,

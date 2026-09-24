@@ -1,6 +1,4 @@
 export const PROFILE_PATTERNS = {
-  USER_REGISTERED: 'profile.user_registered',
-
   ME: 'profile.me',
   SEARCH: 'profile.search',
   PUBLIC_BY_USERNAME: 'profile.public.by_username',

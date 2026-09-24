@@ -44,7 +44,7 @@ import { AccountRestoredEventDto } from './dto/account-restored-event.dto';
 export class ProfilesController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @EventPattern(PROFILE_PATTERNS.USER_REGISTERED)
+  @EventPattern(USER_EVENT_PATTERNS.ACCOUNT_CREATED)
   async createProfileAfterUserRegistered(
     @Payload() dto: CreateUserProfileDto,
   ): Promise<void> {
