@@ -34,6 +34,13 @@ import {
   MAX_USER_LINKS,
 } from './user-links.constants';
 
+import {
+  validateUserLinkUrl,
+} from './utils/validate-user-link-url';
+
+import { UpdateUserLinkDto } from './dto/update-user-link.dto';
+import { UpdateUserLinkResponse } from './types/update-user-link-response.type';
+
 @Injectable()
 export class UserLinksService {
   constructor(
@@ -62,6 +69,11 @@ export class UserLinksService {
   async createUserLink(
     dto: CreateUserLinkDto,
   ): Promise<CreateUserLinkResponse> {
+    validateUserLinkUrl(
+      dto.type,
+      dto.url,
+    );
+
     const result =
       await this.userLinksRepository
         .createForUser(
@@ -69,16 +81,16 @@ export class UserLinksService {
           {
             type:
               dto.type,
-          
+
             url:
               dto.url,
-          
+
             title:
               dto.title,
           },
           MAX_USER_LINKS,
         );
-      
+
     if (
       result.status ===
       'profile_not_found'
@@ -88,7 +100,7 @@ export class UserLinksService {
         'Profile not found',
       );
     }
-  
+
     if (
       result.status ===
       'limit_reached'
@@ -98,10 +110,81 @@ export class UserLinksService {
         `A maximum of ${MAX_USER_LINKS} links is allowed`,
       );
     }
-  
+
     return {
       link:
         result.link,
+    };
+  }
+
+  async updateUserLink(
+    dto: UpdateUserLinkDto,
+  ): Promise<UpdateUserLinkResponse> {
+    const hasChanges =
+      dto.type !== undefined ||
+      dto.url !== undefined ||
+      dto.title !== undefined;
+
+    if (!hasChanges) {
+      throwRpcError(
+        RpcErrorCode.VALIDATION_ERROR,
+        'At least one field must be provided',
+      );
+    }
+
+    const currentLink = await this.userLinksRepository.findByIdForUser(
+      dto.userId,
+      dto.id,
+    );
+
+    if (!currentLink) {
+      throwRpcError(
+        RpcErrorCode.USER_LINK_NOT_FOUND,
+        'User link not found',
+      );
+    }
+
+    const nextType =
+      dto.type ??
+      currentLink.type;
+
+    const nextUrl =
+      dto.url ??
+      currentLink.url;
+
+    validateUserLinkUrl(
+      nextType,
+      nextUrl,
+    );
+
+    const updatedLink =
+      await this.userLinksRepository
+        .updateForUser(
+          dto.userId,
+          {
+            id:
+              dto.id,
+
+            type:
+              dto.type,
+
+            url:
+              dto.url,
+
+            title:
+              dto.title,
+          },
+        );
+
+    if (!updatedLink) {
+      throwRpcError(
+        RpcErrorCode.USER_LINK_NOT_FOUND,
+        'User link not found',
+      );
+    }
+
+    return {
+      link: updatedLink,
     };
   }
 }

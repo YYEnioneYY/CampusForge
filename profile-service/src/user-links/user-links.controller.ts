@@ -18,6 +18,8 @@ import type { GetMyLinksResponse } from './types/get-my-links-response.type';
 
 import { CreateUserLinkDto } from './dto/create-user-link.dto';
 import type { CreateUserLinkResponse } from './types/create-user-link-response.type';
+import { UpdateUserLinkResponse } from './types/update-user-link-response.type';
+import { UpdateUserLinkDto } from './dto/update-user-link.dto';
 
 @Controller()
 export class UserLinksController {
@@ -39,5 +41,13 @@ export class UserLinksController {
     dto: CreateUserLinkDto,
   ): Promise<CreateUserLinkResponse> {
     return this.userLinksService.createUserLink(dto);
+  }
+
+  @MessagePattern(USER_LINK_PATTERNS.UPDATE)
+  updateUserLink(
+    @Payload()
+    dto: UpdateUserLinkDto
+  ): Promise<UpdateUserLinkResponse> {
+    return this.userLinksService.updateUserLink(dto);
   }
 }
