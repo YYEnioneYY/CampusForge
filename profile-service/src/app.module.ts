@@ -4,6 +4,7 @@ import { validateEnv } from './config/env.validation';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProfileModule } from './profile/profile.module';
 import { KafkaModule } from './kafka/kafka.module';
+import { UserLinksModule } from './user-links/user-links.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { KafkaModule } from './kafka/kafka.module';
     PrismaModule,
     ProfileModule,
     KafkaModule,
+    UserLinksModule,
   ],
 })
 export class AppModule {}
