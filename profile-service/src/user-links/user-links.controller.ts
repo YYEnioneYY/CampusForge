@@ -21,6 +21,9 @@ import type { CreateUserLinkResponse } from './types/create-user-link-response.t
 import { UpdateUserLinkResponse } from './types/update-user-link-response.type';
 import { UpdateUserLinkDto } from './dto/update-user-link.dto';
 
+import { DeleteUserLinkDto } from './dto/delete-user-link.dto';
+import type { DeleteUserLinkResponse } from './types/delete-user-link-response.type';
+
 @Controller()
 export class UserLinksController {
   constructor(
@@ -49,5 +52,13 @@ export class UserLinksController {
     dto: UpdateUserLinkDto
   ): Promise<UpdateUserLinkResponse> {
     return this.userLinksService.updateUserLink(dto);
+  }
+
+  @MessagePattern(USER_LINK_PATTERNS.DELETE)
+  deleteUserLink(
+    @Payload()
+    dto: DeleteUserLinkDto,
+  ): Promise<DeleteUserLinkResponse> {
+    return this.userLinksService.deleteUserLink(dto);
   }
 }

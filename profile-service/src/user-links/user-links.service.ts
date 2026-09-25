@@ -41,6 +41,9 @@ import {
 import { UpdateUserLinkDto } from './dto/update-user-link.dto';
 import { UpdateUserLinkResponse } from './types/update-user-link-response.type';
 
+import { DeleteUserLinkDto } from './dto/delete-user-link.dto';
+import type { DeleteUserLinkResponse } from './types/delete-user-link-response.type';
+
 @Injectable()
 export class UserLinksService {
   constructor(
@@ -185,6 +188,26 @@ export class UserLinksService {
 
     return {
       link: updatedLink,
+    };
+  }
+
+  async deleteUserLink(
+    dto: DeleteUserLinkDto,
+  ): Promise<DeleteUserLinkResponse> {
+    const deleted = await this.userLinksRepository.deleteForUser(
+      dto.userId,
+      dto.id,
+    );
+
+    if (!deleted) {
+      throwRpcError(
+        RpcErrorCode.USER_LINK_NOT_FOUND,
+        'User link not found',
+      );
+    }
+
+    return {
+      success: true,
     };
   }
 }

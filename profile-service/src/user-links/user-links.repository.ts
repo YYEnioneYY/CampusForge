@@ -185,4 +185,60 @@ export class UserLinksRepository {
 
     return updatedLinks[0] ?? null;
   }
+
+  async deleteForUser(
+    userId: string,
+    id: string,
+  ): Promise<boolean> {
+    return this.prisma.$transaction(
+      async (tx) => {
+        const link =
+          await tx.userLink.findFirst({
+            where: {
+              id,
+              userId,
+            },
+          
+            select: {
+              sortOrder: true,
+            },
+          });
+        
+        if (!link) {
+          return false;
+        }
+      
+        const deleteResult =
+          await tx.userLink.deleteMany({
+            where: {
+              id,
+              userId,
+            },
+          });
+        
+        if (deleteResult.count === 0) {
+          return false;
+        }
+      
+        await tx.userLink.updateMany({
+          where: {
+            userId,
+          
+            sortOrder: {
+              gt:
+                link.sortOrder,
+            },
+          },
+        
+          data: {
+            sortOrder: {
+              decrement: 1,
+            },
+          },
+        });
+      
+        return true;
+      },
+    );
+  }
 }
