@@ -4,9 +4,12 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   ParseUUIDPipe,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 
 import {
@@ -116,6 +119,30 @@ export class UserLinksController {
       user.sub,
       id,
       dto,
+    );
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Удаление ссылки текущего пользователя',
+  })
+  async deleteUserLink(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ): Promise<void> {
+    await this.userLinksService.deleteUserLink(
+      user.sub,
+      id,
     );
   }
 }

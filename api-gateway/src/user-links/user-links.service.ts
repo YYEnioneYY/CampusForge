@@ -49,6 +49,9 @@ import type {
   UpdateUserLinkPayload,
 } from './types/update-user-link.types';
 
+import type { DeleteUserLinkPayload } from './types/delete-user-link.types';
+import type { CommandAcknowledgement } from '../common/types/command-acknowledgement.type';
+
 @Injectable()
 export class UserLinksService {
   constructor(
@@ -148,17 +151,17 @@ export class UserLinksService {
       UpdateUserLinkPayload = {
         id,
         userId,
-      
+
         type:
           dto.type,
-      
+
         url:
           dto.url,
-      
+
         title:
           dto.title,
       };
-    
+
     const result =
       await firstValueFrom(
         this.profileKafkaService.send<
@@ -169,24 +172,44 @@ export class UserLinksService {
           payload,
         ),
       );
-    
+
     return {
       link: {
         id:
           result.link.id,
-      
+
         type:
           result.link.type,
-      
+
         url:
           result.link.url,
-      
+
         title:
           result.link.title,
-      
+
         sortOrder:
           result.link.sortOrder,
       },
     };
+  }
+
+  async deleteUserLink(
+    userId: string,
+    id: string,
+  ): Promise<void> {
+    const payload: DeleteUserLinkPayload = {
+      id,
+      userId,
+    };
+
+    await firstValueFrom(
+      this.profileKafkaService.send<
+        CommandAcknowledgement,
+        DeleteUserLinkPayload
+      >(
+        USER_LINK_PATTERNS.DELETE,
+        payload,
+      ),
+    );
   }
 }
