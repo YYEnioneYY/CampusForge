@@ -36,6 +36,19 @@ import type {
   CreateUserLinkPayload,
 } from './types/create-user-link.types';
 
+import {
+  UpdateUserLinkDto,
+} from './dto/update-user-link.dto';
+
+import {
+  UpdateUserLinkResponseDto,
+} from './dto/update-user-link-response.dto';
+
+import type {
+  UpdateUserLinkKafkaResponse,
+  UpdateUserLinkPayload,
+} from './types/update-user-link.types';
+
 @Injectable()
 export class UserLinksService {
   constructor(
@@ -120,6 +133,57 @@ export class UserLinksService {
         title:
           result.link.title,
 
+        sortOrder:
+          result.link.sortOrder,
+      },
+    };
+  }
+
+  async updateUserLink(
+    userId: string,
+    id: string,
+    dto: UpdateUserLinkDto,
+  ): Promise<UpdateUserLinkResponseDto> {
+    const payload:
+      UpdateUserLinkPayload = {
+        id,
+        userId,
+      
+        type:
+          dto.type,
+      
+        url:
+          dto.url,
+      
+        title:
+          dto.title,
+      };
+    
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          UpdateUserLinkKafkaResponse,
+          UpdateUserLinkPayload
+        >(
+          USER_LINK_PATTERNS.UPDATE,
+          payload,
+        ),
+      );
+    
+    return {
+      link: {
+        id:
+          result.link.id,
+      
+        type:
+          result.link.type,
+      
+        url:
+          result.link.url,
+      
+        title:
+          result.link.title,
+      
         sortOrder:
           result.link.sortOrder,
       },

@@ -3,6 +3,9 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
+  Param,
+  ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
 
@@ -39,6 +42,14 @@ import {
 import {
   CreateUserLinkResponseDto,
 } from './dto/create-user-link-response.dto';
+
+import {
+  UpdateUserLinkDto,
+} from './dto/update-user-link.dto';
+
+import {
+  UpdateUserLinkResponseDto,
+} from './dto/update-user-link-response.dto';
 
 @ApiTags('User links')
 @ApiBearerAuth('access-token')
@@ -77,6 +88,33 @@ export class UserLinksController {
   ): Promise<CreateUserLinkResponseDto> {
     return this.userLinksService.createUserLink(
       user.sub,
+      dto,
+    );
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary:
+      'Изменение ссылки текущего пользователя',
+  })
+  updateUserLink(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+
+    @Body()
+    dto: UpdateUserLinkDto,
+  ): Promise<UpdateUserLinkResponseDto> {
+    return this.userLinksService.updateUserLink(
+      user.sub,
+      id,
       dto,
     );
   }

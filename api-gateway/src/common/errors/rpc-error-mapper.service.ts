@@ -93,6 +93,7 @@ export class RpcErrorMapperService {
       case RpcErrorCode.SESSION_NOT_FOUND:
       case RpcErrorCode.PROFILE_NOT_FOUND:
       case RpcErrorCode.COUNTRY_NOT_FOUND:
+      case RpcErrorCode.USER_LINK_NOT_FOUND:
         return HttpStatus.NOT_FOUND;
 
       case RpcErrorCode.EMAIL_VERIFICATION_RESEND_TOO_SOON:
@@ -104,6 +105,7 @@ export class RpcErrorMapperService {
       case RpcErrorCode.INVALID_PASSWORD_RESET_TOKEN:
       case RpcErrorCode.INVALID_ACCOUNT_RESTORE_TOKEN:
       case RpcErrorCode.USERNAME_SAME_AS_CURRENT:
+      case RpcErrorCode.USER_LINK_URL_TYPE_MISMATCH:
       case RpcErrorCode.VALIDATION_ERROR:
         return HttpStatus.BAD_REQUEST;
 
