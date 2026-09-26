@@ -183,56 +183,6 @@ project_jury
 
 ---
 
-## Запуск проекта
-
-Проект полностью запускается через **Docker Compose**.
-
-### 1. Клонировать репозиторий
-
-```bash
-git clone https://github.com/YOUR_USERNAME/CampusForge.git
-cd CampusForge
-```
-
-### 2. Создать файл окружения
-
-```bash
-cp .env.example .env
-```
-
-### 3. Запустить проект
-
-```bash
-docker compose up --build
-```
-
-После запуска Docker Compose поднимает все основные части системы:
-
-```text
-frontend
-api-gateway
-backend services
-postgres
-redis
-kafka
-minio
-nginx
-```
-
-### 4. Остановить проект
-
-```bash
-docker compose down
-```
-
-### 5. Остановить проект и удалить volumes
-
-```bash
-docker compose down -v
-```
-
----
-
 ## Переменные окружения
 
 Основные переменные окружения хранятся в `.env`.
