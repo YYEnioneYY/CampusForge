@@ -183,51 +183,6 @@ project_jury
 
 ---
 
-## Структура репозитория
-
-```text
-campusforge/
-  frontend/
-  api-gateway/
-  auth-service/
-  profile-service/
-  organization-service/
-  project-service/
-  task-service/
-  evaluation-service/
-  notification-service/
-  subscription-service/
-  media-service/
-  reference-servuce/
-  search-service/
-  analytics-service/
-  moderation-service/
-  admin-service/
-
-  libs/
-    common/
-    contracts/
-    config/
-    database/
-    logger/
-    auth/
-    events/
-
-  docs/
-    README.md
-    project-overview.md
-    project-concept.docx
-    database.md
-    api.md
-    microservices.md
-
-  docker-compose.yml
-  .env.example
-  README.md
-```
-
----
-
 ## Документация
 
 Подробная документация находится в папке `/docs`.
