@@ -216,16 +216,3 @@ analytics
 moderation
 admin
 ```
-
----
-
-## Инфраструктура
-
-```text
-PostgreSQL  — основная реляционная база данных
-Redis       — кэш, временные данные, rate limiting
-Kafka       — обмен событиями между сервисами
-MinIO       — хранение файлов и документов
-Nginx       — reverse proxy
-Docker      — контейнеризация
-```
