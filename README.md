@@ -195,24 +195,3 @@ project_jury
 | `docs/api.md` | REST API проекта |
 | `docs/microservices.md` | Микросервисная архитектура |
 | `docs/README.md` | Навигация по документации |
-
----
-
-## Основные модули
-
-```text
-auth
-profile
-reference
-organizations
-projects
-tasks
-evaluations
-notifications
-subscriptions
-mefia
-search
-analytics
-moderation
-admin
-```
