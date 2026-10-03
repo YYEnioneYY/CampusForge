@@ -147,42 +147,6 @@ team       — командные
 
 ---
 
-## Роли
-
-### Глобальные роли
-
-```text
-user
-moderator
-admin
-```
-
-### Роли в организации
-
-```text
-student
-teacher
-university_admin
-department_admin
-company_representative
-mentor
-jury
-```
-
-### Роли в проекте
-
-```text
-project_owner
-project_captain
-project_member
-project_mentor
-project_supervisor
-project_reviewer
-project_jury
-```
-
----
-
 ## Документация
 
 Подробная документация находится в папке `/docs`.
