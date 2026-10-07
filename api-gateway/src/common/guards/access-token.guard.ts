@@ -63,16 +63,33 @@ export class AccessTokenGuard
     accessToken: string,
   ): Promise<AuthenticatedUser> {
     try {
-      const secret =
-        this.configService.getOrThrow<string>(
-          'JWT_ACCESS_SECRET',
-        );
-
+      const publicKey =
+        Buffer.from(
+          this.configService.getOrThrow<string>(
+            'JWT_ACCESS_PUBLIC_KEY_BASE64',
+          ),
+          'base64',
+        ).toString('utf8');
+      
       return await this.jwtService
         .verifyAsync<AuthenticatedUser>(
           accessToken,
           {
-            secret,
+            publicKey,
+          
+            algorithms: [
+              'RS256',
+            ],
+          
+            issuer:
+              this.configService.getOrThrow<string>(
+                'JWT_ACCESS_ISSUER',
+              ),
+            
+            audience:
+              this.configService.getOrThrow<string>(
+                'JWT_ACCESS_AUDIENCE',
+              ),
           },
         );
     } catch {

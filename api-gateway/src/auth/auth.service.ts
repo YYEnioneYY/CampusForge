@@ -72,6 +72,7 @@ export class AuthService {
       password: dto.password,
       firstName: dto.firstName,
       lastName: dto.lastName,
+      personalDataConsent: dto.personalDataConsent,
 
       deviceId: clientContext.deviceId,
 

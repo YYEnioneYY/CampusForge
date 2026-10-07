@@ -10,6 +10,7 @@ import {
   Min,
   validateSync,
   Matches,
+  IsBase64,
 } from 'class-validator';
 
 class EnvironmentVariables {
@@ -75,9 +76,16 @@ class EnvironmentVariables {
   @Max(3650)
   DEVICE_ID_COOKIE_MAX_AGE_DAYS!: number;
 
+  @IsBase64()
+  JWT_ACCESS_PUBLIC_KEY_BASE64!: string;
+
   @IsString()
-  @MinLength(16)
-  JWT_ACCESS_SECRET!: string;
+  @IsNotEmpty()
+  JWT_ACCESS_ISSUER!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  JWT_ACCESS_AUDIENCE!: string;
 
   @IsString()
   @Matches(/^rediss?:\/\/.+/)
