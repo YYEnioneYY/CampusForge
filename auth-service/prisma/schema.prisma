@@ -26,6 +26,12 @@ enum UserStatus {
   @@map("user_status")
 }
 
+enum ConsentType {
+  PERSONALDATA  @map("personal_data")
+
+  @@map("consent_type")
+}
+
 enum OutboxEventStatus {
   PENDING
   PROCESSING
@@ -53,7 +59,8 @@ model User {
   refreshTokens           RefreshToken[]
   emailVerificationTokens EmailVerificationToken[]
   passwordResetTokens     PasswordResetToken[]
-  accountRestoreTokens AccountRestoreToken[]
+  accountRestoreTokens    AccountRestoreToken[]
+  consents                UserConsents[]
 
   @@map("users")
 }
@@ -142,6 +149,26 @@ model AccountRestoreToken {
   @@index([expiresAt])
   
   @@map("account_restore_tokens")
+}
+
+model UserConsents {
+  id              String      @id @default(uuid()) @db.Uuid
+
+  userId          String      @map("user_id") @db.Uuid
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type            ConsentType
+  version         String      @db.VarChar(50)
+
+  acceptedAt      DateTime    @default(now()) @map("accepted_at") @db.Timestamptz
+
+  revokedAt       DateTime?   @map("revoked_at") @db.Timestamptz
+
+  ipAddress       String?     @map("ip_address") @db.Inet
+  userAgent       String?     @map("user_agent") @db.Text
+
+  @@unique([userId, type, version])
+  @@map("user_consents")
 }
 
 model OutboxEvent {

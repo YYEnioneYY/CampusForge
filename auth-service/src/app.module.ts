@@ -19,6 +19,7 @@ import { AccessRevocationModule } from './access-revocation/access-revocation.mo
 import { AccountDeletionModule } from './account-deletion/account-deletion.module';
 import { AccountRestoreModule } from './account-restore/account-restore.module';
 import { OutboxModule } from './outbox/outbox.module';
+import { ConsentModule } from './consent/consent.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { OutboxModule } from './outbox/outbox.module';
     AccountDeletionModule,
     AccountRestoreModule,
     OutboxModule,
+    ConsentModule,
   ],
 })
 export class AppModule {}

@@ -5,6 +5,8 @@ import {
   MaxLength,
   MinLength,
   IsUUID,
+  IsBoolean,
+  Equals,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
@@ -29,6 +31,13 @@ export class RegisterDto {
   @MinLength(1)
   @MaxLength(255)
   lastName!: string;
+
+  @IsBoolean()
+  @Equals(true, {
+    message:
+      'Personal data consent is required',
+  })
+  personalDataConsent!: boolean;
 
   @IsOptional()
   @IsUUID('4')

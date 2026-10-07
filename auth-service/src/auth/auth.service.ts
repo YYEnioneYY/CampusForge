@@ -45,6 +45,7 @@ import { AccountDeletionService } from 'src/account-deletion/account-deletion.se
 import { AccountRestoreService } from '../account-restore/account-restore.service';
 import { OutboxService } from 'src/outbox/outbox.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ConsentService } from 'src/consent/consent.service';
 
 @Injectable()
 export class AuthService {
@@ -64,6 +65,7 @@ export class AuthService {
     private readonly accountRestoreService: AccountRestoreService,
     private readonly outboxService: OutboxService,
     private readonly prismaService: PrismaService,
+    private readonly consentService: ConsentService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -110,6 +112,20 @@ export class AuthService {
             },
             transaction,
           );
+
+        await this.consentService.recordRegistrationConsent(
+          {
+            userId:
+              user.id,
+          
+            ipAddress:
+              dto.ipAddress ?? null,
+          
+            userAgent:
+              dto.userAgent ?? null,
+          },
+          transaction,
+        );
 
         const accessToken =
           await this.tokenService

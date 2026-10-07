@@ -13,6 +13,7 @@ import { AccessRevocationModule } from 'src/access-revocation/access-revocation.
 import { AccountDeletionModule } from '../account-deletion/account-deletion.module';
 import { AccountRestoreModule } from 'src/account-restore/account-restore.module';
 import { OutboxModule } from '../outbox/outbox.module';
+import { ConsentModule } from 'src/consent/consent.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { OutboxModule } from '../outbox/outbox.module';
     AccessRevocationModule,
     AccountDeletionModule,
     AccountRestoreModule,
+    ConsentModule,
     OutboxModule,
   ],
   controllers: [AuthController],
