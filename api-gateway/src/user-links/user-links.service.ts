@@ -52,6 +52,15 @@ import type {
 import type { DeleteUserLinkPayload } from './types/delete-user-link.types';
 import type { CommandAcknowledgement } from '../common/types/command-acknowledgement.type';
 
+import {
+  GetPublicUserLinksResponseDto,
+} from './dto/get-public-user-links-response.dto';
+
+import type {
+  GetPublicUserLinksKafkaResponse,
+  GetPublicUserLinksPayload,
+} from './types/get-public-user-links.types';
+
 @Injectable()
 export class UserLinksService {
   constructor(
@@ -211,5 +220,48 @@ export class UserLinksService {
         payload,
       ),
     );
+  }
+
+  async getPublicUserLinks(
+    username: string,
+  ): Promise<GetPublicUserLinksResponseDto> {
+    const payload: GetPublicUserLinksPayload = {
+      username,
+    };
+
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          GetPublicUserLinksKafkaResponse,
+          GetPublicUserLinksPayload
+        >(
+          USER_LINK_PATTERNS
+            .GET_PUBLIC_BY_USERNAME,
+
+          payload,
+        ),
+      );
+
+    return {
+      links:
+        result.links.map(
+          (link) => ({
+            id:
+              link.id,
+
+            type:
+              link.type,
+
+            url:
+              link.url,
+
+            title:
+              link.title,
+
+            sortOrder:
+              link.sortOrder,
+          }),
+        ),
+    };
   }
 }

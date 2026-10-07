@@ -18,6 +18,10 @@ import {
   UserLinksService,
 } from './user-links.service';
 
+import {
+  PublicUserLinksController,
+} from './public-user-links.controller';
+
 @Module({
   imports: [
     KafkaModule,
@@ -26,6 +30,7 @@ import {
 
   controllers: [
     UserLinksController,
+    PublicUserLinksController,
   ],
 
   providers: [
