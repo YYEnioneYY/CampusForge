@@ -1,10 +1,11 @@
 import { Transform } from 'class-transformer';
 import {
   IsEmail,
-  IsOptional,
   IsString,
   MaxLength,
   MinLength,
+  IsBoolean,
+  Equals,
 } from 'class-validator';
 
 export class RegisterDto {
@@ -41,4 +42,11 @@ export class RegisterDto {
   @MinLength(1)
   @MaxLength(100)
   lastName!: string;
+
+  @IsBoolean()
+  @Equals(true, {
+    message:
+      'Personal data consent is required',
+  })
+  personalDataConsent!: boolean;
 }

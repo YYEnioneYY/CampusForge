@@ -3,6 +3,7 @@ export type RegisterKafkaPayload = {
   password: string;
   firstName: string;
   lastName: string;
+  personalDataConsent: boolean;
 
   deviceId: string;
   ipAddress: string | null;
