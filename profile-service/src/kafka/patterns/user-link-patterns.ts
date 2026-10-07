@@ -7,5 +7,5 @@ export const USER_LINK_PATTERNS = {
   
   DELETE: 'profile.links.delete',
 
-  GET_PUBLIC_BY_USERNAME: 'user-links.public.by-username',
+  GET_PUBLIC_BY_USERNAME: 'profile.links.public.by-username',
 } as const;
