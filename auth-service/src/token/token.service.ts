@@ -26,17 +26,45 @@ export class TokenService {
       return normalizedValue as JwtExpiresIn;
     }
 
-    async generateAccessToken(payload: AccessTokenPayload): Promise<string> {
-      const secret = this.configService.getOrThrow<string>('JWT_ACCESS_SECRET');
+    async generateAccessToken(
+      payload: AccessTokenPayload,
+    ): Promise<string> {
+      const privateKey =
+        Buffer.from(
+          this.configService.getOrThrow<string>(
+            'JWT_ACCESS_PRIVATE_KEY_BASE64',
+          ),
+          'base64',
+        ).toString('utf8');
+      
+      const expiresIn =
+        this.parseJwtExpiresIn(
+          this.configService.getOrThrow<string>(
+            'JWT_ACCESS_EXPIRES_IN',
+          ),
+        );
+      
+      return this.jwtService.signAsync(
+        payload,
+        {
+          privateKey,
         
-      const expiresIn = this.parseJwtExpiresIn(
-        this.configService.getOrThrow<string>('JWT_ACCESS_EXPIRES_IN'),
+          algorithm:
+            'RS256',
+        
+          expiresIn,
+        
+          issuer:
+            this.configService.getOrThrow<string>(
+              'JWT_ACCESS_ISSUER',
+            ),
+          
+          audience:
+            this.configService.getOrThrow<string>(
+              'JWT_ACCESS_AUDIENCE',
+            ),
+        },
       );
-  
-      return this.jwtService.signAsync(payload, {
-        secret,
-        expiresIn,
-      });
     }
 
     async generateRefreshToken(payload: RefreshTokenPayload): Promise<string> {

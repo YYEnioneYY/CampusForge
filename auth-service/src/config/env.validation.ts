@@ -7,6 +7,7 @@ import {
   Matches,
   MinLength,
   validateSync,
+  IsBase64,
 } from 'class-validator';
 
 class EnvironmentVariables {
@@ -30,9 +31,16 @@ class EnvironmentVariables {
   @IsString()
   KAFKA_GROUP_ID?: string;
 
+  @IsBase64()
+  JWT_ACCESS_PRIVATE_KEY_BASE64!: string;
+
   @IsString()
-  @MinLength(16)
-  JWT_ACCESS_SECRET!: string;
+  @IsNotEmpty()
+  JWT_ACCESS_ISSUER!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  JWT_ACCESS_AUDIENCE!: string;
 
   @IsString()
   @MinLength(16)
