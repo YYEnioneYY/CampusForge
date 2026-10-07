@@ -38,11 +38,17 @@ import {
   validateUserLinkUrl,
 } from './utils/validate-user-link-url';
 
+import { ProfileVisibility } from 'src/generated/prisma/enums';
+
 import { UpdateUserLinkDto } from './dto/update-user-link.dto';
 import { UpdateUserLinkResponse } from './types/update-user-link-response.type';
 
 import { DeleteUserLinkDto } from './dto/delete-user-link.dto';
 import type { DeleteUserLinkResponse } from './types/delete-user-link-response.type';
+
+import { GetPublicUserLinksDto } from './dto/get-public-user-links.dto';
+import { GetPublicUserLinksResponse } from './types/get-public-user-links-response.type';
+
 
 @Injectable()
 export class UserLinksService {
@@ -208,6 +214,31 @@ export class UserLinksService {
 
     return {
       success: true,
+    };
+  }
+
+  async getPublicUserLinks(
+    dto: GetPublicUserLinksDto,
+  ): Promise<GetPublicUserLinksResponse> {
+    const profile = await this.userLinksRepository.findProfileWithLinksByUsername(
+      dto.username,
+    );
+
+    if (!profile) {
+      throwRpcError(
+        RpcErrorCode.PROFILE_NOT_FOUND,
+        'Profile not found',
+      );
+    }
+
+    if (
+      profile.visibility === ProfileVisibility.PRIVATE
+    ) {
+      return { links: [] };
+    }
+
+    return {
+      links: profile.links
     };
   }
 }

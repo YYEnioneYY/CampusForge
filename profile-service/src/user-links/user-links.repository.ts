@@ -241,4 +241,35 @@ export class UserLinksRepository {
       },
     );
   }
+
+  async findProfileWithLinksByUsername(
+    username: string,
+  ) {
+    return this.prisma.userProfile.findFirst({
+      where: {
+        username,
+        deletedAt: null,
+      },
+    
+      select: {
+        visibility: true,
+      
+        links: {
+          select:
+            userLinkSelect,
+        
+          orderBy: [
+            {
+              sortOrder:
+                'asc',
+            },
+            {
+              createdAt:
+                'asc',
+            },
+          ],
+        },
+      },
+    });
+  }
 }

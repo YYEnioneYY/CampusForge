@@ -24,6 +24,9 @@ import { UpdateUserLinkDto } from './dto/update-user-link.dto';
 import { DeleteUserLinkDto } from './dto/delete-user-link.dto';
 import type { DeleteUserLinkResponse } from './types/delete-user-link-response.type';
 
+import { GetPublicUserLinksDto } from './dto/get-public-user-links.dto';
+import type { GetPublicUserLinksResponse } from './types/get-public-user-links-response.type';
+
 @Controller()
 export class UserLinksController {
   constructor(
@@ -60,5 +63,13 @@ export class UserLinksController {
     dto: DeleteUserLinkDto,
   ): Promise<DeleteUserLinkResponse> {
     return this.userLinksService.deleteUserLink(dto);
+  }
+
+  @MessagePattern(USER_LINK_PATTERNS.GET_PUBLIC_BY_USERNAME)
+  getPublicUserLinks(
+    @Payload()
+    dto: GetPublicUserLinksDto,
+  ): Promise<GetPublicUserLinksResponse> {
+    return this.userLinksService.getPublicUserLinks(dto);
   }
 }

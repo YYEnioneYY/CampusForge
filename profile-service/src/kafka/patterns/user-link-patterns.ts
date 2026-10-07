@@ -6,4 +6,6 @@ export const USER_LINK_PATTERNS = {
   UPDATE: 'profile.links.update',
   
   DELETE: 'profile.links.delete',
+
+  GET_PUBLIC_BY_USERNAME: 'user-links.public.by-username',
 } as const;
