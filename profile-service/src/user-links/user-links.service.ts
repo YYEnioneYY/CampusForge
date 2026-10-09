@@ -49,6 +49,8 @@ import type { DeleteUserLinkResponse } from './types/delete-user-link-response.t
 import { GetPublicUserLinksDto } from './dto/get-public-user-links.dto';
 import { GetPublicUserLinksResponse } from './types/get-public-user-links-response.type';
 
+import { ReorderUserLinksDto } from './dto/reorder-user-links.dto';
+import { ReorderUserLinksResponse } from './types/reorder-user-links-response.type';
 
 @Injectable()
 export class UserLinksService {
@@ -239,6 +241,33 @@ export class UserLinksService {
 
     return {
       links: profile.links
+    };
+  }
+
+  async reorderUserLinks(
+    dto: ReorderUserLinksDto,
+  ): Promise<ReorderUserLinksResponse> {
+    const result = await this.userLinksRepository.reorderForUser(
+      dto.userId,
+      dto.orderedLinkIds,
+    );
+
+    if(result.status === 'profile_not_found') {
+      throwRpcError(
+        RpcErrorCode.PROFILE_NOT_FOUND,
+        'Profile not found',
+      )
+    }
+
+    if(result.status === 'invalid_order') {
+      throwRpcError(
+        RpcErrorCode.USER_LINK_ORDER_INVALID,
+        'Link order must contain all user link IDs exactly once',
+      )
+    }
+
+    return {
+      success: true,
     };
   }
 }

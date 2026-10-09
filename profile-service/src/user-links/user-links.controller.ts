@@ -27,6 +27,9 @@ import type { DeleteUserLinkResponse } from './types/delete-user-link-response.t
 import { GetPublicUserLinksDto } from './dto/get-public-user-links.dto';
 import type { GetPublicUserLinksResponse } from './types/get-public-user-links-response.type';
 
+import { ReorderUserLinksDto } from './dto/reorder-user-links.dto';
+import type { ReorderUserLinksResponse } from './types/reorder-user-links-response.type';
+
 @Controller()
 export class UserLinksController {
   constructor(
@@ -71,5 +74,13 @@ export class UserLinksController {
     dto: GetPublicUserLinksDto,
   ): Promise<GetPublicUserLinksResponse> {
     return this.userLinksService.getPublicUserLinks(dto);
+  }
+  
+  @MessagePattern(USER_LINK_PATTERNS.REORDER)
+  reorderUserLinks(
+    @Payload()
+    dto: ReorderUserLinksDto,
+  ): Promise<ReorderUserLinksResponse> {
+    return this.userLinksService.reorderUserLinks(dto);
   }
 }

@@ -8,4 +8,6 @@ export const USER_LINK_PATTERNS = {
   DELETE: 'profile.links.delete',
 
   GET_PUBLIC_BY_USERNAME: 'profile.links.public.by-username',
+
+  REORDER: 'profile.links.reorder',
 } as const;

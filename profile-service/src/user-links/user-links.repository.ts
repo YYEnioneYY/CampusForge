@@ -250,14 +250,14 @@ export class UserLinksRepository {
         username,
         deletedAt: null,
       },
-    
+
       select: {
         visibility: true,
-      
+
         links: {
           select:
             userLinkSelect,
-        
+
           orderBy: [
             {
               sortOrder:
@@ -271,5 +271,80 @@ export class UserLinksRepository {
         },
       },
     });
+  }
+
+  async reorderForUser(
+    userId: string,
+    orderedLinkIds: string[],
+  ) {
+    return this.prisma.$transaction(
+      async (tx) => {
+        const profile =
+          await tx.userProfile.findFirst({
+            where: {
+              userId,
+              deletedAt: null,
+            },
+
+            select: {
+              links: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          });
+
+        if (!profile) {
+          return {
+            status: 'profile_not_found'
+          } as const;
+        }
+
+        if (profile.links.length !== orderedLinkIds.length) {
+          return {
+            status: 'invalid_order'
+          } as const;
+        }
+
+        const requestedIds = new Set(orderedLinkIds);
+
+        const containsAllUserLinks =
+          requestedIds.size === orderedLinkIds.length &&
+          profile.links.every(
+            (link) => requestedIds.has(link.id)
+          );
+
+        if (!containsAllUserLinks) {
+          return {
+            status: 'invalid_order'
+          } as const;
+        }
+
+        for (
+          const [
+            sortOrder,
+            linkId,
+          ] of orderedLinkIds.entries()
+        ) {
+          await tx.userLink.update({
+            where: {
+              id:
+                linkId,
+
+              userId,
+            },
+
+            data: {
+              sortOrder,
+            },
+          });
+        }
+
+        return {
+          status: 'reordered',
+        } as const;
+      },
+    );
   }
 }
