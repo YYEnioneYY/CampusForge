@@ -5,6 +5,7 @@ import {
   Post,
   Patch,
   Delete,
+  Put,
   Param,
   ParseUUIDPipe,
   UseGuards,
@@ -53,6 +54,10 @@ import {
 import {
   UpdateUserLinkResponseDto,
 } from './dto/update-user-link-response.dto';
+
+import {
+  ReorderUserLinksDto,
+} from './dto/reorder-user-links.dto';
 
 @ApiTags('User links')
 @ApiBearerAuth('access-token')
@@ -143,6 +148,25 @@ export class UserLinksController {
     await this.userLinksService.deleteUserLink(
       user.sub,
       id,
+    );
+  }
+
+  @Put('order')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Изменение порядка ссылок текущего пользователя',
+  })
+  async reorderUserLinks(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Body()
+    dto: ReorderUserLinksDto,
+  ): Promise<void> {
+    await this.userLinksService.reorderUserLinks(
+      user.sub,
+      dto,
     );
   }
 }

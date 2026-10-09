@@ -61,6 +61,9 @@ import type {
   GetPublicUserLinksPayload,
 } from './types/get-public-user-links.types';
 
+import { ReorderUserLinksDto } from './dto/reorder-user-links.dto';
+import type { ReorderUserLinksPayload } from './types/reorder-user-links.types';
+
 @Injectable()
 export class UserLinksService {
   constructor(
@@ -263,5 +266,25 @@ export class UserLinksService {
           }),
         ),
     };
+  }
+
+  async reorderUserLinks(
+    userId: string,
+    dto: ReorderUserLinksDto,
+  ): Promise<void> {
+    const payload: ReorderUserLinksPayload = {
+      userId,
+      orderedLinkIds: dto.orderedLinkIds,
+    };
+
+    await firstValueFrom(
+      this.profileKafkaService.send<
+        CommandAcknowledgement,
+        ReorderUserLinksPayload
+      >(
+        USER_LINK_PATTERNS.REORDER,
+        payload,
+      ),
+    );
   }
 }

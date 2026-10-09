@@ -106,6 +106,7 @@ export class RpcErrorMapperService {
       case RpcErrorCode.INVALID_ACCOUNT_RESTORE_TOKEN:
       case RpcErrorCode.USERNAME_SAME_AS_CURRENT:
       case RpcErrorCode.USER_LINK_URL_TYPE_MISMATCH:
+      case RpcErrorCode.USER_LINK_ORDER_INVALID:
       case RpcErrorCode.VALIDATION_ERROR:
         return HttpStatus.BAD_REQUEST;
 
