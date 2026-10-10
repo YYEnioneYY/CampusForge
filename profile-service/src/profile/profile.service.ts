@@ -203,24 +203,24 @@ export class ProfileService {
             : profile.bio,
 
         headline:
-           isPrivate
-             ? null
-             : profile.headline,
-          
+          isPrivate
+            ? null
+            : profile.headline,
+
          position:
-           isPrivate
-             ? null
-             : profile.position,
-          
+          isPrivate
+            ? null
+            : profile.position,
+
          company:
-           isPrivate
-             ? null
-             : profile.company,
-          
-         timeZone:
-           isPrivate
-             ? null
-             : profile.timeZone,
+          isPrivate
+            ? null
+            : profile.company,
+
+         workTimeZone:
+          isPrivate
+            ? null
+            : profile.workTimeZone,
 
         countryCode:
           isPrivate
@@ -260,7 +260,7 @@ export class ProfileService {
       headline: dto.headline,
       position: dto.position,
       company: dto.company,
-      timeZone: dto.timeZone,
+      workTimeZone: dto.workTimeZone,
   
       dateOfBirth:
         dto.dateOfBirth === undefined
@@ -598,7 +598,7 @@ export class ProfileService {
         headline: profile.headline,
         position: profile.position,
         company: profile.company,
-        timeZone: profile.timeZone,
+        workTimeZone: profile.workTimeZone,
   
         countryCode: profile.countryCode,
         countryName: profile.countryName,

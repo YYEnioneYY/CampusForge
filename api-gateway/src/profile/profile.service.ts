@@ -122,8 +122,8 @@ export class ProfileService {
         company:
           result.profile.company,
 
-        timeZone:
-          result.profile.timeZone,
+        workTimeZone:
+          result.profile.workTimeZone,
 
         countryCode:
           result.profile.countryCode,
@@ -290,8 +290,8 @@ export class ProfileService {
         company:
           dto.company,
 
-        timeZone:
-          dto.timeZone,
+        workTimeZone:
+          dto.workTimeZone,
       
         countryCode:
           dto.countryCode,
@@ -339,8 +339,8 @@ export class ProfileService {
         company:
           result.profile.company,
 
-        timeZone:
-          result.profile.timeZone,
+        workTimeZone:
+          result.profile.workTimeZone,
       
         countryCode:
           result.profile.countryCode,
@@ -446,15 +446,15 @@ export class ProfileService {
 
         headline:
           result.profile.headline,
-          
+
         position:
           result.profile.position,
-          
+
         company:
           result.profile.company,
-          
-        timeZone:
-          result.profile.timeZone,
+
+        workTimeZone:
+          result.profile.workTimeZone,
   
         countryCode:
           result.profile.countryCode,

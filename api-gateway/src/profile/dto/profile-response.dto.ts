@@ -12,7 +12,7 @@ export class ProfileDataResponseDto {
   headline!: string | null;
   position!: string | null;
   company!: string | null;
-  timeZone!: string | null;
+  workTimeZone!: string | null;
 
   countryCode!: string | null;
   countryName!: string | null;

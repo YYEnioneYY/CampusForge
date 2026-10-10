@@ -26,7 +26,7 @@ const profileSelect = {
   headline: true,
   position: true,
   company: true,
-  timeZone: true,
+  workTimeZone: true,
 
   countryCode: true,
   countryName: true,
@@ -55,7 +55,7 @@ const profileByUsernameSelect = {
   headline: true,
   position: true,
   company: true,
-  timeZone: true,
+  workTimeZone: true,
 
   countryCode: true,
   countryName: true,
@@ -89,7 +89,7 @@ export type UpdateProfileData = {
   headline?: string | null;
   position?: string | null;
   company?: string | null;
-  timeZone?: string | null;
+  workTimeZone?: string | null;
 
   countryCode?: string | null;
   countryName?: string | null;

@@ -61,7 +61,7 @@ export class UpdateMyProfileDto {
   @MinLength(1)
   @MaxLength(160)
   headline?: string | null;
-  
+
   @IsOptional()
   @Transform(({ value }) =>
     typeof value === 'string'
@@ -72,7 +72,7 @@ export class UpdateMyProfileDto {
   @MinLength(1)
   @MaxLength(100)
   position?: string | null;
-  
+
   @IsOptional()
   @Transform(({ value }) =>
     typeof value === 'string'
@@ -83,7 +83,7 @@ export class UpdateMyProfileDto {
   @MinLength(1)
   @MaxLength(150)
   company?: string | null;
-  
+
   @IsOptional()
   @Transform(({ value }) =>
     typeof value === 'string'
@@ -91,9 +91,12 @@ export class UpdateMyProfileDto {
       : value,
   )
   @IsString()
-  @IsTimeZone()
+  @IsTimeZone({
+    message:
+      'workTimeZone must be a valid IANA time zone',
+  })
   @MaxLength(64)
-  timeZone?: string | null;
+  workTimeZone?: string | null;
 
   @IsOptional()
   @Transform(({ value }) =>
