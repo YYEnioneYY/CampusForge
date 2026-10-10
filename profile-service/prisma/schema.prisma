@@ -33,6 +33,11 @@ model UserProfile {
 
   bio               String?           @db.Text
 
+  headline          String?           @db.VarChar(160)
+  position          String?           @db.VarChar(100)
+  company           String?           @db.VarChar(150)
+  timeZone          String?           @map("time_zone") @db.VarChar(64)
+
   countryCode       String?           @map("country_code") @db.Char(2)
   countryName       String?           @map("country_name") @db.VarChar(150)
 

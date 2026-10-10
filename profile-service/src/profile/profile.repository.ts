@@ -23,6 +23,11 @@ const profileSelect = {
   avatarId: true,
   bio: true,
 
+  headline: true,
+  position: true,
+  company: true,
+  timeZone: true,
+
   countryCode: true,
   countryName: true,
 
@@ -75,6 +80,11 @@ export type UpdateProfileData = {
 
   avatarId?: string | null;
   bio?: string | null;
+
+  headline?: string | null;
+  position?: string | null;
+  company?: string | null;
+  timeZone?: string | null;
 
   countryCode?: string | null;
   countryName?: string | null;

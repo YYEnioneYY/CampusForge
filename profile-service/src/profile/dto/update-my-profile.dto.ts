@@ -7,6 +7,8 @@ import {
   Matches,
   MaxLength,
   IsDateString,
+  IsTimeZone,
+  MinLength,
 } from 'class-validator';
 
 export class UpdateMyProfileDto {
@@ -31,6 +33,50 @@ export class UpdateMyProfileDto {
   @IsOptional()
   @IsString()
   bio?: string | null;
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string'
+      ? value.trim()
+      : value,
+  )
+  @IsString()
+  @MinLength(1)
+  @MaxLength(160)
+  headline?: string | null;
+  
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string'
+      ? value.trim()
+      : value,
+  )
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  position?: string | null;
+  
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string'
+      ? value.trim()
+      : value,
+  )
+  @IsString()
+  @MinLength(1)
+  @MaxLength(150)
+  company?: string | null;
+  
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string'
+      ? value.trim()
+      : value,
+  )
+  @IsString()
+  @IsTimeZone()
+  @MaxLength(64)
+  timeZone?: string | null;
 
   @IsOptional()
   @Transform(({ value }) =>

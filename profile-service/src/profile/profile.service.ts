@@ -236,6 +236,11 @@ export class ProfileService {
       middleName: dto.middleName,
   
       bio: dto.bio,
+
+      headline: dto.headline,
+      position: dto.position,
+      company: dto.company,
+      timeZone: dto.timeZone,
   
       dateOfBirth:
         dto.dateOfBirth === undefined
@@ -569,6 +574,11 @@ export class ProfileService {
   
         avatarId: profile.avatarId,
         bio: profile.bio,
+
+        headline: profile.headline,
+        position: profile.position,
+        company: profile.company,
+        timeZone: profile.timeZone,
   
         countryCode: profile.countryCode,
         countryName: profile.countryName,
