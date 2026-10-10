@@ -443,6 +443,18 @@ export class ProfileService {
   
         bio:
           result.profile.bio,
+
+        headline:
+          result.profile.headline,
+          
+        position:
+          result.profile.position,
+          
+        company:
+          result.profile.company,
+          
+        timeZone:
+          result.profile.timeZone,
   
         countryCode:
           result.profile.countryCode,
