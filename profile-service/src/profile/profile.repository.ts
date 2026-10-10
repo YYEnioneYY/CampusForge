@@ -52,6 +52,11 @@ const profileByUsernameSelect = {
 
   bio: true,
 
+  headline: true,
+  position: true,
+  company: true,
+  timeZone: true,
+
   countryCode: true,
   countryName: true,
 

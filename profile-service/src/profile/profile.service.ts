@@ -202,6 +202,26 @@ export class ProfileService {
             ? null
             : profile.bio,
 
+        headline:
+           isPrivate
+             ? null
+             : profile.headline,
+          
+         position:
+           isPrivate
+             ? null
+             : profile.position,
+          
+         company:
+           isPrivate
+             ? null
+             : profile.company,
+          
+         timeZone:
+           isPrivate
+             ? null
+             : profile.timeZone,
+
         countryCode:
           isPrivate
             ? null
