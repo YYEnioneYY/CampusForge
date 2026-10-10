@@ -8,6 +8,11 @@ export type UpdateMyProfilePayload = {
 
   bio?: string | null;
 
+  headline?: string | null;
+  position?: string | null;
+  company?: string | null;
+  timeZone?: string | null;
+
   countryCode?: string | null;
 
   dateOfBirth?: string | null;
@@ -24,6 +29,11 @@ export type UpdateMyProfileResponse = {
     avatarId: string | null;
 
     bio: string | null;
+
+    headline: string | null;
+    position: string | null;
+    company: string | null;
+    timeZone: string | null;
 
     countryCode: string | null;
     countryName: string | null;

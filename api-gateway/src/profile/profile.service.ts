@@ -268,6 +268,18 @@ export class ProfileService {
       
         bio:
           dto.bio,
+
+        headline:
+          dto.headline,
+
+        position:
+          dto.position,
+
+        company:
+          dto.company,
+
+        timeZone:
+          dto.timeZone,
       
         countryCode:
           dto.countryCode,
@@ -305,6 +317,18 @@ export class ProfileService {
       
         bio:
           result.profile.bio,
+
+        headline:
+          result.profile.headline,
+          
+        position:
+          result.profile.position,
+          
+        company:
+          result.profile.company,
+          
+        timeZone:
+          result.profile.timeZone,
       
         countryCode:
           result.profile.countryCode,
