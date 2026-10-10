@@ -9,6 +9,11 @@ export class ProfileDataResponseDto {
 
   bio!: string | null;
 
+  headline!: string | null;
+  position!: string | null;
+  company!: string | null;
+  timeZone!: string | null;
+
   countryCode!: string | null;
   countryName!: string | null;
 
