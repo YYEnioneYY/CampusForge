@@ -48,6 +48,7 @@ model UserProfile {
   deletedAt         DateTime?         @map("deleted_at") @db.Timestamptz
 
   links             UserLink[]
+  workExperiences   WorkExperience[]
 
   createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz
@@ -86,4 +87,25 @@ model UserLink {
   @@index([userId, sortOrder])
   @@index([userId, type])
   @@map("user_links")
+}
+
+model WorkExperience {
+  id            String          @id @default(uuid()) @db.Uuid
+
+  userId        String          @map("user_id") @db.Uuid
+  profile       UserProfile     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  company       String          @db.VarChar(150)
+  position      String          @db.VarChar(100)
+  description   String?         @db.VarChar(2000)
+
+  startedAt     DateTime        @map("started_at") @db.Date
+  endedAt       DateTime?       @map("ended_at") @db.Date
+  isCurrent     Boolean         @default(false) @map("is_current")
+
+  createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime        @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([userId, isCurrent, startedAt])
+  @@map("work_experiences")
 }
