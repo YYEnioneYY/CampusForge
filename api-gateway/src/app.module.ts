@@ -10,6 +10,7 @@ import { AdminModule } from './admin/admin.module';
 import { ReferenceModule } from './reference/reference.module';
 import { ProfileModule } from './profile/profile.module';
 import { UserLinksModule } from './user-links/user-links.module';
+import { WorkExperiencesModule } from './work-experiences/work-experiences.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UserLinksModule } from './user-links/user-links.module';
     ReferenceModule,
     ProfileModule,
     UserLinksModule,
+    WorkExperiencesModule,
   ],
 })
 export class AppModule {}
