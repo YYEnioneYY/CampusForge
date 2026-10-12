@@ -5,6 +5,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ProfileModule } from './profile/profile.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { UserLinksModule } from './user-links/user-links.module';
+import { WorkExperiencesModule } from './work-experiences/work-experiences.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserLinksModule } from './user-links/user-links.module';
     ProfileModule,
     KafkaModule,
     UserLinksModule,
+    WorkExperiencesModule,
   ],
 })
 export class AppModule {}
