@@ -23,6 +23,14 @@ import {
   WorkExperiencesService,
 } from './work-experiences.service';
 
+import {
+  CreateWorkExperienceDto,
+} from './dto/create-work-experience.dto';
+
+import type {
+  CreateWorkExperienceResponse,
+} from './types/create-work-experience-response.type';
+
 @Controller()
 export class WorkExperiencesController {
   constructor(
@@ -35,5 +43,13 @@ export class WorkExperiencesController {
     dto: GetMyWorkExperiencesDto,
   ): Promise<GetMyWorkExperiencesResponse> {
     return this.workExperiencesService.getMyWorkExperiences(dto);
+  }
+
+  @MessagePattern(WORK_EXPERIENCE_PATTERNS.CREATE)
+  createWorkExperience(
+    @Payload()
+    dto: CreateWorkExperienceDto,
+  ): Promise<CreateWorkExperienceResponse> {
+    return this.workExperiencesService.createWorkExperience(dto);
   }
 }
