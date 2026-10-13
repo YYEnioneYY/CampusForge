@@ -23,6 +23,19 @@ import type {
   GetMyWorkExperiencesPayload,
 } from './types/get-my-work-experiences.types';
 
+import {
+  CreateWorkExperienceDto,
+} from './dto/create-work-experience.dto';
+
+import {
+  CreateWorkExperienceResponseDto,
+} from './dto/create-work-experience-response.dto';
+
+import type {
+  CreateWorkExperienceKafkaResponse,
+  CreateWorkExperiencePayload,
+} from './types/create-work-experience.types';
+
 @Injectable()
 export class WorkExperiencesService {
   constructor(
@@ -75,6 +88,70 @@ export class WorkExperiencesService {
               experience.isCurrent,
           }),
         ),
+    };
+  }
+
+  async createWorkExperience(
+    userId: string,
+    dto: CreateWorkExperienceDto,
+  ): Promise<CreateWorkExperienceResponseDto> {
+    const payload:
+      CreateWorkExperiencePayload = {
+        userId,
+      
+        company:
+          dto.company,
+      
+        position:
+          dto.position,
+      
+        description:
+          dto.description,
+      
+        startedAt:
+          dto.startedAt,
+      
+        endedAt:
+          dto.endedAt,
+      
+        isCurrent:
+          dto.isCurrent,
+      };
+    
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          CreateWorkExperienceKafkaResponse,
+          CreateWorkExperiencePayload
+        >(
+          WORK_EXPERIENCE_PATTERNS.CREATE,
+          payload,
+        ),
+      );
+    
+    return {
+      workExperience: {
+        id:
+          result.workExperience.id,
+      
+        company:
+          result.workExperience.company,
+      
+        position:
+          result.workExperience.position,
+      
+        description:
+          result.workExperience.description,
+      
+        startedAt:
+          result.workExperience.startedAt,
+      
+        endedAt:
+          result.workExperience.endedAt,
+      
+        isCurrent:
+          result.workExperience.isCurrent,
+      },
     };
   }
 }

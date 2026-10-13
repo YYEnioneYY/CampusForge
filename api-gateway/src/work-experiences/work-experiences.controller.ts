@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  Body,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 
@@ -30,6 +32,14 @@ import {
   WorkExperiencesService,
 } from './work-experiences.service';
 
+import {
+  CreateWorkExperienceDto,
+} from './dto/create-work-experience.dto';
+
+import {
+  CreateWorkExperienceResponseDto,
+} from './dto/create-work-experience-response.dto';
+
 @ApiTags('Work experiences')
 @ApiBearerAuth('access-token')
 @Controller(
@@ -52,6 +62,24 @@ export class WorkExperiencesController {
   ): Promise<GetMyWorkExperiencesResponseDto> {
     return this.workExperiencesService.getMyWorkExperiences(
       user.sub,
+    );
+  }
+
+  @Post()
+  @ApiOperation({
+    summary:
+      'Добавление опыта работы текущему пользователю',
+  })
+  createWorkExperience(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Body()
+    dto: CreateWorkExperienceDto,
+  ): Promise<CreateWorkExperienceResponseDto> {
+    return this.workExperiencesService.createWorkExperience(
+      user.sub,
+      dto,
     );
   }
 }
