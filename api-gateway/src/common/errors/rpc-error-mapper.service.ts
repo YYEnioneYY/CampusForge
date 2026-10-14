@@ -94,6 +94,7 @@ export class RpcErrorMapperService {
       case RpcErrorCode.PROFILE_NOT_FOUND:
       case RpcErrorCode.COUNTRY_NOT_FOUND:
       case RpcErrorCode.USER_LINK_NOT_FOUND:
+      case RpcErrorCode.WORK_EXPERIENCE_NOT_FOUND:
         return HttpStatus.NOT_FOUND;
 
       case RpcErrorCode.EMAIL_VERIFICATION_RESEND_TOO_SOON:

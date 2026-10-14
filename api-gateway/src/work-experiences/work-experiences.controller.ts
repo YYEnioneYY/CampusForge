@@ -3,6 +3,9 @@ import {
   Get,
   Body,
   Post,
+  Patch,
+  Param,
+  ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
 
@@ -39,6 +42,14 @@ import {
 import {
   CreateWorkExperienceResponseDto,
 } from './dto/create-work-experience-response.dto';
+
+import {
+  UpdateWorkExperienceDto,
+} from './dto/update-work-experience.dto';
+
+import {
+  UpdateWorkExperienceResponseDto,
+} from './dto/update-work-experience-response.dto';
 
 @ApiTags('Work experiences')
 @ApiBearerAuth('access-token')
@@ -79,6 +90,33 @@ export class WorkExperiencesController {
   ): Promise<CreateWorkExperienceResponseDto> {
     return this.workExperiencesService.createWorkExperience(
       user.sub,
+      dto,
+    );
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary:
+      'Изменение опыта работы текущего пользователя',
+  })
+  updateWorkExperience(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+
+    @Body()
+    dto: UpdateWorkExperienceDto,
+  ): Promise<UpdateWorkExperienceResponseDto> {
+    return this.workExperiencesService.updateWorkExperience(
+      user.sub,
+      id,
       dto,
     );
   }

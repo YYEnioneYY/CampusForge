@@ -36,6 +36,19 @@ import type {
   CreateWorkExperiencePayload,
 } from './types/create-work-experience.types';
 
+import {
+  UpdateWorkExperienceDto,
+} from './dto/update-work-experience.dto';
+
+import {
+  UpdateWorkExperienceResponseDto,
+} from './dto/update-work-experience-response.dto';
+
+import type {
+  UpdateWorkExperienceKafkaResponse,
+  UpdateWorkExperiencePayload,
+} from './types/update-work-experience.types';
+
 @Injectable()
 export class WorkExperiencesService {
   constructor(
@@ -98,6 +111,72 @@ export class WorkExperiencesService {
     const payload:
       CreateWorkExperiencePayload = {
         userId,
+
+        company:
+          dto.company,
+
+        position:
+          dto.position,
+
+        description:
+          dto.description,
+
+        startedAt:
+          dto.startedAt,
+
+        endedAt:
+          dto.endedAt,
+
+        isCurrent:
+          dto.isCurrent,
+      };
+
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          CreateWorkExperienceKafkaResponse,
+          CreateWorkExperiencePayload
+        >(
+          WORK_EXPERIENCE_PATTERNS.CREATE,
+          payload,
+        ),
+      );
+
+    return {
+      workExperience: {
+        id:
+          result.workExperience.id,
+
+        company:
+          result.workExperience.company,
+
+        position:
+          result.workExperience.position,
+
+        description:
+          result.workExperience.description,
+
+        startedAt:
+          result.workExperience.startedAt,
+
+        endedAt:
+          result.workExperience.endedAt,
+
+        isCurrent:
+          result.workExperience.isCurrent,
+      },
+    };
+  }
+
+  async updateWorkExperience(
+    userId: string,
+    id: string,
+    dto: UpdateWorkExperienceDto,
+  ): Promise<UpdateWorkExperienceResponseDto> {
+    const payload:
+      UpdateWorkExperiencePayload = {
+        id,
+        userId,
       
         company:
           dto.company,
@@ -121,10 +200,10 @@ export class WorkExperiencesService {
     const result =
       await firstValueFrom(
         this.profileKafkaService.send<
-          CreateWorkExperienceKafkaResponse,
-          CreateWorkExperiencePayload
+          UpdateWorkExperienceKafkaResponse,
+          UpdateWorkExperiencePayload
         >(
-          WORK_EXPERIENCE_PATTERNS.CREATE,
+          WORK_EXPERIENCE_PATTERNS.UPDATE,
           payload,
         ),
       );
