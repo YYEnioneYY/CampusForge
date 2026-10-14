@@ -31,6 +31,14 @@ import type {
   CreateWorkExperienceResponse,
 } from './types/create-work-experience-response.type';
 
+import {
+  UpdateWorkExperienceDto,
+} from './dto/update-work-experience.dto';
+
+import type {
+  UpdateWorkExperienceResponse,
+} from './types/update-work-experience-response.type';
+
 @Controller()
 export class WorkExperiencesController {
   constructor(
@@ -51,5 +59,13 @@ export class WorkExperiencesController {
     dto: CreateWorkExperienceDto,
   ): Promise<CreateWorkExperienceResponse> {
     return this.workExperiencesService.createWorkExperience(dto);
+  }
+
+  @MessagePattern(WORK_EXPERIENCE_PATTERNS.UPDATE)
+  updateWorkExperience(
+    @Payload()
+    dto: UpdateWorkExperienceDto,
+  ): Promise<UpdateWorkExperienceResponse> {
+    return this.workExperiencesService.updateWorkExperience(dto);
   }
 }

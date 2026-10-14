@@ -34,6 +34,18 @@ import type {
   CreateWorkExperienceData,
 } from './work-experiences.repository';
 
+import {
+  UpdateWorkExperienceDto,
+} from './dto/update-work-experience.dto';
+
+import type {
+  UpdateWorkExperienceResponse,
+} from './types/update-work-experience-response.type';
+
+import type {
+  UpdateWorkExperienceData,
+} from './work-experiences.repository';
+
 @Injectable()
 export class WorkExperiencesService {
   constructor(
@@ -224,6 +236,190 @@ export class WorkExperiencesService {
     };
   }
 
+  async updateWorkExperience(
+    dto: UpdateWorkExperienceDto,
+  ): Promise<UpdateWorkExperienceResponse> {
+    const hasUpdates = [
+      dto.company,
+      dto.position,
+      dto.description,
+      dto.startedAt,
+      dto.endedAt,
+      dto.isCurrent,
+    ].some(
+      (value) =>
+        value !== undefined,
+    );
+
+    if (!hasUpdates) {
+      throwRpcError(
+        RpcErrorCode.VALIDATION_ERROR,
+        'At least one field must be provided',
+      );
+    }
+
+    const profile =
+      await this.workExperiencesRepository
+        .findOneForUser(
+          dto.userId,
+          dto.id,
+        );
+
+    if (!profile) {
+      throwRpcError(
+        RpcErrorCode.PROFILE_NOT_FOUND,
+        'Profile not found',
+      );
+    }
+
+    const existing =
+      profile.workExperiences[0];
+
+    if (!existing) {
+      throwRpcError(
+        RpcErrorCode.WORK_EXPERIENCE_NOT_FOUND,
+        'Work experience not found',
+      );
+    }
+
+    const startedAt =
+      dto.startedAt === undefined
+        ? existing.startedAt
+        : this.parseDate(
+            dto.startedAt,
+            'startedAt',
+          );
+
+    const isCurrent =
+      dto.isCurrent ??
+      existing.isCurrent;
+
+    let endedAt =
+      dto.endedAt === undefined
+        ? existing.endedAt
+        : dto.endedAt === null
+          ? null
+          : this.parseDate(
+              dto.endedAt,
+              'endedAt',
+            );
+
+    if (
+      dto.isCurrent === true &&
+      dto.endedAt === undefined
+    ) {
+      endedAt = null;
+    }
+
+    const today =
+      this.getToday();
+
+    if (startedAt > today) {
+      throwRpcError(
+        RpcErrorCode.VALIDATION_ERROR,
+        'startedAt cannot be in the future',
+      );
+    }
+
+    if (isCurrent) {
+      if (endedAt !== null) {
+        throwRpcError(
+          RpcErrorCode.VALIDATION_ERROR,
+          'endedAt must be null for current work experience',
+        );
+      }
+    } else {
+      if (endedAt === null) {
+        throwRpcError(
+          RpcErrorCode.VALIDATION_ERROR,
+          'endedAt is required for completed work experience',
+        );
+      }
+
+      if (endedAt < startedAt) {
+        throwRpcError(
+          RpcErrorCode.VALIDATION_ERROR,
+          'endedAt cannot be earlier than startedAt',
+        );
+      }
+
+      if (endedAt > today) {
+        throwRpcError(
+          RpcErrorCode.VALIDATION_ERROR,
+          'endedAt cannot be in the future',
+        );
+      }
+    }
+
+    const data:
+      UpdateWorkExperienceData = {
+        company:
+          dto.company === undefined
+            ? existing.company
+            : dto.company,
+
+        position:
+          dto.position === undefined
+            ? existing.position
+            : dto.position,
+
+        description:
+          dto.description === undefined
+            ? existing.description
+            : dto.description,
+
+        startedAt,
+        endedAt,
+        isCurrent,
+      };
+
+    const updated =
+      await this.workExperiencesRepository
+        .updateForUser(
+          dto.userId,
+          dto.id,
+          data,
+        );
+
+    if (!updated) {
+      throwRpcError(
+        RpcErrorCode.WORK_EXPERIENCE_NOT_FOUND,
+        'Work experience not found',
+      );
+    }
+
+    return {
+      workExperience: {
+        id:
+          updated.id,
+
+        company:
+          updated.company,
+
+        position:
+          updated.position,
+
+        description:
+          updated.description,
+
+        startedAt:
+          this.formatDate(
+            updated.startedAt,
+          ),
+
+        endedAt:
+          updated.endedAt
+            ? this.formatDate(
+                updated.endedAt,
+              )
+            : null,
+
+        isCurrent:
+          updated.isCurrent,
+      },
+    };
+  }
+
   private formatDate(
     value: Date,
   ): string {
@@ -270,7 +466,7 @@ export class WorkExperiencesService {
   private getToday(): Date {
     const now =
       new Date();
-    
+
     return new Date(
       Date.UTC(
         now.getUTCFullYear(),
