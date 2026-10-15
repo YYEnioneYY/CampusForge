@@ -176,38 +176,81 @@ export class WorkExperiencesRepository {
           where: {
             id,
             userId,
-          
+
             profile: {
               is: {
                 deletedAt: null,
               },
             },
           },
-        
+
           data: {
             company:
               data.company,
-          
+
             position:
               data.position,
-          
+
             description:
               data.description,
-          
+
             startedAt:
               data.startedAt,
-          
+
             endedAt:
               data.endedAt,
-          
+
             isCurrent:
               data.isCurrent,
           },
-        
+
           select:
             workExperienceSelect,
         });
-      
+
     return updated[0] ?? null;
+  }
+
+  async deleteForUser(
+    userId: string,
+    id: string,
+  ) {
+    return this.prisma.$transaction(
+      async (tx) => {
+        const profile = await tx.userProfile.findFirst({
+          where: {
+            userId,
+            deletedAt: null,
+          },
+
+          select: {
+            userId: true,
+          },
+        });
+
+        if (!profile) {
+          return {
+            status: 'profile_not_found',
+          } as const;
+        }
+
+        const result = await tx.workExperience.deleteMany({
+          where: {
+            id,
+            userId,
+          },
+        });
+
+        if (result.count === 0) {
+          return {
+            status: 'work_experience_not_found',
+          } as const;
+        }
+
+        return {
+          status: 'deleted',
+        } as const;
+      },
+    );
   }
 }

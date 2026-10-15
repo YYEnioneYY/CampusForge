@@ -46,6 +46,14 @@ import type {
   UpdateWorkExperienceData,
 } from './work-experiences.repository';
 
+import {
+  DeleteWorkExperienceDto,
+} from './dto/delete-work-experience.dto';
+
+import type {
+  DeleteWorkExperienceResponse,
+} from './types/delete-work-experience-response.type';
+
 @Injectable()
 export class WorkExperiencesService {
   constructor(
@@ -474,5 +482,36 @@ export class WorkExperiencesService {
         now.getUTCDate(),
       ),
     );
+  }
+
+  async deleteWorkExperience(
+    dto: DeleteWorkExperienceDto,
+  ): Promise<DeleteWorkExperienceResponse> {
+    const result = await this.workExperiencesRepository.deleteForUser(
+      dto.userId,
+      dto.id,
+    );
+
+    if (
+      result.status === 'profile_not_found'
+    ) {
+      throwRpcError(
+        RpcErrorCode.PROFILE_NOT_FOUND,
+        'Profile not found',
+      );
+    }
+
+    if (
+      result.status === 'work_experience_not_found'
+    ) {
+      throwRpcError(
+        RpcErrorCode.WORK_EXPERIENCE_NOT_FOUND,
+        'Work experience not found',
+      );
+    }
+
+    return {
+      success: true,
+    };
   }
 }
