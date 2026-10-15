@@ -49,6 +49,14 @@ import type {
   UpdateWorkExperiencePayload,
 } from './types/update-work-experience.types';
 
+import type {
+  CommandAcknowledgement,
+} from '../common/types/command-acknowledgement.type';
+
+import type {
+  DeleteWorkExperiencePayload,
+} from './types/delete-work-experience.types';
+
 @Injectable()
 export class WorkExperiencesService {
   constructor(
@@ -177,26 +185,26 @@ export class WorkExperiencesService {
       UpdateWorkExperiencePayload = {
         id,
         userId,
-      
+
         company:
           dto.company,
-      
+
         position:
           dto.position,
-      
+
         description:
           dto.description,
-      
+
         startedAt:
           dto.startedAt,
-      
+
         endedAt:
           dto.endedAt,
-      
+
         isCurrent:
           dto.isCurrent,
       };
-    
+
     const result =
       await firstValueFrom(
         this.profileKafkaService.send<
@@ -207,30 +215,50 @@ export class WorkExperiencesService {
           payload,
         ),
       );
-    
+
     return {
       workExperience: {
         id:
           result.workExperience.id,
-      
+
         company:
           result.workExperience.company,
-      
+
         position:
           result.workExperience.position,
-      
+
         description:
           result.workExperience.description,
-      
+
         startedAt:
           result.workExperience.startedAt,
-      
+
         endedAt:
           result.workExperience.endedAt,
-      
+
         isCurrent:
           result.workExperience.isCurrent,
       },
     };
+  }
+
+  async deleteWorkExperience(
+    userId: string,
+    id: string,
+  ): Promise<void> {
+    const payload: DeleteWorkExperiencePayload = {
+      id,
+      userId,
+    };
+
+    await firstValueFrom(
+      this.profileKafkaService.send<
+        CommandAcknowledgement,
+        DeleteWorkExperiencePayload
+      >(
+        WORK_EXPERIENCE_PATTERNS.DELETE,
+        payload,
+      ),
+    );
   }
 }

@@ -7,6 +7,9 @@ import {
   Param,
   ParseUUIDPipe,
   UseGuards,
+  Delete,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 
 import {
@@ -118,6 +121,30 @@ export class WorkExperiencesController {
       user.sub,
       id,
       dto,
+    );
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Удаление опыта работы текущего пользователя',
+  })
+  async deleteWorkExperience(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ): Promise<void> {
+    await this.workExperiencesService.deleteWorkExperience(
+      user.sub,
+      id,
     );
   }
 }

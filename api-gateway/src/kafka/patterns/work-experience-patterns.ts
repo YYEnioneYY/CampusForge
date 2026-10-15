@@ -4,6 +4,8 @@ export const WORK_EXPERIENCE_PATTERNS = {
   CREATE: 'profile.work-experiences.create',
 
   UPDATE: 'profile.work-experiences.update',
+
+  DELETE: 'profile.work-experiences.delete',
 } as const;
 
 export const WORK_EXPERIENCE_RESPONSE_PATTERNS = [
@@ -12,4 +14,6 @@ export const WORK_EXPERIENCE_RESPONSE_PATTERNS = [
   WORK_EXPERIENCE_PATTERNS.CREATE,
 
   WORK_EXPERIENCE_PATTERNS.UPDATE,
+
+  WORK_EXPERIENCE_PATTERNS.DELETE,
 ] as const;
