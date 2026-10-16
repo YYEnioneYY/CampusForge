@@ -253,4 +253,39 @@ export class WorkExperiencesRepository {
       },
     );
   }
+
+  async findProfileWithWorkExperiencesByUsername(
+    username: string,
+  ) {
+    return this.prisma.userProfile.findFirst({
+      where: {
+        username,
+        deletedAt: null,
+      },
+    
+      select: {
+        visibility: true,
+      
+        workExperiences: {
+          select:
+            workExperienceSelect,
+        
+          orderBy: [
+            {
+              isCurrent:
+                'desc',
+            },
+            {
+              startedAt:
+                'desc',
+            },
+            {
+              createdAt:
+                'desc',
+            },
+          ],
+        },
+      },
+    });
+  }
 }

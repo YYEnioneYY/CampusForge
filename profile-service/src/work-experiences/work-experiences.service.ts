@@ -54,6 +54,18 @@ import type {
   DeleteWorkExperienceResponse,
 } from './types/delete-work-experience-response.type';
 
+import {
+  ProfileVisibility,
+} from '../generated/prisma/enums';
+
+import {
+  GetPublicWorkExperiencesDto,
+} from './dto/get-public-work-experiences.dto';
+
+import type {
+  GetPublicWorkExperiencesResponse,
+} from './types/get-public-work-experiences-response.type';
+
 @Injectable()
 export class WorkExperiencesService {
   constructor(
@@ -425,6 +437,66 @@ export class WorkExperiencesService {
         isCurrent:
           updated.isCurrent,
       },
+    };
+  }
+
+  async getPublicWorkExperiences(
+    dto: GetPublicWorkExperiencesDto,
+  ): Promise<GetPublicWorkExperiencesResponse> {
+    const profile =
+      await this.workExperiencesRepository
+        .findProfileWithWorkExperiencesByUsername(
+          dto.username,
+        );
+      
+    if (!profile) {
+      throwRpcError(
+        RpcErrorCode.PROFILE_NOT_FOUND,
+        'Profile not found',
+      );
+    }
+  
+    if (
+      profile.visibility ===
+      ProfileVisibility.PRIVATE
+    ) {
+      return {
+        workExperiences: [],
+      };
+    }
+  
+    return {
+      workExperiences:
+        profile.workExperiences.map(
+          (experience) => ({
+            id:
+              experience.id,
+          
+            company:
+              experience.company,
+          
+            position:
+              experience.position,
+          
+            description:
+              experience.description,
+          
+            startedAt:
+              this.formatDate(
+                experience.startedAt,
+              ),
+            
+            endedAt:
+              experience.endedAt
+                ? this.formatDate(
+                    experience.endedAt,
+                  )
+                : null,
+                
+            isCurrent:
+              experience.isCurrent,
+          }),
+        ),
     };
   }
 

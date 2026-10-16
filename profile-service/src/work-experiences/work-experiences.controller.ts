@@ -47,6 +47,14 @@ import type {
   DeleteWorkExperienceResponse,
 } from './types/delete-work-experience-response.type';
 
+import {
+  GetPublicWorkExperiencesDto,
+} from './dto/get-public-work-experiences.dto';
+
+import type {
+  GetPublicWorkExperiencesResponse,
+} from './types/get-public-work-experiences-response.type';
+
 @Controller()
 export class WorkExperiencesController {
   constructor(
@@ -83,5 +91,13 @@ export class WorkExperiencesController {
     dto: DeleteWorkExperienceDto,
   ): Promise<DeleteWorkExperienceResponse> {
     return this.workExperiencesService.deleteWorkExperience(dto);
+  }
+
+  @MessagePattern(WORK_EXPERIENCE_PATTERNS.GET_PUBLIC_BY_USERNAME)
+  getPublicWorkExperiences(
+    @Payload()
+    dto: GetPublicWorkExperiencesDto,
+  ): Promise<GetPublicWorkExperiencesResponse> {
+    return this.workExperiencesService.getPublicWorkExperiences(dto);
   }
 }
