@@ -57,6 +57,15 @@ import type {
   DeleteWorkExperiencePayload,
 } from './types/delete-work-experience.types';
 
+import {
+  GetPublicWorkExperiencesResponseDto,
+} from './dto/get-public-work-experiences-response.dto';
+
+import type {
+  GetPublicWorkExperiencesKafkaResponse,
+  GetPublicWorkExperiencesPayload,
+} from './types/get-public-work-experiences.types';
+
 @Injectable()
 export class WorkExperiencesService {
   constructor(
@@ -260,5 +269,55 @@ export class WorkExperiencesService {
         payload,
       ),
     );
+  }
+
+  async getPublicWorkExperiences(
+    username: string,
+  ): Promise<GetPublicWorkExperiencesResponseDto> {
+    const payload:
+      GetPublicWorkExperiencesPayload = {
+        username,
+      };
+    
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          GetPublicWorkExperiencesKafkaResponse,
+          GetPublicWorkExperiencesPayload
+        >(
+          WORK_EXPERIENCE_PATTERNS
+            .GET_PUBLIC_BY_USERNAME,
+        
+          payload,
+        ),
+      );
+    
+    return {
+      workExperiences:
+        result.workExperiences.map(
+          (experience) => ({
+            id:
+              experience.id,
+          
+            company:
+              experience.company,
+          
+            position:
+              experience.position,
+          
+            description:
+              experience.description,
+          
+            startedAt:
+              experience.startedAt,
+          
+            endedAt:
+              experience.endedAt,
+          
+            isCurrent:
+              experience.isCurrent,
+          }),
+        ),
+    };
   }
 }

@@ -18,6 +18,10 @@ import {
   WorkExperiencesService,
 } from './work-experiences.service';
 
+import {
+  PublicWorkExperiencesController,
+} from './public-work-experiences.controller';
+
 @Module({
   imports: [
     KafkaModule,
@@ -26,6 +30,7 @@ import {
 
   controllers: [
     WorkExperiencesController,
+    PublicWorkExperiencesController,
   ],
 
   providers: [
