@@ -10,6 +10,16 @@ import {
   SKILL_SEED_DATA,
 } from './data/skills';
 
+import {
+  SKILL_ALIAS_SEED_DATA,
+} from './data/skill-aliases';
+
+type PreparedSkill = {
+  name: string;
+  normalizedName: string;
+  slug: string;
+};
+
 const prisma = new PrismaClient();
 
 function normalizeSkillName(
@@ -21,7 +31,80 @@ function normalizeSkillName(
     .toLowerCase();
 }
 
-function prepareSkills() {
+function prepareSkillAliases(
+  skills: PreparedSkill[],
+) {
+  const knownSkillSlugs = new Set(
+    skills.map((skill) => skill.slug),
+  );
+
+  const skillNames = new Set(
+    skills.map(
+      (skill) => skill.normalizedName,
+    ),
+  );
+
+  const normalizedAliases = new Set();
+
+  return SKILL_ALIAS_SEED_DATA.flatMap(
+    (item) => {
+      if (
+        !knownSkillSlugs.has(
+          item.skillSlug,
+        )
+      ) {
+        throw new Error(
+          `Unknown skill slug for aliases: ${item.skillSlug}`,
+        );
+      }
+
+      return item.aliases.map((value) => {
+        const alias = value
+          .trim()
+          .replace(/\s+/g, ' ');
+
+        const normalizedAlias =
+          normalizeSkillName(alias);
+
+        if (!normalizedAlias) {
+          throw new Error(
+            `Empty alias for skill: ${item.skillSlug}`,
+          );
+        }
+
+        if (
+          skillNames.has(normalizedAlias)
+        ) {
+          throw new Error(
+            `Alias duplicates a skill name: ${alias}`,
+          );
+        }
+
+        if (
+          normalizedAliases.has(
+            normalizedAlias,
+          )
+        ) {
+          throw new Error(
+            `Duplicate skill alias: ${alias}`,
+          );
+        }
+
+        normalizedAliases.add(
+          normalizedAlias,
+        );
+
+        return {
+          skillSlug: item.skillSlug,
+          alias,
+          normalizedAlias,
+        };
+      });
+    },
+  );
+}
+
+function prepareSkills(): PreparedSkill[] {
   const normalizedNames = new Set();
   const slugs = new Set();
 
@@ -76,6 +159,8 @@ async function main(): Promise<void> {
   );
 
   const skills = prepareSkills();
+
+  const skillAliases = prepareSkillAliases(skills);
 
   await prisma.$transaction(
     async (tx) => {
@@ -138,11 +223,41 @@ async function main(): Promise<void> {
           },
         });
       }
+      for (const skillAlias of skillAliases) {
+        await tx.skillAlias.upsert({
+          where: {
+            normalizedAlias:
+              skillAlias.normalizedAlias,
+          },
+        
+          create: {
+            alias: skillAlias.alias,
+            normalizedAlias:
+              skillAlias.normalizedAlias,
+          
+            skill: {
+              connect: {
+                slug: skillAlias.skillSlug,
+              },
+            },
+          },
+        
+          update: {
+            alias: skillAlias.alias,
+          
+            skill: {
+              connect: {
+                slug: skillAlias.skillSlug,
+              },
+            },
+          },
+        });
+      }
     },
   );
 
   console.log(
-    `Seed completed: ${skills.length} skills`,
+    `Seed completed: ${skills.length} skills, ${skillAliases.length} aliases`,
   );
 }
 

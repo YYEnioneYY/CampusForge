@@ -27,10 +27,24 @@ export class SkillService {
       await this.prisma.skill.findMany({
         where: {
           isActive: true,
-
-          normalizedName: {
-            contains: dto.query,
-          },
+                
+          OR: [
+            {
+              normalizedName: {
+                contains: dto.query,
+              },
+            },
+          
+            {
+              aliases: {
+                some: {
+                  normalizedAlias: {
+                    startsWith: dto.query,
+                  },
+                },
+              },
+            },
+          ],
         },
 
         select: {

@@ -37,9 +37,26 @@ model Skill {
 
   isActive       Boolean  @default(true) @map("is_active")
 
+  aliases        SkillAlias[]
+
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   @@index([isActive])
   @@map("skills")
+}
+
+model SkillAlias {
+  id              String   @id @default(uuid()) @db.Uuid
+
+  skillId         String   @map("skill_id") @db.Uuid
+  skill           Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  alias           String   @db.VarChar(80)
+  normalizedAlias String   @unique @map("normalized_alias") @db.VarChar(80)
+
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([skillId])
+  @@map("skill_aliases")
 }

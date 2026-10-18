@@ -15,7 +15,10 @@ import {
 export class SearchSkillsDto {
   @Transform(({ value }) =>
     typeof value === 'string'
-      ? value.trim().toLowerCase()
+      ? value
+          .trim()
+          .replace(/\s+/g, ' ')
+          .toLowerCase()
       : value,
   )
   @IsString()
