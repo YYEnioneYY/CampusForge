@@ -14,6 +14,14 @@ import type {
   SearchSkillsResponse,
 } from './types/search-skills-response.type';
 
+import {
+  GetSkillsByIdsDto,
+} from './dto/get-skills-by-ids.dto';
+
+import type {
+  GetSkillsByIdsResponse,
+} from './types/get-skills-by-ids-response.type';
+
 @Injectable()
 export class SkillService {
   constructor(
@@ -27,7 +35,7 @@ export class SkillService {
       await this.prisma.skill.findMany({
         where: {
           isActive: true,
-                
+
           OR: [
             {
               normalizedName: {
@@ -60,6 +68,31 @@ export class SkillService {
         take: dto.limit,
       });
 
+    return {
+      items: skills,
+    };
+  }
+
+  async getSkillsByIds(
+    dto: GetSkillsByIdsDto,
+  ): Promise<GetSkillsByIdsResponse> {
+    const skills =
+      await this.prisma.skill.findMany({
+        where: {
+          id: {
+            in: dto.skillIds,
+          },
+        
+          isActive: true,
+        },
+      
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      });
+    
     return {
       items: skills,
     };

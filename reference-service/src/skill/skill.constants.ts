@@ -1,0 +1,1 @@
+export const MAX_SKILLS_BY_IDS = 30;
