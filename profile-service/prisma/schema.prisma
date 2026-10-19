@@ -49,6 +49,7 @@ model UserProfile {
 
   links             UserLink[]
   workExperiences   WorkExperience[]
+  skills            UserSkill[]
 
   createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz
@@ -108,4 +109,26 @@ model WorkExperience {
 
   @@index([userId, isCurrent, startedAt])
   @@map("work_experiences")
+}
+
+model UserSkill {
+  id          String      @id @default(uuid()) @db.Uuid
+
+  userId      String      @map("user_id") @db.Uuid
+  profile     UserProfile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  skillId     String      @map("skill_id") @db.Uuid
+
+  skillName   String      @map("skill_name") @db.VarChar(80)
+  skillSlug   String      @map("skill_slug") @db.VarChar(100)
+
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
+  @@index([skillSlug])
+
+  @@map("user_skills")
 }

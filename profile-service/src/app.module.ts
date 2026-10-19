@@ -6,6 +6,7 @@ import { ProfileModule } from './profile/profile.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { UserLinksModule } from './user-links/user-links.module';
 import { WorkExperiencesModule } from './work-experiences/work-experiences.module';
+import { UserSkillsModule } from './user-skills/user-skills.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { WorkExperiencesModule } from './work-experiences/work-experiences.modul
     KafkaModule,
     UserLinksModule,
     WorkExperiencesModule,
+    UserSkillsModule,
   ],
 })
 export class AppModule {}
