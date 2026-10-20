@@ -25,12 +25,18 @@ import {
 import {
   PROFILE_RESPONSE_PATTERNS,
 } from './patterns/profile-patterns';
+
 import {
   USER_LINK_RESPONSE_PATTERNS,
 } from './patterns/user-link-patterns';
+
 import {
   WORK_EXPERIENCE_RESPONSE_PATTERNS,
 } from './patterns/work-experience-patterns';
+
+import {
+  USER_SKILL_RESPONSE_PATTERNS,
+} from './patterns/user-skill-patterns';
 
 @Injectable()
 export class ProfileKafkaService
@@ -59,6 +65,7 @@ export class ProfileKafkaService
       ...PROFILE_RESPONSE_PATTERNS,
       ...USER_LINK_RESPONSE_PATTERNS,
       ...WORK_EXPERIENCE_RESPONSE_PATTERNS,
+      ...USER_SKILL_RESPONSE_PATTERNS,
     ];
   
     for (
