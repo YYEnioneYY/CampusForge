@@ -23,6 +23,14 @@ import type {
   CreateUserSkillsResponse,
 } from './types/create-user-skills-response.type';
 
+import {
+  DeleteUserSkillDto,
+} from './dto/delete-user-skill.dto';
+
+import type {
+  DeleteUserSkillResponse,
+} from './types/delete-user-skill-response.type';
+
 @Controller()
 export class UserSkillsController {
   constructor(
@@ -35,5 +43,13 @@ export class UserSkillsController {
     dto: CreateUserSkillsDto,
   ): Promise<CreateUserSkillsResponse> {
     return this.userSkillsService.createUserSkills(dto);
+  }
+
+  @MessagePattern(USER_SKILL_PATTERNS.DELETE)
+  deleteUserSkill(
+    @Payload()
+    dto: DeleteUserSkillDto,
+  ): Promise<DeleteUserSkillResponse> {
+    return this.userSkillsService.deleteUserSkill(dto);
   }
 }

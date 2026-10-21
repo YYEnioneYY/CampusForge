@@ -43,6 +43,14 @@ import type {
   GetReferenceSkillsResponse,
 } from './types/reference-skills-response.type';
 
+import {
+  DeleteUserSkillDto,
+} from './dto/delete-user-skill.dto';
+
+import type {
+  DeleteUserSkillResponse,
+} from './types/delete-user-skill-response.type';
+
 @Injectable()
 export class UserSkillsService {
   constructor(
@@ -148,6 +156,28 @@ export class UserSkillsService {
               skill.skillSlug,
           }),
         ),
+    };
+  }
+
+  async deleteUserSkill(
+    dto: DeleteUserSkillDto,
+  ): Promise<DeleteUserSkillResponse> {
+    const deleted =
+      await this.userSkillsRepository
+        .deleteForUser(
+          dto.userId,
+          dto.id,
+        );
+
+    if (!deleted) {
+      throwRpcError(
+        RpcErrorCode.USER_SKILL_NOT_FOUND,
+        'User skill not found',
+      );
+    }
+
+    return {
+      success: true,
     };
   }
 }

@@ -147,4 +147,23 @@ export class UserSkillsRepository {
       },
     );
   }
+
+  async deleteForUser(
+    userId: string,
+    id: string,
+  ): Promise<boolean> {
+    const result =
+      await this.prisma.userSkill.deleteMany({
+        where: {
+          id,
+          userId,
+        
+          profile: {
+            deletedAt: null,
+          },
+        },
+      });
+    
+    return result.count === 1;
+  }
 }
