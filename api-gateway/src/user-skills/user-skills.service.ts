@@ -27,6 +27,14 @@ import type {
   CreateUserSkillsPayload,
 } from './types/create-user-skills.types';
 
+import type {
+  CommandAcknowledgement,
+} from '../common/types/command-acknowledgement.type';
+
+import type {
+  DeleteUserSkillPayload,
+} from './types/delete-user-skill.types';
+
 @Injectable()
 export class UserSkillsService {
   constructor(
@@ -75,5 +83,25 @@ export class UserSkillsService {
           }),
         ),
     };
+  }
+
+  async deleteUserSkill(
+    userId: string,
+    id: string,
+  ): Promise<void> {
+    const payload: DeleteUserSkillPayload = {
+      id,
+      userId,
+    };
+
+    await firstValueFrom(
+      this.profileKafkaService.send<
+        CommandAcknowledgement,
+        DeleteUserSkillPayload
+      >(
+        USER_SKILL_PATTERNS.DELETE,
+        payload,
+      ),
+    );
   }
 }

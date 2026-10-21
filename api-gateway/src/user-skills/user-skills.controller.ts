@@ -2,7 +2,12 @@ import {
   Body,
   Controller,
   Post,
+  Delete,
+  HttpCode,
+  HttpStatus,
   UseGuards,
+  Param,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 
 import {
@@ -72,10 +77,37 @@ export class UserSkillsController {
     @Body()
     dto: CreateUserSkillsDto,
   ): Promise<CreateUserSkillsResponseDto> {
-    return this.userSkillsService
-      .createUserSkills(
-        user.sub,
-        dto,
-      );
+    return this.userSkillsService.createUserSkills(
+      user.sub,
+      dto,
+    );
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Удаление навыка текущего пользователя',
+  })
+  @ApiNotFoundResponse({
+    description:
+      'Навык пользователя не найден',
+  })
+  async deleteUserSkill(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ): Promise<void> {
+    await this.userSkillsService.deleteUserSkill(
+      user.sub,
+      id,
+    );
   }
 }
