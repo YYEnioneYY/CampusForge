@@ -35,6 +35,10 @@ import type {
   DeleteUserSkillPayload,
 } from './types/delete-user-skill.types';
 
+import { GetPublicUserSkillsKafkaResponse } from './types/get-public-user-skills.types';
+import type { GetPublicUserSkillsPayload } from './types/get-public-user-skills.types';
+import { GetPublicUserSkillsResponseDto } from './dto/get-public-user-skills-response.dto';
+
 @Injectable()
 export class UserSkillsService {
   constructor(
@@ -103,5 +107,27 @@ export class UserSkillsService {
         payload,
       ),
     );
+  }
+
+  async getPublicUserSkills(
+    username: string,
+  ): Promise<GetPublicUserSkillsResponseDto> {
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          GetPublicUserSkillsKafkaResponse,
+          GetPublicUserSkillsPayload
+        >(
+          USER_SKILL_PATTERNS
+            .GET_PUBLIC_BY_USERNAME,
+          {
+            username,
+          },
+        ),
+      );
+
+    return {
+      skills: result.skills,
+    };
   }
 }

@@ -18,6 +18,10 @@ import {
   UserSkillsService,
 } from './user-skills.service';
 
+import {
+  PublicUserSkillsController,
+} from './public-user-skills.controller';
+
 @Module({
   imports: [
     KafkaModule,
@@ -26,6 +30,7 @@ import {
 
   controllers: [
     UserSkillsController,
+    PublicUserSkillsController,
   ],
 
   providers: [
