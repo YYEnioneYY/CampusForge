@@ -31,6 +31,9 @@ import type {
   DeleteUserSkillResponse,
 } from './types/delete-user-skill-response.type';
 
+import { GetPublicUserSkillsDto } from './dto/get-public-user-skills.dto';
+import type { GetPublicUserSkillsResponse } from './types/get-public-user-skills-response.type';
+
 @Controller()
 export class UserSkillsController {
   constructor(
@@ -51,5 +54,13 @@ export class UserSkillsController {
     dto: DeleteUserSkillDto,
   ): Promise<DeleteUserSkillResponse> {
     return this.userSkillsService.deleteUserSkill(dto);
+  }
+
+  @MessagePattern(USER_SKILL_PATTERNS.GET_PUBLIC_BY_USERNAME)
+  getPublicUserSkills(
+    @Payload()
+    dto: GetPublicUserSkillsDto,
+  ): Promise<GetPublicUserSkillsResponse> {
+    return this.userSkillsService.getPublicUserSkills(dto);
   }
 }

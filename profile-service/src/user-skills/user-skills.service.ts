@@ -51,6 +51,18 @@ import type {
   DeleteUserSkillResponse,
 } from './types/delete-user-skill-response.type';
 
+import {
+  ProfileVisibility,
+} from '../generated/prisma/enums';
+
+import {
+  GetPublicUserSkillsDto,
+} from './dto/get-public-user-skills.dto';
+
+import type {
+  GetPublicUserSkillsResponse,
+} from './types/get-public-user-skills-response.type';
+
 @Injectable()
 export class UserSkillsService {
   constructor(
@@ -178,6 +190,41 @@ export class UserSkillsService {
 
     return {
       success: true,
+    };
+  }
+
+  async getPublicUserSkills(
+    dto: GetPublicUserSkillsDto,
+  ): Promise<GetPublicUserSkillsResponse> {
+    const profile =
+      await this.userSkillsRepository
+        .findProfileWithSkillsByUsername(
+          dto.username,
+        );
+      
+    if (!profile) {
+      throwRpcError(
+        RpcErrorCode.PROFILE_NOT_FOUND,
+        'Profile not found',
+      );
+    }
+  
+    if (
+      profile.visibility ===
+      ProfileVisibility.PRIVATE
+    ) {
+      return {
+        skills: [],
+      };
+    }
+  
+    return {
+      skills: profile.skills.map((skill) => ({
+        id: skill.id,
+        skillId: skill.skillId,
+        name: skill.skillName,
+        slug: skill.skillSlug,
+      })),
     };
   }
 }
