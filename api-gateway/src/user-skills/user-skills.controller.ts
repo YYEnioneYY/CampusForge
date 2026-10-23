@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   Delete,
   HttpCode,
@@ -12,9 +13,6 @@ import {
 
 import {
   ApiBearerAuth,
-  ApiConflictResponse,
-  ApiCreatedResponse,
-  ApiNotFoundResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -43,6 +41,10 @@ import {
   UserSkillsService,
 } from './user-skills.service';
 
+import {
+  GetMyUserSkillsResponseDto,
+} from './dto/get-my-user-skills-response.dto';
+
 @ApiTags('User skills')
 @ApiBearerAuth('access-token')
 @Controller('profile/me/skills')
@@ -57,18 +59,6 @@ export class UserSkillsController {
   @ApiOperation({
     summary:
       'Добавление навыков текущему пользователю',
-  })
-  @ApiCreatedResponse({
-    type:
-      CreateUserSkillsResponseDto,
-  })
-  @ApiNotFoundResponse({
-    description:
-      'Профиль или один из навыков не найден',
-  })
-  @ApiConflictResponse({
-    description:
-      'Навык уже добавлен или достигнут лимит',
   })
   createUserSkills(
     @CurrentUser()
@@ -89,10 +79,6 @@ export class UserSkillsController {
     summary:
       'Удаление навыка текущего пользователя',
   })
-  @ApiNotFoundResponse({
-    description:
-      'Навык пользователя не найден',
-  })
   async deleteUserSkill(
     @CurrentUser()
     user: AuthenticatedUser,
@@ -109,5 +95,17 @@ export class UserSkillsController {
       user.sub,
       id,
     );
+  }
+
+  @Get()
+  @ApiOperation({
+    summary:
+      'Получение навыков текущего пользователя',
+  })
+  getMyUserSkills(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  ): Promise<GetMyUserSkillsResponseDto> {
+    return this.userSkillsService.getMyUserSkills(user.sub);
   }
 }

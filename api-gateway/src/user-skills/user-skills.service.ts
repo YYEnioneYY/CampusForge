@@ -39,6 +39,15 @@ import { GetPublicUserSkillsKafkaResponse } from './types/get-public-user-skills
 import type { GetPublicUserSkillsPayload } from './types/get-public-user-skills.types';
 import { GetPublicUserSkillsResponseDto } from './dto/get-public-user-skills-response.dto';
 
+import {
+  GetMyUserSkillsResponseDto,
+} from './dto/get-my-user-skills-response.dto';
+
+import type {
+  GetMyUserSkillsKafkaResponse,
+  GetMyUserSkillsPayload,
+} from './types/get-my-user-skills.types';
+
 @Injectable()
 export class UserSkillsService {
   constructor(
@@ -128,6 +137,43 @@ export class UserSkillsService {
 
     return {
       skills: result.skills,
+    };
+  }
+
+  async getMyUserSkills(
+    userId: string,
+  ): Promise<GetMyUserSkillsResponseDto> {
+    const payload:
+      GetMyUserSkillsPayload = {
+        userId,
+      };
+    
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          GetMyUserSkillsKafkaResponse,
+          GetMyUserSkillsPayload
+        >(
+          USER_SKILL_PATTERNS.GET_MY,
+          payload,
+        ),
+      );
+    
+    return {
+      skills: result.skills.map(
+        (skill) => ({
+          id: skill.id,
+        
+          skillId:
+            skill.skillId,
+        
+          name:
+            skill.name,
+        
+          slug:
+            skill.slug,
+        }),
+      ),
     };
   }
 }
