@@ -3,5 +3,7 @@ export const USER_SKILL_PATTERNS = {
 
   DELETE: 'profile.skills.delete',
 
+  GET_MY: 'profile.skills.me',
+
   GET_PUBLIC_BY_USERNAME: 'profile.skills.public.by-username',
 } as const;

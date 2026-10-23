@@ -34,6 +34,14 @@ import type {
 import { GetPublicUserSkillsDto } from './dto/get-public-user-skills.dto';
 import type { GetPublicUserSkillsResponse } from './types/get-public-user-skills-response.type';
 
+import {
+  GetMyUserSkillsDto,
+} from './dto/get-my-user-skills.dto';
+
+import type {
+  GetMyUserSkillsResponse,
+} from './types/get-my-user-skills-response.type';
+
 @Controller()
 export class UserSkillsController {
   constructor(
@@ -62,5 +70,13 @@ export class UserSkillsController {
     dto: GetPublicUserSkillsDto,
   ): Promise<GetPublicUserSkillsResponse> {
     return this.userSkillsService.getPublicUserSkills(dto);
+  }
+
+  @MessagePattern(USER_SKILL_PATTERNS.GET_MY)
+  getMyUserSkills(
+    @Payload()
+    dto: GetMyUserSkillsDto,
+  ): Promise<GetMyUserSkillsResponse> {
+    return this.userSkillsService.getMyUserSkills(dto);
   }
 }

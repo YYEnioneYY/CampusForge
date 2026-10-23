@@ -175,10 +175,36 @@ export class UserSkillsRepository {
         username,
         deletedAt: null,
       },
-    
+
       select: {
         visibility: true,
-      
+
+        skills: {
+          select: userSkillSelect,
+
+          orderBy: [
+            {
+              skillName: 'asc',
+            },
+            {
+              createdAt: 'asc',
+            },
+          ],
+        },
+      },
+    });
+  }
+
+  async findProfileWithSkillsByUserId(
+    userId: string,
+  ) {
+    return this.prisma.userProfile.findFirst({
+      where: {
+        userId,
+        deletedAt: null,
+      },
+    
+      select: {
         skills: {
           select: userSkillSelect,
         
