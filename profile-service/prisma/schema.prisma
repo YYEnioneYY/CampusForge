@@ -50,6 +50,7 @@ model UserProfile {
   links             UserLink[]
   workExperiences   WorkExperience[]
   skills            UserSkill[]
+  educations        Education[]
 
   createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz
@@ -131,4 +132,26 @@ model UserSkill {
   @@index([skillSlug])
 
   @@map("user_skills")
+}
+
+model Education {
+  id            String      @id @default(uuid()) @db.Uuid
+
+  userId        String      @map("user_id") @db.Uuid
+  profile       UserProfile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  institution   String      @db.VarChar(200)
+  degree        String?     @db.VarChar(100)
+  fieldOfStudy  String?     @map("field_of_study") @db.VarChar(150)
+  description   String?     @db.VarChar(2000)
+
+  startedAt     DateTime    @map("started_at") @db.Date
+  endedAt       DateTime?   @map("ended_at") @db.Date
+  isCurrent     Boolean     @default(false) @map("is_current")
+
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([userId, isCurrent, startedAt])
+  @@map("educations")
 }
