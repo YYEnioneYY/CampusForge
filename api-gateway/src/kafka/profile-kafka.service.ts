@@ -38,6 +38,8 @@ import {
   USER_SKILL_RESPONSE_PATTERNS,
 } from './patterns/user-skill-patterns';
 
+import { EDUCATION_RESPONSE_PATTERNS } from './patterns/education-patterns';
+
 @Injectable()
 export class ProfileKafkaService
   implements OnModuleInit, OnModuleDestroy
@@ -66,6 +68,7 @@ export class ProfileKafkaService
       ...USER_LINK_RESPONSE_PATTERNS,
       ...WORK_EXPERIENCE_RESPONSE_PATTERNS,
       ...USER_SKILL_RESPONSE_PATTERNS,
+      ...EDUCATION_RESPONSE_PATTERNS,
     ];
   
     for (
