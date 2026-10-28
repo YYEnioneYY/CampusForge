@@ -23,6 +23,19 @@ import type {
   GetMyEducationsPayload,
 } from './types/get-my-educations.types';
 
+import {
+  CreateEducationDto,
+} from './dto/create-education.dto';
+
+import {
+  CreateEducationResponseDto,
+} from './dto/create-education-response.dto';
+
+import type {
+  CreateEducationKafkaResponse,
+  CreateEducationPayload,
+} from './types/create-education.types';
+
 @Injectable()
 export class EducationsService {
   constructor(
@@ -76,6 +89,76 @@ export class EducationsService {
               education.isCurrent,
           }),
         ),
+    };
+  }
+
+  async createEducation(
+    userId: string,
+    dto: CreateEducationDto,
+  ): Promise<CreateEducationResponseDto> {
+    const payload:
+      CreateEducationPayload = {
+        userId,
+      
+        institution:
+          dto.institution,
+      
+        degree:
+          dto.degree,
+      
+        fieldOfStudy:
+          dto.fieldOfStudy,
+      
+        description:
+          dto.description,
+      
+        startedAt:
+          dto.startedAt,
+      
+        endedAt:
+          dto.endedAt,
+      
+        isCurrent:
+          dto.isCurrent,
+      };
+    
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          CreateEducationKafkaResponse,
+          CreateEducationPayload
+        >(
+          EDUCATION_PATTERNS.CREATE,
+          payload,
+        ),
+      );
+    
+    return {
+      education: {
+        id:
+          result.education.id,
+      
+        institution:
+          result.education.institution,
+      
+        degree:
+          result.education.degree,
+      
+        fieldOfStudy:
+          result.education.fieldOfStudy,
+      
+        description:
+          result.education.description,
+      
+        startedAt:
+          result.education.startedAt,
+      
+        endedAt:
+          result.education.endedAt,
+      
+        isCurrent:
+          result.education.isCurrent,
+      },
     };
   }
 }

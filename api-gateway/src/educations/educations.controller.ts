@@ -1,6 +1,8 @@
 import {
+  Body,
   Controller,
   Get,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 
@@ -32,6 +34,14 @@ import {
   EducationsService,
 } from './educations.service';
 
+import {
+  CreateEducationDto,
+} from './dto/create-education.dto';
+
+import {
+  CreateEducationResponseDto,
+} from './dto/create-education-response.dto';
+
 @ApiTags('Educations')
 @ApiBearerAuth('access-token')
 @Controller('profile/me/educations')
@@ -52,6 +62,24 @@ export class EducationsController {
   ): Promise<GetMyEducationsResponseDto> {
     return this.educationsService.getMyEducations(
       user.sub,
+    );
+  }
+
+  @Post()
+  @ApiOperation({
+    summary:
+      'Добавление образования текущему пользователю',
+  })
+  createEducation(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Body()
+    dto: CreateEducationDto,
+  ): Promise<CreateEducationResponseDto> {
+    return this.educationsService.createEducation(
+      user.sub,
+      dto,
     );
   }
 }
