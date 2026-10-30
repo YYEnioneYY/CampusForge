@@ -99,6 +99,7 @@ export class RpcErrorMapperService {
       case RpcErrorCode.WORK_EXPERIENCE_NOT_FOUND:
       case RpcErrorCode.SKILL_NOT_FOUND:
       case RpcErrorCode.USER_SKILL_NOT_FOUND:
+      case RpcErrorCode.EDUCATION_NOT_FOUND:
         return HttpStatus.NOT_FOUND;
 
       case RpcErrorCode.EMAIL_VERIFICATION_RESEND_TOO_SOON:

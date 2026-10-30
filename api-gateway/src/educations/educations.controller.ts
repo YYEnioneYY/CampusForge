@@ -2,14 +2,15 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
 
 import {
   ApiBearerAuth,
-  ApiNotFoundResponse,
-  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -41,6 +42,14 @@ import {
 import {
   CreateEducationResponseDto,
 } from './dto/create-education-response.dto';
+
+import {
+  UpdateEducationDto,
+} from './dto/update-education.dto';
+
+import {
+  UpdateEducationResponseDto,
+} from './dto/update-education-response.dto';
 
 @ApiTags('Educations')
 @ApiBearerAuth('access-token')
@@ -79,6 +88,33 @@ export class EducationsController {
   ): Promise<CreateEducationResponseDto> {
     return this.educationsService.createEducation(
       user.sub,
+      dto,
+    );
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary:
+      'Изменение образования текущего пользователя',
+  })
+  updateEducation(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+
+    @Body()
+    dto: UpdateEducationDto,
+  ): Promise<UpdateEducationResponseDto> {
+    return this.educationsService.updateEducation(
+      user.sub,
+      id,
       dto,
     );
   }

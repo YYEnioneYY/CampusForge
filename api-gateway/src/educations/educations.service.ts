@@ -36,6 +36,19 @@ import type {
   CreateEducationPayload,
 } from './types/create-education.types';
 
+import {
+  UpdateEducationDto,
+} from './dto/update-education.dto';
+
+import {
+  UpdateEducationResponseDto,
+} from './dto/update-education-response.dto';
+
+import type {
+  UpdateEducationKafkaResponse,
+  UpdateEducationPayload,
+} from './types/update-education.types';
+
 @Injectable()
 export class EducationsService {
   constructor(
@@ -99,29 +112,29 @@ export class EducationsService {
     const payload:
       CreateEducationPayload = {
         userId,
-      
+
         institution:
           dto.institution,
-      
+
         degree:
           dto.degree,
-      
+
         fieldOfStudy:
           dto.fieldOfStudy,
-      
+
         description:
           dto.description,
-      
+
         startedAt:
           dto.startedAt,
-      
+
         endedAt:
           dto.endedAt,
-      
+
         isCurrent:
           dto.isCurrent,
       };
-    
+
     const result =
       await firstValueFrom(
         this.profileKafkaService.send<
@@ -132,30 +145,102 @@ export class EducationsService {
           payload,
         ),
       );
-    
+
     return {
       education: {
         id:
           result.education.id,
-      
+
         institution:
           result.education.institution,
-      
+
         degree:
           result.education.degree,
-      
+
         fieldOfStudy:
           result.education.fieldOfStudy,
-      
+
         description:
           result.education.description,
-      
+
         startedAt:
           result.education.startedAt,
-      
+
         endedAt:
           result.education.endedAt,
-      
+
+        isCurrent:
+          result.education.isCurrent,
+      },
+    };
+  }
+
+  async updateEducation(
+    userId: string,
+    id: string,
+    dto: UpdateEducationDto,
+  ): Promise<UpdateEducationResponseDto> {
+    const payload:
+      UpdateEducationPayload = {
+        id,
+        userId,
+
+        institution:
+          dto.institution,
+
+        degree:
+          dto.degree,
+
+        fieldOfStudy:
+          dto.fieldOfStudy,
+
+        description:
+          dto.description,
+
+        startedAt:
+          dto.startedAt,
+
+        endedAt:
+          dto.endedAt,
+
+        isCurrent:
+          dto.isCurrent,
+      };
+
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          UpdateEducationKafkaResponse,
+          UpdateEducationPayload
+        >(
+          EDUCATION_PATTERNS.UPDATE,
+          payload,
+        ),
+      );
+
+    return {
+      education: {
+        id:
+          result.education.id,
+
+        institution:
+          result.education.institution,
+
+        degree:
+          result.education.degree,
+
+        fieldOfStudy:
+          result.education.fieldOfStudy,
+
+        description:
+          result.education.description,
+
+        startedAt:
+          result.education.startedAt,
+
+        endedAt:
+          result.education.endedAt,
+
         isCurrent:
           result.education.isCurrent,
       },
