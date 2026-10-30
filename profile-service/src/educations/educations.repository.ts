@@ -219,4 +219,52 @@ export class EducationsRepository {
 
     return updated[0] ?? null;
   }
+
+  async deleteForUser(
+    userId: string,
+    id: string,
+  ) {
+    return this.prisma.$transaction(
+      async (tx) => {
+        const profile =
+          await tx.userProfile.findFirst({
+            where: {
+              userId,
+              deletedAt: null,
+            },
+          
+            select: {
+              userId: true,
+            },
+          });
+        
+        if (!profile) {
+          return {
+            status:
+              'profile_not_found',
+          } as const;
+        }
+      
+        const result =
+          await tx.education.deleteMany({
+            where: {
+              id,
+              userId,
+            },
+          });
+        
+        if (result.count === 0) {
+          return {
+            status:
+              'education_not_found',
+          } as const;
+        }
+      
+        return {
+          status:
+            'deleted',
+        } as const;
+      },
+    );
+  }
 }

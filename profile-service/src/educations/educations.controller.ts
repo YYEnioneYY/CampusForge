@@ -39,6 +39,14 @@ import type {
   UpdateEducationResponse,
 } from './types/update-education-response.type';
 
+import {
+  DeleteEducationDto,
+} from './dto/delete-education.dto';
+
+import type {
+  DeleteEducationResponse,
+} from './types/delete-education-response.type';
+
 @Controller()
 export class EducationsController {
   constructor(
@@ -67,5 +75,13 @@ export class EducationsController {
     dto: UpdateEducationDto,
   ): Promise<UpdateEducationResponse> {
     return this.educationsService.updateEducation(dto);
+  }
+
+  @MessagePattern(EDUCATION_PATTERNS.DELETE)
+  deleteEducation(
+    @Payload()
+    dto: DeleteEducationDto,
+  ): Promise<DeleteEducationResponse> {
+    return this.educationsService.deleteEducation(dto);
   }
 }

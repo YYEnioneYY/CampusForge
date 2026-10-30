@@ -46,6 +46,14 @@ import type {
   UpdateEducationData,
 } from './educations.repository';
 
+import {
+  DeleteEducationDto,
+} from './dto/delete-education.dto';
+
+import type {
+  DeleteEducationResponse,
+} from './types/delete-education-response.type';
+
 @Injectable()
 export class EducationsService {
   constructor(
@@ -259,38 +267,38 @@ export class EducationsService {
       (value) =>
         value !== undefined,
     );
-  
+
     if (!hasUpdates) {
       throwRpcError(
         RpcErrorCode.VALIDATION_ERROR,
         'At least one field must be provided',
       );
     }
-  
+
     const profile =
       await this.educationsRepository
         .findOneForUser(
           dto.userId,
           dto.id,
         );
-      
+
     if (!profile) {
       throwRpcError(
         RpcErrorCode.PROFILE_NOT_FOUND,
         'Profile not found',
       );
     }
-  
+
     const existing =
       profile.educations[0];
-  
+
     if (!existing) {
       throwRpcError(
         RpcErrorCode.EDUCATION_NOT_FOUND,
         'Education not found',
       );
     }
-  
+
     const startedAt =
       dto.startedAt === undefined
         ? existing.startedAt
@@ -298,11 +306,11 @@ export class EducationsService {
             dto.startedAt,
             'startedAt',
           );
-        
+
     const isCurrent =
       dto.isCurrent ??
       existing.isCurrent;
-        
+
     let endedAt =
       dto.endedAt === undefined
         ? existing.endedAt
@@ -312,24 +320,24 @@ export class EducationsService {
               dto.endedAt,
               'endedAt',
             );
-          
+
     if (
       dto.isCurrent === true &&
       dto.endedAt === undefined
     ) {
       endedAt = null;
     }
-  
+
     const today =
       this.getToday();
-  
+
     if (startedAt > today) {
       throwRpcError(
         RpcErrorCode.VALIDATION_ERROR,
         'startedAt cannot be in the future',
       );
     }
-  
+
     if (isCurrent) {
       if (endedAt !== null) {
         throwRpcError(
@@ -344,14 +352,14 @@ export class EducationsService {
           'endedAt is required for completed education',
         );
       }
-    
+
       if (endedAt < startedAt) {
         throwRpcError(
           RpcErrorCode.VALIDATION_ERROR,
           'endedAt cannot be earlier than startedAt',
         );
       }
-    
+
       if (endedAt > today) {
         throwRpcError(
           RpcErrorCode.VALIDATION_ERROR,
@@ -359,34 +367,34 @@ export class EducationsService {
         );
       }
     }
-  
+
     const data:
       UpdateEducationData = {
         institution:
           dto.institution === undefined
             ? existing.institution
             : dto.institution,
-      
+
         degree:
           dto.degree === undefined
             ? existing.degree
             : dto.degree,
-      
+
         fieldOfStudy:
           dto.fieldOfStudy === undefined
             ? existing.fieldOfStudy
             : dto.fieldOfStudy,
-      
+
         description:
           dto.description === undefined
             ? existing.description
             : dto.description,
-      
+
         startedAt,
         endedAt,
         isCurrent,
       };
-    
+
     const updated =
       await this.educationsRepository
         .updateForUser(
@@ -394,8 +402,73 @@ export class EducationsService {
           dto.id,
           data,
         );
-      
+
     if (!updated) {
+      throwRpcError(
+        RpcErrorCode.EDUCATION_NOT_FOUND,
+        'Education not found',
+      );
+    }
+
+    return {
+      education: {
+        id:
+          updated.id,
+
+        institution:
+          updated.institution,
+
+        degree:
+          updated.degree,
+
+        fieldOfStudy:
+          updated.fieldOfStudy,
+
+        description:
+          updated.description,
+
+        startedAt:
+          this.formatDate(
+            updated.startedAt,
+          ),
+
+        endedAt:
+          updated.endedAt
+            ? this.formatDate(
+                updated.endedAt,
+              )
+            : null,
+
+        isCurrent:
+          updated.isCurrent,
+      },
+    };
+  }
+
+  async deleteEducation(
+    dto: DeleteEducationDto,
+  ): Promise<DeleteEducationResponse> {
+    const result =
+      await this.educationsRepository
+        .deleteForUser(
+          dto.userId,
+          dto.id,
+        );
+      
+    if (
+      result.status ===
+      'profile_not_found'
+    ) {
+      throwRpcError(
+        RpcErrorCode.PROFILE_NOT_FOUND,
+        'Profile not found',
+      );
+    }
+  
+    if (
+      result.status ===
+      'education_not_found'
+    ) {
       throwRpcError(
         RpcErrorCode.EDUCATION_NOT_FOUND,
         'Education not found',
@@ -403,37 +476,7 @@ export class EducationsService {
     }
   
     return {
-      education: {
-        id:
-          updated.id,
-      
-        institution:
-          updated.institution,
-      
-        degree:
-          updated.degree,
-      
-        fieldOfStudy:
-          updated.fieldOfStudy,
-      
-        description:
-          updated.description,
-      
-        startedAt:
-          this.formatDate(
-            updated.startedAt,
-          ),
-        
-        endedAt:
-          updated.endedAt
-            ? this.formatDate(
-                updated.endedAt,
-              )
-            : null,
-            
-        isCurrent:
-          updated.isCurrent,
-      },
+      success: true,
     };
   }
 
