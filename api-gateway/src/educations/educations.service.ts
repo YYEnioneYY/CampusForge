@@ -49,6 +49,14 @@ import type {
   UpdateEducationPayload,
 } from './types/update-education.types';
 
+import type {
+  CommandAcknowledgement,
+} from '../common/types/command-acknowledgement.type';
+
+import type {
+  DeleteEducationPayload,
+} from './types/delete-education.types';
+
 @Injectable()
 export class EducationsService {
   constructor(
@@ -245,5 +253,26 @@ export class EducationsService {
           result.education.isCurrent,
       },
     };
+  }
+
+  async deleteEducation(
+    userId: string,
+    id: string,
+  ): Promise<void> {
+    const payload:
+      DeleteEducationPayload = {
+        id,
+        userId,
+      };
+    
+    await firstValueFrom(
+      this.profileKafkaService.send<
+        CommandAcknowledgement,
+        DeleteEducationPayload
+      >(
+        EDUCATION_PATTERNS.DELETE,
+        payload,
+      ),
+    );
   }
 }

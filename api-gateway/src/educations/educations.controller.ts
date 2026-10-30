@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -116,6 +119,30 @@ export class EducationsController {
       user.sub,
       id,
       dto,
+    );
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Удаление образования текущего пользователя',
+  })
+  async deleteEducation(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    id: string,
+  ): Promise<void> {
+    await this.educationsService.deleteEducation(
+      user.sub,
+      id,
     );
   }
 }
