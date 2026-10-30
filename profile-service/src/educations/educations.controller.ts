@@ -31,6 +31,14 @@ import type {
   CreateEducationResponse,
 } from './types/create-education-response.type';
 
+import {
+  UpdateEducationDto,
+} from './dto/update-education.dto';
+
+import type {
+  UpdateEducationResponse,
+} from './types/update-education-response.type';
+
 @Controller()
 export class EducationsController {
   constructor(
@@ -51,5 +59,13 @@ export class EducationsController {
     dto: CreateEducationDto,
   ): Promise<CreateEducationResponse> {
     return this.educationsService.createEducation(dto);
+  }
+
+  @MessagePattern(EDUCATION_PATTERNS.UPDATE)
+  updateEducation(
+    @Payload()
+    dto: UpdateEducationDto,
+  ): Promise<UpdateEducationResponse> {
+    return this.educationsService.updateEducation(dto);
   }
 }

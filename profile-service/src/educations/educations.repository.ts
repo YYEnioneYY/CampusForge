@@ -30,6 +30,17 @@ export type CreateEducationData = {
   isCurrent: boolean;
 };
 
+export type UpdateEducationData = {
+  institution: string;
+  degree: string | null;
+  fieldOfStudy: string | null;
+  description: string | null;
+
+  startedAt: Date;
+  endedAt: Date | null;
+  isCurrent: boolean;
+};
+
 @Injectable()
 export class EducationsRepository {
   constructor(
@@ -81,57 +92,131 @@ export class EducationsRepository {
               userId,
               deletedAt: null,
             },
-          
+
             select: {
               userId: true,
             },
           });
-        
+
         if (!profile) {
           return {
             status:
               'profile_not_found',
           } as const;
         }
-      
+
         const education =
           await tx.education.create({
             data: {
               userId,
-            
+
               institution:
                 data.institution,
-            
+
               degree:
                 data.degree,
-            
+
               fieldOfStudy:
                 data.fieldOfStudy,
-            
+
               description:
                 data.description,
-            
+
               startedAt:
                 data.startedAt,
-            
+
               endedAt:
                 data.endedAt,
-            
+
               isCurrent:
                 data.isCurrent,
             },
-          
+
             select:
               educationSelect,
           });
-        
+
         return {
           status:
             'created',
-        
+
           education,
         } as const;
       },
     );
+  }
+
+  async findOneForUser(
+    userId: string,
+    id: string,
+  ) {
+    return this.prisma.userProfile.findFirst({
+      where: {
+        userId,
+        deletedAt: null,
+      },
+
+      select: {
+        educations: {
+          where: {
+            id,
+          },
+
+          select:
+            educationSelect,
+
+          take: 1,
+        },
+      },
+    });
+  }
+
+  async updateForUser(
+    userId: string,
+    id: string,
+    data: UpdateEducationData,
+  ) {
+    const updated =
+      await this.prisma.education
+        .updateManyAndReturn({
+          where: {
+            id,
+            userId,
+
+            profile: {
+              is: {
+                deletedAt: null,
+              },
+            },
+          },
+
+          data: {
+            institution:
+              data.institution,
+
+            degree:
+              data.degree,
+
+            fieldOfStudy:
+              data.fieldOfStudy,
+
+            description:
+              data.description,
+
+            startedAt:
+              data.startedAt,
+
+            endedAt:
+              data.endedAt,
+
+            isCurrent:
+              data.isCurrent,
+          },
+
+          select:
+            educationSelect,
+        });
+
+    return updated[0] ?? null;
   }
 }
