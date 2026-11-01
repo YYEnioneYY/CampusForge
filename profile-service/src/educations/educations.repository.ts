@@ -232,19 +232,19 @@ export class EducationsRepository {
               userId,
               deletedAt: null,
             },
-          
+
             select: {
               userId: true,
             },
           });
-        
+
         if (!profile) {
           return {
             status:
               'profile_not_found',
           } as const;
         }
-      
+
         const result =
           await tx.education.deleteMany({
             where: {
@@ -252,19 +252,54 @@ export class EducationsRepository {
               userId,
             },
           });
-        
+
         if (result.count === 0) {
           return {
             status:
               'education_not_found',
           } as const;
         }
-      
+
         return {
           status:
             'deleted',
         } as const;
       },
     );
+  }
+
+  async findProfileWithEducationsByUsername(
+    username: string,
+  ) {
+    return this.prisma.userProfile.findFirst({
+      where: {
+        username,
+        deletedAt: null,
+      },
+    
+      select: {
+        visibility: true,
+      
+        educations: {
+          select:
+            educationSelect,
+        
+          orderBy: [
+            {
+              isCurrent:
+                'desc',
+            },
+            {
+              startedAt:
+                'desc',
+            },
+            {
+              createdAt:
+                'desc',
+            },
+          ],
+        },
+      },
+    });
   }
 }

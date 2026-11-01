@@ -6,4 +6,6 @@ export const EDUCATION_PATTERNS = {
   UPDATE: 'profile.educations.update',
 
   DELETE: 'profile.educations.delete',
+
+  GET_PUBLIC_BY_USERNAME: 'profile.educations.public.by-username',
 } as const;

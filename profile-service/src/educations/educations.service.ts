@@ -54,6 +54,18 @@ import type {
   DeleteEducationResponse,
 } from './types/delete-education-response.type';
 
+import {
+  ProfileVisibility,
+} from '../generated/prisma/enums';
+
+import {
+  GetPublicEducationsDto,
+} from './dto/get-public-educations.dto';
+
+import type {
+  GetPublicEducationsResponse,
+} from './types/get-public-educations-response.type';
+
 @Injectable()
 export class EducationsService {
   constructor(
@@ -454,7 +466,7 @@ export class EducationsService {
           dto.userId,
           dto.id,
         );
-      
+
     if (
       result.status ===
       'profile_not_found'
@@ -464,7 +476,7 @@ export class EducationsService {
         'Profile not found',
       );
     }
-  
+
     if (
       result.status ===
       'education_not_found'
@@ -474,9 +486,72 @@ export class EducationsService {
         'Education not found',
       );
     }
-  
+
     return {
       success: true,
+    };
+  }
+
+  async getPublicEducations(
+    dto: GetPublicEducationsDto,
+  ): Promise<GetPublicEducationsResponse> {
+    const profile =
+      await this.educationsRepository
+        .findProfileWithEducationsByUsername(
+          dto.username,
+        );
+      
+    if (!profile) {
+      throwRpcError(
+        RpcErrorCode.PROFILE_NOT_FOUND,
+        'Profile not found',
+      );
+    }
+  
+    if (
+      profile.visibility ===
+      ProfileVisibility.PRIVATE
+    ) {
+      return {
+        educations: [],
+      };
+    }
+  
+    return {
+      educations:
+        profile.educations.map(
+          (education) => ({
+            id:
+              education.id,
+          
+            institution:
+              education.institution,
+          
+            degree:
+              education.degree,
+          
+            fieldOfStudy:
+              education.fieldOfStudy,
+          
+            description:
+              education.description,
+          
+            startedAt:
+              this.formatDate(
+                education.startedAt,
+              ),
+            
+            endedAt:
+              education.endedAt
+                ? this.formatDate(
+                    education.endedAt,
+                  )
+                : null,
+                
+            isCurrent:
+              education.isCurrent,
+          }),
+        ),
     };
   }
 
