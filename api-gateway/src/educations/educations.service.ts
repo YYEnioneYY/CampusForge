@@ -57,6 +57,15 @@ import type {
   DeleteEducationPayload,
 } from './types/delete-education.types';
 
+import {
+  GetPublicEducationsResponseDto,
+} from './dto/get-public-educations-response.dto';
+
+import type {
+  GetPublicEducationsKafkaResponse,
+  GetPublicEducationsPayload,
+} from './types/get-public-educations.types';
+
 @Injectable()
 export class EducationsService {
   constructor(
@@ -274,5 +283,58 @@ export class EducationsService {
         payload,
       ),
     );
+  }
+
+  async getPublicEducations(
+    username: string,
+  ): Promise<GetPublicEducationsResponseDto> {
+    const payload:
+      GetPublicEducationsPayload = {
+        username,
+      };
+    
+    const result =
+      await firstValueFrom(
+        this.profileKafkaService.send<
+          GetPublicEducationsKafkaResponse,
+          GetPublicEducationsPayload
+        >(
+          EDUCATION_PATTERNS
+            .GET_PUBLIC_BY_USERNAME,
+        
+          payload,
+        ),
+      );
+    
+    return {
+      educations:
+        result.educations.map(
+          (education) => ({
+            id:
+              education.id,
+          
+            institution:
+              education.institution,
+          
+            degree:
+              education.degree,
+          
+            fieldOfStudy:
+              education.fieldOfStudy,
+          
+            description:
+              education.description,
+          
+            startedAt:
+              education.startedAt,
+          
+            endedAt:
+              education.endedAt,
+          
+            isCurrent:
+              education.isCurrent,
+          }),
+        ),
+    };
   }
 }

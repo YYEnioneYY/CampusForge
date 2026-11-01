@@ -18,6 +18,10 @@ import {
   EducationsService,
 } from './educations.service';
 
+import {
+  PublicEducationsController,
+} from './public-educations.controller';
+
 @Module({
   imports: [
     KafkaModule,
@@ -26,6 +30,7 @@ import {
 
   controllers: [
     EducationsController,
+    PublicEducationsController,
   ],
 
   providers: [
