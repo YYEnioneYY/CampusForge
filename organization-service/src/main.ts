@@ -3,6 +3,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
+import {
+  rpcValidationExceptionFactory,
+} from './common/rpc/rpc-validation-exception-factory';
 
 function getKafkaBrokers(): string[] {
   return (process.env.KAFKA_BROKERS ?? 'localhost:9092')
@@ -22,17 +25,21 @@ async function bootstrap() {
           brokers: getKafkaBrokers(),
         },
         consumer: {
-          groupId: process.env.KAFKA_GROUP_ID ?? 'organization-consumer',
+          groupId: process.env.KAFKA_GROUP_ID ?? 'organization-service-consumer',
         },
       },
     },
   );
+
+  app.enableShutdownHooks();
 
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      exceptionFactory:
+        rpcValidationExceptionFactory,
     }),
   );
 
