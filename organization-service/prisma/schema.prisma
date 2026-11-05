@@ -8,3 +8,60 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum OrganizationVisibility {
+  PUBLIC  @map("public")
+  PRIVATE @map("private")
+
+  @@map("organization_visibility")
+}
+
+enum OrganizationStatus {
+  ACTIVE    @map("active")
+  ARCHIVED  @map("archived")
+  SUSPENDED @map("suspended")
+
+  @@map("organization_status")
+}
+
+enum OrganizationVerificationStatus {
+  VERIFIED        @map("verified")
+  REVIEW_REQUIRED @map("review_required")
+  REVOKED         @map("revoked")
+
+  @@map("organization_verification_status")
+}
+
+model Organization {
+  id                 String                         @id @default(uuid()) @db.Uuid
+
+  name               String                         @db.VarChar(120)
+  slug               String                         @unique @db.VarChar(80)
+
+  description        String?                        @db.Text
+
+  logoId             String?                        @map("logo_id") @db.Uuid
+
+  websiteUrl         String?                        @map("website_url") @db.VarChar(2048)
+  contactEmail       String?                        @map("contact_email") @db.VarChar(320)
+
+  timeZone           String                         @default("UTC") @map("time_zone") @db.VarChar(100)
+
+  visibility         OrganizationVisibility         @default(PRIVATE)
+  status             OrganizationStatus             @default(ACTIVE)
+
+  verificationStatus OrganizationVerificationStatus @map("verification_status")
+  verifiedAt         DateTime                       @map("verified_at") @db.Timestamptz
+
+  createdByUserId    String                         @map("created_by_user_id") @db.Uuid
+
+  createdAt          DateTime                       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime                       @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt          DateTime?                      @map("deleted_at") @db.Timestamptz
+
+  @@index([createdByUserId])
+  @@index([verificationStatus])
+  @@index([status, visibility, deletedAt])
+
+  @@map("organizations")
+}
