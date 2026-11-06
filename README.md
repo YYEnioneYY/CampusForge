@@ -525,9 +525,8 @@ CampusForge развивается как облачная SaaS-платформ
 
 | Документ | Описание |
 |---|---|
-| `docs/project-overview.md` | Описание продукта |
-| `docs/project-concept.docx` | Полная концепция проекта |
-| `docs/database.md` | Структура базы данных |
-| `docs/api.md` | REST API проекта |
-| `docs/microservices.md` | Микросервисная архитектура |
+| `docs/concept/project-concept.pdf` | Полная концепция проекта |
+| `docs/database/database.md` | Структура базы данных |
+| `docs/api/api.md` | REST API проекта |
+| `docs/microservices/microservices.md` | Микросервисная архитектура |
 | `docs/README.md` | Навигация по документации |
