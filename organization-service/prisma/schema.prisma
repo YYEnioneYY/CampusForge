@@ -55,6 +55,8 @@ model Organization {
 
   createdByUserId    String                         @map("created_by_user_id") @db.Uuid
 
+  creationRequest    OrganizationCreationRequest?
+
   createdAt          DateTime                       @default(now()) @map("created_at") @db.Timestamptz
   updatedAt          DateTime                       @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt          DateTime?                      @map("deleted_at") @db.Timestamptz
@@ -64,4 +66,60 @@ model Organization {
   @@index([status, visibility, deletedAt])
 
   @@map("organizations")
+}
+
+enum OrganizationCreationRequestStatus {
+  DRAFT     @map("draft")
+  SUBMITTED @map("submitted")
+  IN_REVIEW @map("in_review")
+  APPROVED  @map("approved")
+  REJECTED  @map("rejected")
+  CANCELLED @map("cancelled")
+
+  @@map("organization_creation_request_status")
+}
+
+model OrganizationCreationRequest {
+  id                      String                            @id @default(uuid()) @db.Uuid
+
+  applicantUserId         String                            @map("applicant_user_id") @db.Uuid
+
+  name                    String                            @db.VarChar(120)
+  slug                    String                            @db.VarChar(80)
+
+  description             String?                           @db.Text
+
+  legalName               String                            @map("legal_name") @db.VarChar(255)
+
+  registrationCountryCode String                            @map("registration_country_code") @db.Char(2)
+  registrationNumber      String                            @map("registration_number") @db.VarChar(100)
+  taxId                   String?                           @map("tax_id") @db.VarChar(100)
+
+  websiteUrl              String?                           @map("website_url") @db.VarChar(2048)
+  contactEmail            String?                           @map("contact_email") @db.VarChar(320)
+
+  timeZone                String                            @default("UTC") @map("time_zone") @db.VarChar(100)
+
+  status                  OrganizationCreationRequestStatus @default(DRAFT)
+
+  reviewedByUserId        String?                           @map("reviewed_by_user_id") @db.Uuid
+  reviewComment           String?                           @map("review_comment") @db.Text
+
+  organizationId          String?                           @unique @map("organization_id") @db.Uuid
+  organization            Organization?                     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  submittedAt             DateTime?                         @map("submitted_at") @db.Timestamptz
+  reviewedAt              DateTime?                         @map("reviewed_at") @db.Timestamptz
+  cancelledAt             DateTime?                         @map("cancelled_at") @db.Timestamptz
+
+  createdAt               DateTime                          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt               DateTime                          @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([applicantUserId, status])
+  @@index([status, createdAt])
+  @@index([reviewedByUserId])
+  @@index([slug])
+  @@index([registrationCountryCode, registrationNumber])
+
+  @@map("organization_creation_requests")
 }
