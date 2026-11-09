@@ -56,6 +56,7 @@ model Organization {
   createdByUserId    String                         @map("created_by_user_id") @db.Uuid
 
   creationRequest    OrganizationCreationRequest?
+  members            OrganizationMember[]
 
   createdAt          DateTime                       @default(now()) @map("created_at") @db.Timestamptz
   updatedAt          DateTime                       @updatedAt @map("updated_at") @db.Timestamptz
@@ -122,4 +123,38 @@ model OrganizationCreationRequest {
   @@index([registrationCountryCode, registrationNumber])
 
   @@map("organization_creation_requests")
+}
+
+enum OrganizationMemberStatus {
+  ACTIVE    @map("active")
+  SUSPENDED @map("suspended")
+  LEFT      @map("left")
+
+  @@map("organization_member_status")
+}
+
+model OrganizationMember {
+  id              String                   @id @default(uuid()) @db.Uuid
+
+  organizationId  String                   @map("organization_id") @db.Uuid
+  userId          String                   @map("user_id") @db.Uuid
+
+  status          OrganizationMemberStatus @default(ACTIVE)
+
+  invitedByUserId String?                  @map("invited_by_user_id") @db.Uuid
+
+  joinedAt        DateTime                 @default(now()) @map("joined_at") @db.Timestamptz
+  leftAt          DateTime?                @map("left_at") @db.Timestamptz
+
+  organization    Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime                 @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime                 @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([organizationId, userId])
+  @@index([organizationId, status])
+  @@index([userId, status])
+  @@index([invitedByUserId])
+
+  @@map("organization_members")
 }
