@@ -96,7 +96,36 @@ services:
       start_period: 10s
     networks:
       - studenthub-network
-    
+  
+  organization-db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${ORGANIZATION_DB_NAME}
+      POSTGRES_USER: ${ORGANIZATION_DB_USER}
+      POSTGRES_PASSWORD: ${ORGANIZATION_DB_PASSWORD}
+
+    ports:
+      - "5437:5432"
+
+    volumes:
+      - organization_db_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - studenthub-network
+
   redis:
     image: redis:7.4-alpine
     restart: unless-stopped
@@ -313,6 +342,24 @@ services:
     networks:
       - studenthub-network
 
+  organization-migrate:
+    build:
+      context: ./organization-service
+      target: migrate
+
+    environment:
+      DATABASE_URL: >-
+        postgresql://${ORGANIZATION_DB_USER}:${ORGANIZATION_DB_PASSWORD}@organization-db:5432/${ORGANIZATION_DB_NAME}?schema=public
+
+    depends_on:
+      organization-db:
+        condition: service_healthy
+
+    restart: "no"
+
+    networks:
+      - studenthub-network
+
   profile-service:
     build:
       context: ./profile-service
@@ -430,6 +477,34 @@ services:
     networks:
       - studenthub-network
 
+  organization-service:
+    build:
+      context: ./organization-service
+      target: runner
+
+    restart: unless-stopped
+    init: true
+
+    environment:
+      NODE_ENV: production
+
+      DATABASE_URL: >-
+        postgresql://${ORGANIZATION_DB_USER}:${ORGANIZATION_DB_PASSWORD}@organization-db:5432/${ORGANIZATION_DB_NAME}?schema=public
+
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_CLIENT_ID: organization-service
+      KAFKA_GROUP_ID: organization-service-consumer
+
+    depends_on:
+      organization-migrate:
+        condition: service_completed_successfully
+
+      kafka:
+        condition: service_healthy
+
+    networks:
+      - studenthub-network
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -464,6 +539,7 @@ volumes:
   profile_db_data:
   reference_db_data:
   media_db_data:
+  organization_db_data:
   redis_data:
   kafka_data:
   minio_data:
