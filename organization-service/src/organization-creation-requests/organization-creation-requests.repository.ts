@@ -6,6 +6,10 @@ import {
   PrismaService,
 } from '../prisma/prisma.service';
 
+import {
+  OrganizationCreationRequestStatus,
+} from '../generated/prisma/enums';
+
 const creationRequestSelect = {
   id: true,
 
@@ -123,6 +127,9 @@ export class OrganizationCreationRequestsRepository {
 
           timeZone:
             data.timeZone,
+
+          status:
+            OrganizationCreationRequestStatus.DRAFT,
         },
 
         select:
