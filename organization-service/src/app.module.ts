@@ -13,6 +13,7 @@ import {
 import {
   PrismaModule,
 } from './prisma/prisma.module';
+import { OrganizationCreationRequestsModule } from './organization-creation-requests/organization-creation-requests.module';
 
 @Module({
   imports: [
@@ -23,6 +24,8 @@ import {
     }),
 
     PrismaModule,
+
+    OrganizationCreationRequestsModule,
   ],
 })
 export class AppModule {}
