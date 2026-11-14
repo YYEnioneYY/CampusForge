@@ -531,6 +531,8 @@ services:
         condition: service_started
       reference-service:
         condition: service_started
+      organization-service:
+        condition: service_started
     networks:
       - studenthub-network
 
