@@ -485,6 +485,9 @@ services:
     restart: unless-stopped
     init: true
 
+    env_file:
+      - ./organization-service/.env.docker
+
     environment:
       NODE_ENV: production
 
@@ -492,8 +495,6 @@ services:
         postgresql://${ORGANIZATION_DB_USER}:${ORGANIZATION_DB_PASSWORD}@organization-db:5432/${ORGANIZATION_DB_NAME}?schema=public
 
       KAFKA_BROKERS: kafka:9092
-      KAFKA_CLIENT_ID: organization-service
-      KAFKA_GROUP_ID: organization-service-consumer
 
     depends_on:
       organization-migrate:
