@@ -13,6 +13,7 @@ import { UserLinksModule } from './user-links/user-links.module';
 import { WorkExperiencesModule } from './work-experiences/work-experiences.module';
 import { UserSkillsModule } from './user-skills/user-skills.module';
 import { EducationsModule } from './educations/educations.module';
+import { OrganizationCreationRequestsModule } from './organization-creation-requests/organization-creation-requests.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { EducationsModule } from './educations/educations.module';
     WorkExperiencesModule,
     UserSkillsModule,
     EducationsModule,
+    OrganizationCreationRequestsModule,
   ],
 })
 export class AppModule {}

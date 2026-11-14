@@ -80,6 +80,7 @@ export class RpcErrorMapperService {
       case RpcErrorCode.USER_LINK_LIMIT_REACHED:
       case RpcErrorCode.USER_SKILL_ALREADY_EXISTS:
       case RpcErrorCode.USER_SKILL_LIMIT_REACHED:
+      case RpcErrorCode.ORGANIZATION_SLUG_ALREADY_EXISTS:
         return HttpStatus.CONFLICT;
 
       case RpcErrorCode.INVALID_CREDENTIALS:

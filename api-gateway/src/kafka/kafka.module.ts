@@ -16,6 +16,8 @@ import { PROFILE_KAFKA_CLIENT } from './kafka.constants';
 import { ProfileKafkaService } from './profile-kafka.service';
 import { MEDIA_KAFKA_CLIENT } from './kafka.constants';
 import { MediaKafkaService } from './media-kafka.service';
+import { ORGANIZATION_KAFKA_CLIENT } from './kafka.constants';
+import { OrganizationKafkaService } from './organization-kafka.service';
 
 @Module({
   imports: [
@@ -175,6 +177,51 @@ import { MediaKafkaService } from './media-kafka.service';
           ConfigService,
         ],
       },
+
+      {
+        name: ORGANIZATION_KAFKA_CLIENT,
+      
+        useFactory: (
+          configService: ConfigService,
+        ) => ({
+          transport:
+            Transport.KAFKA,
+        
+          options: {
+            client: {
+              clientId:
+                configService
+                  .getOrThrow<string>(
+                    'KAFKA_ORGANIZATION_CLIENT_ID',
+                  ),
+                
+              brokers:
+                configService
+                  .getOrThrow<string>(
+                    'KAFKA_BROKERS',
+                  )
+                  .split(',')
+                  .map((broker) =>
+                    broker.trim(),
+                  )
+                  .filter(Boolean),
+            },
+          
+            consumer: {
+              groupId:
+                configService
+                  .getOrThrow<string>(
+                    'KAFKA_ORGANIZATION_CONSUMER_GROUP_ID',
+                  ),
+            },
+          },
+        }),
+
+        inject: [
+          ConfigService,
+        ],
+      },
+
     ]),
   ],
   providers: [
@@ -182,12 +229,14 @@ import { MediaKafkaService } from './media-kafka.service';
     ReferenceKafkaService,
     ProfileKafkaService,
     MediaKafkaService,
+    OrganizationKafkaService,
   ],
   exports: [
     AuthKafkaService,
     ReferenceKafkaService,
     ProfileKafkaService,
     MediaKafkaService,
+    OrganizationKafkaService,
   ],
 })
 export class KafkaModule {}

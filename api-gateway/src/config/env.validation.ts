@@ -56,6 +56,14 @@ class EnvironmentVariables {
   @IsNotEmpty()
   KAFKA_MEDIA_CONSUMER_GROUP_ID!: string;
 
+  @IsString()
+  @IsNotEmpty()
+  KAFKA_ORGANIZATION_CLIENT_ID!: string;
+  
+  @IsString()
+  @IsNotEmpty()
+  KAFKA_ORGANIZATION_CONSUMER_GROUP_ID!: string;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()
