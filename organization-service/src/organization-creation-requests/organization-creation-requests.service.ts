@@ -26,6 +26,14 @@ import type {
   CreateOrganizationCreationRequestResponse,
 } from './types/create-organization-creation-request-response.type';
 
+import {
+  GetMyOrganizationCreationRequestsDto,
+} from './dto/get-my-organization-creation-requests.dto';
+
+import type {
+  GetMyOrganizationCreationRequestsResponse,
+} from './types/get-my-organization-creation-requests-response.type';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -154,6 +162,45 @@ export class OrganizationCreationRequestsService {
         updatedAt:
           request.updatedAt.toISOString(),
       },
+    };
+  }
+
+  async getMy(
+    dto: GetMyOrganizationCreationRequestsDto,
+  ): Promise<GetMyOrganizationCreationRequestsResponse> {
+    const requests =
+      await this.repository
+        .findAllByApplicantUserId(
+          dto.userId,
+        );
+
+    return {
+      requests:
+        requests.map(
+          (request) => ({
+            ...request,
+
+            submittedAt:
+              request.submittedAt
+                ?.toISOString() ?? null,
+
+            reviewedAt:
+              request.reviewedAt
+                ?.toISOString() ?? null,
+
+            cancelledAt:
+              request.cancelledAt
+                ?.toISOString() ?? null,
+
+            createdAt:
+              request.createdAt
+                .toISOString(),
+
+            updatedAt:
+              request.updatedAt
+                .toISOString(),
+          }),
+        ),
     };
   }
 }

@@ -136,4 +136,24 @@ export class OrganizationCreationRequestsRepository {
           creationRequestSelect,
       });
   }
+
+  async findAllByApplicantUserId(
+    applicantUserId: string,
+  ) {
+    return this.prisma
+      .organizationCreationRequest
+      .findMany({
+        where: {
+          applicantUserId,
+        },
+      
+        select:
+          creationRequestSelect,
+      
+        orderBy: {
+          createdAt:
+            'desc',
+        },
+      });
+  }
 }
