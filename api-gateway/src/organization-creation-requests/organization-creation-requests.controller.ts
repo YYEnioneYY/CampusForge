@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Post,
+  Get,
   UseGuards,
 } from '@nestjs/common';
 
@@ -35,6 +36,10 @@ import {
   OrganizationCreationRequestsService,
 } from './organization-creation-requests.service';
 
+import {
+  GetMyOrganizationCreationRequestsResponseDto,
+} from './dto/get-my-organization-creation-requests-response.dto';
+
 @ApiTags('Organization creation requests')
 @ApiBearerAuth('access-token')
 @Controller('organizations/creation-requests')
@@ -61,6 +66,20 @@ export class OrganizationCreationRequestsController {
     return this.service.createDraft(
       user.sub,
       dto,
+    );
+  }
+
+  @Get('me')
+  @ApiOperation({
+    summary:
+      'Получение своих заявок на создание организаций',
+  })
+  getMy(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  ): Promise<GetMyOrganizationCreationRequestsResponseDto> {
+    return this.service.getMy(
+      user.sub,
     );
   }
 }

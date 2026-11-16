@@ -27,6 +27,15 @@ import type {
   CreateOrganizationCreationRequestPayload,
 } from './types/create-organization-creation-request.types';
 
+import {
+  GetMyOrganizationCreationRequestsResponseDto,
+} from './dto/get-my-organization-creation-requests-response.dto';
+
+import type {
+  GetMyOrganizationCreationRequestsKafkaResponse,
+  GetMyOrganizationCreationRequestsPayload,
+} from './types/get-my-organization-creation-requests.types';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -147,5 +156,26 @@ export class OrganizationCreationRequestsService {
           result.request.updatedAt,
       },
     };
+  }
+
+  async getMy(
+    userId: string,
+  ): Promise<GetMyOrganizationCreationRequestsResponseDto> {
+    const payload:
+      GetMyOrganizationCreationRequestsPayload = {
+        userId,
+      };
+    
+    return firstValueFrom(
+      this.organizationKafkaService.send<
+        GetMyOrganizationCreationRequestsKafkaResponse,
+        GetMyOrganizationCreationRequestsPayload
+      >(
+        ORGANIZATION_CREATION_REQUEST_PATTERNS
+          .GET_MY,
+      
+        payload,
+      ),
+    );
   }
 }
