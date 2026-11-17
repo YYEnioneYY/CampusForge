@@ -63,6 +63,24 @@ export type CreateOrganizationCreationRequestData = {
   timeZone: string;
 };
 
+export type UpdateOrganizationCreationRequestData = {
+  name?: string;
+  slug?: string;
+
+  description?: string | null;
+
+  legalName?: string;
+
+  registrationCountryCode?: string;
+  registrationNumber?: string;
+  taxId?: string | null;
+
+  websiteUrl?: string | null;
+  contactEmail?: string | null;
+
+  timeZone?: string;
+};
+
 @Injectable()
 export class OrganizationCreationRequestsRepository {
   constructor(
@@ -155,5 +173,105 @@ export class OrganizationCreationRequestsRepository {
             'desc',
         },
       });
+  }
+
+  async updateDraftForUser(
+    userId: string,
+    requestId: string,
+    data:
+      UpdateOrganizationCreationRequestData,
+  ) {
+    const updated =
+      await this.prisma
+        .organizationCreationRequest
+        .updateManyAndReturn({
+          where: {
+            id:
+              requestId,
+
+            applicantUserId:
+              userId,
+
+            status:
+              OrganizationCreationRequestStatus.DRAFT,
+          },
+
+          data: {
+            name:
+              data.name,
+
+            slug:
+              data.slug,
+
+            description:
+              data.description,
+
+            legalName:
+              data.legalName,
+
+            registrationCountryCode:
+              data.registrationCountryCode,
+
+            registrationNumber:
+              data.registrationNumber,
+
+            taxId:
+              data.taxId,
+
+            websiteUrl:
+              data.websiteUrl,
+
+            contactEmail:
+              data.contactEmail,
+
+            timeZone:
+              data.timeZone,
+          },
+
+          select:
+            creationRequestSelect,
+        });
+
+    const request =
+      updated[0];
+
+    if (request) {
+      return {
+        status:
+          'updated',
+
+        request,
+      } as const;
+    }
+
+    const existing =
+      await this.prisma
+        .organizationCreationRequest
+        .findFirst({
+          where: {
+            id:
+              requestId,
+
+            applicantUserId:
+              userId,
+          },
+
+          select: {
+            id: true,
+            status: true,
+          },
+        });
+
+    if (!existing) {
+      return {
+        status:
+          'not_found',
+      } as const;
+    }
+
+    return {
+      status:
+        'not_editable',
+    } as const;
   }
 }

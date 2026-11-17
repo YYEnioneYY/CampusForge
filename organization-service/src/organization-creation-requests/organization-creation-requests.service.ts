@@ -34,6 +34,18 @@ import type {
   GetMyOrganizationCreationRequestsResponse,
 } from './types/get-my-organization-creation-requests-response.type';
 
+import {
+  UpdateOrganizationCreationRequestDto,
+} from './dto/update-organization-creation-request.dto';
+
+import type {
+  UpdateOrganizationCreationRequestData,
+} from './organization-creation-requests.repository';
+
+import type {
+  UpdateOrganizationCreationRequestResponse,
+} from './types/update-organization-creation-request-response.type';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -201,6 +213,141 @@ export class OrganizationCreationRequestsService {
                 .toISOString(),
           }),
         ),
+    };
+  }
+
+  async updateDraft(
+    dto: UpdateOrganizationCreationRequestDto,
+  ): Promise<UpdateOrganizationCreationRequestResponse> {
+    const hasUpdates = [
+      dto.name,
+      dto.slug,
+      dto.description,
+      dto.legalName,
+      dto.registrationCountryCode,
+      dto.registrationNumber,
+      dto.taxId,
+      dto.websiteUrl,
+      dto.contactEmail,
+      dto.timeZone,
+    ].some(
+      (value) =>
+        value !== undefined,
+    );
+
+    if (!hasUpdates) {
+      throwRpcError(
+        RpcErrorCode.VALIDATION_ERROR,
+        'At least one field must be provided',
+      );
+    }
+
+    if (dto.slug !== undefined) {
+      const slugExists =
+        await this.repository
+          .organizationSlugExists(
+            dto.slug,
+          );
+
+      if (slugExists) {
+        throwRpcError(
+          RpcErrorCode
+            .ORGANIZATION_SLUG_ALREADY_EXISTS,
+
+          'Organization slug already exists',
+        );
+      }
+    }
+
+    const data:
+      UpdateOrganizationCreationRequestData = {
+        name:
+          dto.name,
+
+        slug:
+          dto.slug,
+
+        description:
+          dto.description,
+
+        legalName:
+          dto.legalName,
+
+        registrationCountryCode:
+          dto.registrationCountryCode,
+
+        registrationNumber:
+          dto.registrationNumber,
+
+        taxId:
+          dto.taxId,
+
+        websiteUrl:
+          dto.websiteUrl,
+
+        contactEmail:
+          dto.contactEmail,
+
+        timeZone:
+          dto.timeZone,
+      };
+
+    const result =
+      await this.repository
+        .updateDraftForUser(
+          dto.userId,
+          dto.requestId,
+          data,
+        );
+
+    if (
+      result.status ===
+      'not_found'
+    ) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_CREATION_REQUEST_NOT_FOUND,
+
+        'Organization creation request not found',
+      );
+    }
+
+    if (
+      result.status ===
+      'not_editable'
+    ) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_CREATION_REQUEST_NOT_EDITABLE,
+
+        'Only draft organization creation requests can be updated',
+      );
+    }
+
+    return {
+      request: {
+        ...result.request,
+
+        submittedAt:
+          result.request.submittedAt
+            ?.toISOString() ?? null,
+
+        reviewedAt:
+          result.request.reviewedAt
+            ?.toISOString() ?? null,
+
+        cancelledAt:
+          result.request.cancelledAt
+            ?.toISOString() ?? null,
+
+        createdAt:
+          result.request.createdAt
+            .toISOString(),
+
+        updatedAt:
+          result.request.updatedAt
+            .toISOString(),
+      },
     };
   }
 }

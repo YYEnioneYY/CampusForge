@@ -31,6 +31,14 @@ import type {
   GetMyOrganizationCreationRequestsResponse,
 } from './types/get-my-organization-creation-requests-response.type';
 
+import {
+  UpdateOrganizationCreationRequestDto,
+} from './dto/update-organization-creation-request.dto';
+
+import type {
+  UpdateOrganizationCreationRequestResponse,
+} from './types/update-organization-creation-request-response.type';
+
 @Controller()
 export class OrganizationCreationRequestsController {
   constructor(
@@ -38,10 +46,7 @@ export class OrganizationCreationRequestsController {
       OrganizationCreationRequestsService,
   ) {}
 
-  @MessagePattern(
-    ORGANIZATION_CREATION_REQUEST_PATTERNS
-      .CREATE_DRAFT,
-  )
+  @MessagePattern(ORGANIZATION_CREATION_REQUEST_PATTERNS.CREATE_DRAFT)
   createDraft(
     @Payload()
     dto:
@@ -51,14 +56,21 @@ export class OrganizationCreationRequestsController {
       .createDraft(dto);
   }
 
-  @MessagePattern(
-    ORGANIZATION_CREATION_REQUEST_PATTERNS.GET_MY,
-  )
+  @MessagePattern(ORGANIZATION_CREATION_REQUEST_PATTERNS.GET_MY)
   getMy(
     @Payload()
     dto:
       GetMyOrganizationCreationRequestsDto,
   ): Promise<GetMyOrganizationCreationRequestsResponse> {
     return this.service.getMy(dto);
+  }
+
+  @MessagePattern(ORGANIZATION_CREATION_REQUEST_PATTERNS.UPDATE_DRAFT)
+  updateDraft(
+    @Payload()
+    dto:
+      UpdateOrganizationCreationRequestDto,
+  ): Promise<UpdateOrganizationCreationRequestResponse> {
+    return this.service.updateDraft(dto);
   }
 }
