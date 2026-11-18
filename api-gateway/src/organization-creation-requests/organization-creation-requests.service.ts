@@ -36,6 +36,11 @@ import type {
   GetMyOrganizationCreationRequestsPayload,
 } from './types/get-my-organization-creation-requests.types';
 
+import { UpdateOrganizationCreationRequestDto } from './dto/update-organization-creation-request.dto';
+import { UpdateOrganizationCreationRequestKafkaResponse } from './types/update-organization-creation-request.types';
+import { UpdateOrganizationCreationRequestPayload } from './types/update-organization-creation-request.types';
+import { UpdateOrganizationCreationRequestResponseDto } from './dto/update-organization-creation-request-response.dto';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -165,7 +170,7 @@ export class OrganizationCreationRequestsService {
       GetMyOrganizationCreationRequestsPayload = {
         userId,
       };
-    
+
     return firstValueFrom(
       this.organizationKafkaService.send<
         GetMyOrganizationCreationRequestsKafkaResponse,
@@ -173,7 +178,62 @@ export class OrganizationCreationRequestsService {
       >(
         ORGANIZATION_CREATION_REQUEST_PATTERNS
           .GET_MY,
-      
+
+        payload,
+      ),
+    );
+  }
+
+  async updateDraft(
+    userId: string,
+    requestId: string,
+    dto:
+      UpdateOrganizationCreationRequestDto,
+  ): Promise<UpdateOrganizationCreationRequestResponseDto> {
+    const payload:
+      UpdateOrganizationCreationRequestPayload = {
+        userId,
+        requestId,
+
+        name:
+          dto.name,
+
+        slug:
+          dto.slug,
+
+        description:
+          dto.description,
+
+        legalName:
+          dto.legalName,
+
+        registrationCountryCode:
+          dto.registrationCountryCode,
+
+        registrationNumber:
+          dto.registrationNumber,
+
+        taxId:
+          dto.taxId,
+
+        websiteUrl:
+          dto.websiteUrl,
+
+        contactEmail:
+          dto.contactEmail,
+
+        timeZone:
+          dto.timeZone,
+      };
+
+    return firstValueFrom(
+      this.organizationKafkaService.send<
+        UpdateOrganizationCreationRequestKafkaResponse,
+        UpdateOrganizationCreationRequestPayload
+      >(
+        ORGANIZATION_CREATION_REQUEST_PATTERNS
+          .UPDATE_DRAFT,
+
         payload,
       ),
     );

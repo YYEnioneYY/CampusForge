@@ -3,6 +3,9 @@ import {
   Controller,
   Post,
   Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
   UseGuards,
 } from '@nestjs/common';
 
@@ -39,6 +42,9 @@ import {
 import {
   GetMyOrganizationCreationRequestsResponseDto,
 } from './dto/get-my-organization-creation-requests-response.dto';
+
+import { UpdateOrganizationCreationRequestDto } from './dto/update-organization-creation-request.dto';
+import { UpdateOrganizationCreationRequestResponseDto } from './dto/update-organization-creation-request-response.dto';
 
 @ApiTags('Organization creation requests')
 @ApiBearerAuth('access-token')
@@ -80,6 +86,31 @@ export class OrganizationCreationRequestsController {
   ): Promise<GetMyOrganizationCreationRequestsResponseDto> {
     return this.service.getMy(
       user.sub,
+    );
+  }
+
+  @Patch(':requestId')
+  @ApiOperation({
+    summary:
+      'Обновление черновика заявки на создание организации',
+  })
+  updateDraft(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Param(
+      'requestId',
+      ParseUUIDPipe,
+    )
+    requestId: string,
+
+    @Body()
+    dto: UpdateOrganizationCreationRequestDto,
+  ): Promise<UpdateOrganizationCreationRequestResponseDto> {
+    return this.service.updateDraft(
+      user.sub,
+      requestId,
+      dto,
     );
   }
 }

@@ -81,6 +81,7 @@ export class RpcErrorMapperService {
       case RpcErrorCode.USER_SKILL_ALREADY_EXISTS:
       case RpcErrorCode.USER_SKILL_LIMIT_REACHED:
       case RpcErrorCode.ORGANIZATION_SLUG_ALREADY_EXISTS:
+      case RpcErrorCode.ORGANIZATION_CREATION_REQUEST_NOT_EDITABLE:
         return HttpStatus.CONFLICT;
 
       case RpcErrorCode.INVALID_CREDENTIALS:
@@ -101,6 +102,7 @@ export class RpcErrorMapperService {
       case RpcErrorCode.SKILL_NOT_FOUND:
       case RpcErrorCode.USER_SKILL_NOT_FOUND:
       case RpcErrorCode.EDUCATION_NOT_FOUND:
+      case RpcErrorCode.ORGANIZATION_CREATION_REQUEST_NOT_FOUND:
         return HttpStatus.NOT_FOUND;
 
       case RpcErrorCode.EMAIL_VERIFICATION_RESEND_TOO_SOON:
