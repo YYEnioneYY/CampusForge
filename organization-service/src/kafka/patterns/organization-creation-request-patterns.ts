@@ -4,4 +4,6 @@ export const ORGANIZATION_CREATION_REQUEST_PATTERNS = {
   GET_MY: 'organization.creation_request.my',
 
   UPDATE_DRAFT: 'organization.creation_request.draft.update',
+
+  SUBMIT: 'organization.creation_request.submit',
 } as const;

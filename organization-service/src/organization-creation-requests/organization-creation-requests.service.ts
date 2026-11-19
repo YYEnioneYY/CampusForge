@@ -46,6 +46,18 @@ import type {
   UpdateOrganizationCreationRequestResponse,
 } from './types/update-organization-creation-request-response.type';
 
+import {
+  OrganizationCreationRequestStatus,
+} from '../generated/prisma/enums';
+
+import {
+  SubmitOrganizationCreationRequestDto,
+} from './dto/submit-organization-creation-request.dto';
+
+import type {
+  SubmitOrganizationCreationRequestResponse,
+} from './types/submit-organization-creation-request-response.type';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -346,6 +358,111 @@ export class OrganizationCreationRequestsService {
 
         updatedAt:
           result.request.updatedAt
+            .toISOString(),
+      },
+    };
+  }
+
+  async submit(
+    dto: SubmitOrganizationCreationRequestDto,
+  ): Promise<SubmitOrganizationCreationRequestResponse> {
+    const existing =
+      await this.repository
+        .findOneForUser(
+          dto.userId,
+          dto.requestId,
+        );
+
+    if (!existing) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_CREATION_REQUEST_NOT_FOUND,
+
+        'Organization creation request not found',
+      );
+    }
+
+    if (
+      existing.status !==
+      OrganizationCreationRequestStatus.DRAFT
+    ) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_CREATION_REQUEST_NOT_SUBMITTABLE,
+
+        'Only draft organization creation requests can be submitted',
+      );
+    }
+
+    const organizationSlugExists =
+      await this.repository
+        .organizationSlugExists(
+          existing.slug,
+        );
+
+    if (organizationSlugExists) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_SLUG_ALREADY_EXISTS,
+
+        'Organization slug already exists',
+      );
+    }
+
+    const activeRequestSlugExists =
+      await this.repository
+        .activeRequestSlugExists(
+          existing.slug,
+          existing.id,
+        );
+
+    if (activeRequestSlugExists) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_SLUG_ALREADY_EXISTS,
+
+        'Organization slug is already used by another active request',
+      );
+    }
+
+    const submitted =
+      await this.repository
+        .submitDraftForUser(
+          dto.userId,
+          dto.requestId,
+        );
+
+    if (!submitted) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_CREATION_REQUEST_NOT_SUBMITTABLE,
+
+        'Organization creation request is no longer a draft',
+      );
+    }
+
+    return {
+      request: {
+        ...submitted,
+
+        submittedAt:
+          submitted.submittedAt
+            ?.toISOString() ?? null,
+
+        reviewedAt:
+          submitted.reviewedAt
+            ?.toISOString() ?? null,
+
+        cancelledAt:
+          submitted.cancelledAt
+            ?.toISOString() ?? null,
+
+        createdAt:
+          submitted.createdAt
+            .toISOString(),
+
+        updatedAt:
+          submitted.updatedAt
             .toISOString(),
       },
     };

@@ -39,6 +39,9 @@ import type {
   UpdateOrganizationCreationRequestResponse,
 } from './types/update-organization-creation-request-response.type';
 
+import { SubmitOrganizationCreationRequestDto } from './dto/submit-organization-creation-request.dto';
+import { SubmitOrganizationCreationRequestResponse } from './types/submit-organization-creation-request-response.type';
+
 @Controller()
 export class OrganizationCreationRequestsController {
   constructor(
@@ -72,5 +75,14 @@ export class OrganizationCreationRequestsController {
       UpdateOrganizationCreationRequestDto,
   ): Promise<UpdateOrganizationCreationRequestResponse> {
     return this.service.updateDraft(dto);
+  }
+
+  @MessagePattern(ORGANIZATION_CREATION_REQUEST_PATTERNS.SUBMIT)
+  submit(
+    @Payload()
+    dto:
+      SubmitOrganizationCreationRequestDto,
+  ): Promise<SubmitOrganizationCreationRequestResponse> {
+    return this.service.submit(dto);
   }
 }

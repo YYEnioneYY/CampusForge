@@ -274,4 +274,100 @@ export class OrganizationCreationRequestsRepository {
         'not_editable',
     } as const;
   }
+
+  async findOneForUser(
+    userId: string,
+    requestId: string,
+  ) {
+    return this.prisma
+      .organizationCreationRequest
+      .findFirst({
+        where: {
+          id:
+            requestId,
+
+          applicantUserId:
+            userId,
+        },
+
+        select:
+          creationRequestSelect,
+      });
+  }
+
+  async activeRequestSlugExists(
+    slug: string,
+    excludedRequestId: string,
+  ): Promise<boolean> {
+    const request =
+      await this.prisma
+        .organizationCreationRequest
+        .findFirst({
+          where: {
+            slug,
+
+            id: {
+              not:
+                excludedRequestId,
+            },
+
+            status: {
+              in: [
+                OrganizationCreationRequestStatus
+                  .SUBMITTED,
+
+                OrganizationCreationRequestStatus
+                  .IN_REVIEW,
+
+                OrganizationCreationRequestStatus
+                  .APPROVED,
+              ],
+            },
+          },
+
+          select: {
+            id: true,
+          },
+        });
+
+    return request !== null;
+  }
+
+  async submitDraftForUser(
+    userId: string,
+    requestId: string,
+  ) {
+    const submittedAt = new Date();
+
+    const updated =
+      await this.prisma
+        .organizationCreationRequest
+        .updateManyAndReturn({
+          where: {
+            id:
+              requestId,
+
+            applicantUserId:
+              userId,
+
+            status:
+              OrganizationCreationRequestStatus.DRAFT,
+          },
+
+          data: {
+            status:
+              OrganizationCreationRequestStatus.SUBMITTED,
+
+            submittedAt,
+
+            cancelledAt:
+              null,
+          },
+
+          select:
+            creationRequestSelect,
+        });
+
+    return updated[0] ?? null;
+  }
 }
