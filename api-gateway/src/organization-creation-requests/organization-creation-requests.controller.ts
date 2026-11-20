@@ -7,6 +7,8 @@ import {
   ParseUUIDPipe,
   Patch,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 
 import {
@@ -45,6 +47,8 @@ import {
 
 import { UpdateOrganizationCreationRequestDto } from './dto/update-organization-creation-request.dto';
 import { UpdateOrganizationCreationRequestResponseDto } from './dto/update-organization-creation-request-response.dto';
+
+import { SubmitOrganizationCreationRequestResponseDto } from './dto/submit-organization-creation-request-response.dto';
 
 @ApiTags('Organization creation requests')
 @ApiBearerAuth('access-token')
@@ -111,6 +115,28 @@ export class OrganizationCreationRequestsController {
       user.sub,
       requestId,
       dto,
+    );
+  }
+
+  @Post(':requestId/submit')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Отправка заявки на создание организации',
+  })
+  submit(
+    @CurrentUser()
+    user: AuthenticatedUser,
+
+    @Param(
+      'requestId',
+      ParseUUIDPipe,
+    )
+    requestId: string,
+  ): Promise<SubmitOrganizationCreationRequestResponseDto> {
+    return this.service.submit(
+      user.sub,
+      requestId,
     );
   }
 }

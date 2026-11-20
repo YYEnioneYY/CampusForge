@@ -41,6 +41,15 @@ import { UpdateOrganizationCreationRequestKafkaResponse } from './types/update-o
 import { UpdateOrganizationCreationRequestPayload } from './types/update-organization-creation-request.types';
 import { UpdateOrganizationCreationRequestResponseDto } from './dto/update-organization-creation-request-response.dto';
 
+import {
+  SubmitOrganizationCreationRequestResponseDto,
+} from './dto/submit-organization-creation-request-response.dto';
+
+import type {
+  SubmitOrganizationCreationRequestKafkaResponse,
+  SubmitOrganizationCreationRequestPayload,
+} from './types/submit-organization-creation-request.types';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -234,6 +243,29 @@ export class OrganizationCreationRequestsService {
         ORGANIZATION_CREATION_REQUEST_PATTERNS
           .UPDATE_DRAFT,
 
+        payload,
+      ),
+    );
+  }
+
+  async submit(
+    userId: string,
+    requestId: string,
+  ): Promise<SubmitOrganizationCreationRequestResponseDto> {
+    const payload:
+      SubmitOrganizationCreationRequestPayload = {
+        userId,
+        requestId,
+      };
+    
+    return firstValueFrom(
+      this.organizationKafkaService.send<
+        SubmitOrganizationCreationRequestKafkaResponse,
+        SubmitOrganizationCreationRequestPayload
+      >(
+        ORGANIZATION_CREATION_REQUEST_PATTERNS
+          .SUBMIT,
+      
         payload,
       ),
     );
