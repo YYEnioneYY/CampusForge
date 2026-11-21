@@ -42,6 +42,9 @@ import type {
 import { SubmitOrganizationCreationRequestDto } from './dto/submit-organization-creation-request.dto';
 import { SubmitOrganizationCreationRequestResponse } from './types/submit-organization-creation-request-response.type';
 
+import { DeleteOrganizationCreationRequestDraftDto } from './dto/delete-organization-creation-request-draft.dto';
+import { DeleteOrganizationCreationRequestDraftResponse } from './types/delete-organization-creation-request-draft-response.type';
+
 @Controller()
 export class OrganizationCreationRequestsController {
   constructor(
@@ -84,5 +87,13 @@ export class OrganizationCreationRequestsController {
       SubmitOrganizationCreationRequestDto,
   ): Promise<SubmitOrganizationCreationRequestResponse> {
     return this.service.submit(dto);
+  }
+
+  @MessagePattern(ORGANIZATION_CREATION_REQUEST_PATTERNS.DELETE_DRAFT)
+  deleteDraft(
+    @Payload()
+    dto: DeleteOrganizationCreationRequestDraftDto,
+  ): Promise<DeleteOrganizationCreationRequestDraftResponse> {
+    return this.service.deleteDraft(dto);
   }
 }

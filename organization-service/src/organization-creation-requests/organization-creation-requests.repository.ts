@@ -370,4 +370,62 @@ export class OrganizationCreationRequestsRepository {
 
     return updated[0] ?? null;
   }
+
+  async deleteDraftForUser(
+    userId: string,
+    requestId: string,
+  ) {
+    const result =
+      await this.prisma
+        .organizationCreationRequest
+        .deleteMany({
+          where: {
+            id:
+              requestId,
+
+            applicantUserId:
+              userId,
+
+            status:
+              OrganizationCreationRequestStatus.DRAFT,
+          },
+        });
+
+    if (result.count === 1) {
+      return {
+        status:
+          'deleted',
+      } as const;
+    }
+
+    const existing =
+      await this.prisma
+        .organizationCreationRequest
+        .findFirst({
+          where: {
+            id:
+              requestId,
+
+            applicantUserId:
+              userId,
+          },
+
+          select: {
+            id: true,
+            status: true,
+          },
+        });
+
+    if (!existing) {
+      return {
+        status:
+          'not_found',
+      } as const;
+    }
+
+    return {
+      status:
+        'not_deletable',
+    } as const;
+  }
 }

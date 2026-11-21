@@ -6,4 +6,6 @@ export const ORGANIZATION_CREATION_REQUEST_PATTERNS = {
   UPDATE_DRAFT: 'organization.creation_request.draft.update',
 
   SUBMIT: 'organization.creation_request.submit',
+
+  DELETE_DRAFT: 'organization.creation_request.draft.delete',
 } as const;

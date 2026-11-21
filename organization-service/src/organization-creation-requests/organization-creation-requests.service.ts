@@ -58,6 +58,14 @@ import type {
   SubmitOrganizationCreationRequestResponse,
 } from './types/submit-organization-creation-request-response.type';
 
+import {
+  DeleteOrganizationCreationRequestDraftDto,
+} from './dto/delete-organization-creation-request-draft.dto';
+
+import type {
+  DeleteOrganizationCreationRequestDraftResponse,
+} from './types/delete-organization-creation-request-draft-response.type';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -465,6 +473,45 @@ export class OrganizationCreationRequestsService {
           submitted.updatedAt
             .toISOString(),
       },
+    };
+  }
+
+  async deleteDraft(
+    dto: DeleteOrganizationCreationRequestDraftDto,
+  ): Promise<DeleteOrganizationCreationRequestDraftResponse> {
+    const result =
+      await this.repository
+        .deleteDraftForUser(
+          dto.userId,
+          dto.requestId,
+        );
+
+    if (
+      result.status ===
+      'not_found'
+    ) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_CREATION_REQUEST_NOT_FOUND,
+
+        'Organization creation request not found',
+      );
+    }
+
+    if (
+      result.status ===
+      'not_deletable'
+    ) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_CREATION_REQUEST_NOT_DELETABLE,
+
+        'Only draft organization creation requests can be deleted',
+      );
+    }
+
+    return {
+      success: true,
     };
   }
 }
