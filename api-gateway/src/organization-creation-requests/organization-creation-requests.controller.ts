@@ -3,6 +3,7 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -135,6 +136,30 @@ export class OrganizationCreationRequestsController {
     requestId: string,
   ): Promise<SubmitOrganizationCreationRequestResponseDto> {
     return this.service.submit(
+      user.sub,
+      requestId,
+    );
+  }
+
+  @Delete(':requestId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary:
+      'Удаление черновика заявки на создание организации',
+  })
+  async deleteDraft(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Param(
+      'requestId',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    requestId: string,
+  ): Promise<void> {
+    await this.service.deleteDraft(
       user.sub,
       requestId,
     );

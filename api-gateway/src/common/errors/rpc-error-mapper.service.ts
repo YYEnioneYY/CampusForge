@@ -83,6 +83,7 @@ export class RpcErrorMapperService {
       case RpcErrorCode.ORGANIZATION_SLUG_ALREADY_EXISTS:
       case RpcErrorCode.ORGANIZATION_CREATION_REQUEST_NOT_EDITABLE:
       case RpcErrorCode.ORGANIZATION_CREATION_REQUEST_NOT_SUBMITTABLE:
+      case RpcErrorCode.ORGANIZATION_CREATION_REQUEST_NOT_DELETABLE:
         return HttpStatus.CONFLICT;
 
       case RpcErrorCode.INVALID_CREDENTIALS:

@@ -50,6 +50,14 @@ import type {
   SubmitOrganizationCreationRequestPayload,
 } from './types/submit-organization-creation-request.types';
 
+import type {
+  CommandAcknowledgement,
+} from '../common/types/command-acknowledgement.type';
+
+import type {
+  DeleteOrganizationCreationRequestDraftPayload,
+} from './types/delete-organization-creation-request-draft.types';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -257,7 +265,7 @@ export class OrganizationCreationRequestsService {
         userId,
         requestId,
       };
-    
+
     return firstValueFrom(
       this.organizationKafkaService.send<
         SubmitOrganizationCreationRequestKafkaResponse,
@@ -265,6 +273,29 @@ export class OrganizationCreationRequestsService {
       >(
         ORGANIZATION_CREATION_REQUEST_PATTERNS
           .SUBMIT,
+
+        payload,
+      ),
+    );
+  }
+
+  async deleteDraft(
+    userId: string,
+    requestId: string,
+  ): Promise<void> {
+    const payload:
+      DeleteOrganizationCreationRequestDraftPayload = {
+        userId,
+        requestId,
+      };
+    
+    await firstValueFrom(
+      this.organizationKafkaService.send<
+        CommandAcknowledgement,
+        DeleteOrganizationCreationRequestDraftPayload
+      >(
+        ORGANIZATION_CREATION_REQUEST_PATTERNS
+          .DELETE_DRAFT,
       
         payload,
       ),
