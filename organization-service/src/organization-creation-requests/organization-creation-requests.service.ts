@@ -66,6 +66,14 @@ import type {
   DeleteOrganizationCreationRequestDraftResponse,
 } from './types/delete-organization-creation-request-draft-response.type';
 
+import {
+  CancelOrganizationCreationRequestDto,
+} from './dto/cancel-organization-creation-request.dto';
+
+import type {
+  CancelOrganizationCreationRequestResponse,
+} from './types/cancel-organization-creation-request-response.type';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -512,6 +520,67 @@ export class OrganizationCreationRequestsService {
 
     return {
       success: true,
+    };
+  }
+
+  async cancel(
+    dto: CancelOrganizationCreationRequestDto,
+  ): Promise<CancelOrganizationCreationRequestResponse> {
+    const result =
+      await this.repository
+        .cancelSubmittedForUser(
+          dto.userId,
+          dto.requestId,
+        );
+
+    if (
+      result.status ===
+      'not_found'
+    ) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_CREATION_REQUEST_NOT_FOUND,
+
+        'Organization creation request not found',
+      );
+    }
+
+    if (
+      result.status ===
+      'not_cancellable'
+    ) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_CREATION_REQUEST_NOT_CANCELLABLE,
+
+        'Only submitted organization creation requests can be cancelled',
+      );
+    }
+
+    return {
+      request: {
+        ...result.request,
+
+        submittedAt:
+          result.request.submittedAt
+            ?.toISOString() ?? null,
+
+        reviewedAt:
+          result.request.reviewedAt
+            ?.toISOString() ?? null,
+
+        cancelledAt:
+          result.request.cancelledAt
+            ?.toISOString() ?? null,
+
+        createdAt:
+          result.request.createdAt
+            .toISOString(),
+
+        updatedAt:
+          result.request.updatedAt
+            .toISOString(),
+      },
     };
   }
 }

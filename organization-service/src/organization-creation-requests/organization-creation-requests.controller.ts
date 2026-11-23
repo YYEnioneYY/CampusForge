@@ -45,6 +45,14 @@ import { SubmitOrganizationCreationRequestResponse } from './types/submit-organi
 import { DeleteOrganizationCreationRequestDraftDto } from './dto/delete-organization-creation-request-draft.dto';
 import { DeleteOrganizationCreationRequestDraftResponse } from './types/delete-organization-creation-request-draft-response.type';
 
+import {
+  CancelOrganizationCreationRequestDto,
+} from './dto/cancel-organization-creation-request.dto';
+
+import type {
+  CancelOrganizationCreationRequestResponse,
+} from './types/cancel-organization-creation-request-response.type';
+
 @Controller()
 export class OrganizationCreationRequestsController {
   constructor(
@@ -95,5 +103,14 @@ export class OrganizationCreationRequestsController {
     dto: DeleteOrganizationCreationRequestDraftDto,
   ): Promise<DeleteOrganizationCreationRequestDraftResponse> {
     return this.service.deleteDraft(dto);
+  }
+
+  @MessagePattern(ORGANIZATION_CREATION_REQUEST_PATTERNS.CANCEL)
+  cancel(
+    @Payload()
+    dto:
+      CancelOrganizationCreationRequestDto,
+  ): Promise<CancelOrganizationCreationRequestResponse> {
+    return this.service.cancel(dto);
   }
 }

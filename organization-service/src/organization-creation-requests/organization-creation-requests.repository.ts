@@ -428,4 +428,79 @@ export class OrganizationCreationRequestsRepository {
         'not_deletable',
     } as const;
   }
+
+  async cancelSubmittedForUser(
+    userId: string,
+    requestId: string,
+  ) {
+    const cancelledAt = new Date();
+
+    const updated =
+      await this.prisma
+        .organizationCreationRequest
+        .updateManyAndReturn({
+          where: {
+            id:
+              requestId,
+
+            applicantUserId:
+              userId,
+
+            status:
+              OrganizationCreationRequestStatus.SUBMITTED,
+          },
+
+          data: {
+            status:
+              OrganizationCreationRequestStatus.CANCELLED,
+
+            cancelledAt,
+          },
+
+          select:
+            creationRequestSelect,
+        });
+
+    const request =
+      updated[0];
+
+    if (request) {
+      return {
+        status:
+          'cancelled',
+
+        request,
+      } as const;
+    }
+
+    const existing =
+      await this.prisma
+        .organizationCreationRequest
+        .findFirst({
+          where: {
+            id:
+              requestId,
+
+            applicantUserId:
+              userId,
+          },
+
+          select: {
+            id: true,
+            status: true,
+          },
+        });
+
+    if (!existing) {
+      return {
+        status:
+          'not_found',
+      } as const;
+    }
+
+    return {
+      status:
+        'not_cancellable',
+    } as const;
+  }
 }

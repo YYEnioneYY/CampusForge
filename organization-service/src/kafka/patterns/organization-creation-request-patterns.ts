@@ -8,4 +8,6 @@ export const ORGANIZATION_CREATION_REQUEST_PATTERNS = {
   SUBMIT: 'organization.creation_request.submit',
 
   DELETE_DRAFT: 'organization.creation_request.draft.delete',
+
+  CANCEL: 'organization.creation_request.cancel',
 } as const;
