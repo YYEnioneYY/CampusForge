@@ -58,6 +58,15 @@ import type {
   DeleteOrganizationCreationRequestDraftPayload,
 } from './types/delete-organization-creation-request-draft.types';
 
+import {
+  CancelOrganizationCreationRequestResponseDto,
+} from './dto/cancel-organization-creation-request-response.dto';
+
+import type {
+  CancelOrganizationCreationRequestKafkaResponse,
+  CancelOrganizationCreationRequestPayload,
+} from './types/cancel-organization-creation-request.types';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -288,7 +297,7 @@ export class OrganizationCreationRequestsService {
         userId,
         requestId,
       };
-    
+
     await firstValueFrom(
       this.organizationKafkaService.send<
         CommandAcknowledgement,
@@ -296,6 +305,29 @@ export class OrganizationCreationRequestsService {
       >(
         ORGANIZATION_CREATION_REQUEST_PATTERNS
           .DELETE_DRAFT,
+
+        payload,
+      ),
+    );
+  }
+
+  async cancel(
+    userId: string,
+    requestId: string,
+  ): Promise<CancelOrganizationCreationRequestResponseDto> {
+    const payload:
+      CancelOrganizationCreationRequestPayload = {
+        userId,
+        requestId,
+      };
+    
+    return firstValueFrom(
+      this.organizationKafkaService.send<
+        CancelOrganizationCreationRequestKafkaResponse,
+        CancelOrganizationCreationRequestPayload
+      >(
+        ORGANIZATION_CREATION_REQUEST_PATTERNS
+          .CANCEL,
       
         payload,
       ),

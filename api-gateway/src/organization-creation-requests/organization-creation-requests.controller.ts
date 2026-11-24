@@ -51,6 +51,10 @@ import { UpdateOrganizationCreationRequestResponseDto } from './dto/update-organ
 
 import { SubmitOrganizationCreationRequestResponseDto } from './dto/submit-organization-creation-request-response.dto';
 
+import {
+  CancelOrganizationCreationRequestResponseDto,
+} from './dto/cancel-organization-creation-request-response.dto';
+
 @ApiTags('Organization creation requests')
 @ApiBearerAuth('access-token')
 @Controller('organizations/creation-requests')
@@ -150,7 +154,7 @@ export class OrganizationCreationRequestsController {
   async deleteDraft(
     @CurrentUser()
     user: AuthenticatedUser,
-  
+
     @Param(
       'requestId',
       new ParseUUIDPipe({
@@ -160,6 +164,30 @@ export class OrganizationCreationRequestsController {
     requestId: string,
   ): Promise<void> {
     await this.service.deleteDraft(
+      user.sub,
+      requestId,
+    );
+  }
+
+  @Post(':requestId/cancel')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Отмена отправленной заявки на создание организации',
+  })
+  cancel(
+    @CurrentUser()
+    user: AuthenticatedUser,
+  
+    @Param(
+      'requestId',
+      new ParseUUIDPipe({
+        version: '4',
+      }),
+    )
+    requestId: string,
+  ): Promise<CancelOrganizationCreationRequestResponseDto> {
+    return this.service.cancel(
       user.sub,
       requestId,
     );
