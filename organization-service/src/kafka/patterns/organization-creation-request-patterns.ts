@@ -10,4 +10,7 @@ export const ORGANIZATION_CREATION_REQUEST_PATTERNS = {
   DELETE_DRAFT: 'organization.creation_request.draft.delete',
 
   CANCEL: 'organization.creation_request.cancel',
+
+  //Admin
+  GET_MODERATION_LIST: 'organization.creation_request.moderation.list',
 } as const;

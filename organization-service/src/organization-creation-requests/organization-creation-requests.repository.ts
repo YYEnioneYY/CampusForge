@@ -81,6 +81,32 @@ export type UpdateOrganizationCreationRequestData = {
   timeZone?: string;
 };
 
+const moderationRequestListSelect = {
+  id: true,
+
+  applicantUserId: true,
+
+  name: true,
+  slug: true,
+  legalName: true,
+
+  registrationCountryCode: true,
+  registrationNumber: true,
+
+  contactEmail: true,
+
+  status: true,
+
+  reviewedByUserId: true,
+
+  submittedAt: true,
+  reviewedAt: true,
+  cancelledAt: true,
+
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
 @Injectable()
 export class OrganizationCreationRequestsRepository {
   constructor(
@@ -502,5 +528,49 @@ export class OrganizationCreationRequestsRepository {
       status:
         'not_cancellable',
     } as const;
+  }
+
+  async findModerationPage(
+    status: OrganizationCreationRequestStatus,
+
+    skip: number,
+    take: number,
+  ) {
+    const where = {
+      status,
+    };
+
+    const [
+      items,
+      total,
+    ] = await Promise.all([
+      this.prisma
+        .organizationCreationRequest
+        .findMany({
+          where,
+
+          select:
+            moderationRequestListSelect,
+
+          orderBy: {
+            submittedAt:
+              'asc',
+          },
+
+          skip,
+          take,
+        }),
+
+      this.prisma
+        .organizationCreationRequest
+        .count({
+          where,
+        }),
+    ]);
+
+    return {
+      items,
+      total,
+    };
   }
 }

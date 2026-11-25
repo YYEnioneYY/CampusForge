@@ -74,6 +74,14 @@ import type {
   CancelOrganizationCreationRequestResponse,
 } from './types/cancel-organization-creation-request-response.type';
 
+import {
+  GetModerationOrganizationCreationRequestsDto,
+} from './dto/get-moderation-organization-creation-requests.dto';
+
+import type {
+  GetModerationOrganizationCreationRequestsResponse,
+} from './types/get-moderation-organization-creation-requests-response.type';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -580,6 +588,81 @@ export class OrganizationCreationRequestsService {
         updatedAt:
           result.request.updatedAt
             .toISOString(),
+      },
+    };
+  }
+
+  async getModerationList(
+    dto: GetModerationOrganizationCreationRequestsDto,
+  ): Promise<GetModerationOrganizationCreationRequestsResponse> {
+    const page =
+      dto.page ?? 1;
+
+    const limit =
+      dto.limit ?? 20;
+
+    const status =
+      dto.status ??
+      OrganizationCreationRequestStatus.SUBMITTED;
+
+    const skip =
+      (page - 1) * limit;
+
+    const result =
+      await this.repository
+        .findModerationPage(
+          status,
+          skip,
+          limit,
+        );
+
+    const totalPages =
+      Math.ceil(
+        result.total / limit,
+      );
+
+    return {
+      items:
+        result.items.map(
+          (request) => ({
+            ...request,
+
+            submittedAt:
+              request.submittedAt
+                ?.toISOString() ?? null,
+
+            reviewedAt:
+              request.reviewedAt
+                ?.toISOString() ?? null,
+
+            cancelledAt:
+              request.cancelledAt
+                ?.toISOString() ?? null,
+
+            createdAt:
+              request.createdAt
+                .toISOString(),
+
+            updatedAt:
+              request.updatedAt
+                .toISOString(),
+          }),
+        ),
+
+      meta: {
+        page,
+        limit,
+
+        total:
+          result.total,
+
+        totalPages,
+
+        hasNextPage:
+          page < totalPages,
+
+        hasPreviousPage:
+          page > 1,
       },
     };
   }

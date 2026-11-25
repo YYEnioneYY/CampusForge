@@ -53,6 +53,14 @@ import type {
   CancelOrganizationCreationRequestResponse,
 } from './types/cancel-organization-creation-request-response.type';
 
+import {
+  GetModerationOrganizationCreationRequestsDto,
+} from './dto/get-moderation-organization-creation-requests.dto';
+
+import type {
+  GetModerationOrganizationCreationRequestsResponse,
+} from './types/get-moderation-organization-creation-requests-response.type';
+
 @Controller()
 export class OrganizationCreationRequestsController {
   constructor(
@@ -112,5 +120,13 @@ export class OrganizationCreationRequestsController {
       CancelOrganizationCreationRequestDto,
   ): Promise<CancelOrganizationCreationRequestResponse> {
     return this.service.cancel(dto);
+  }
+
+  @MessagePattern(ORGANIZATION_CREATION_REQUEST_PATTERNS.GET_MODERATION_LIST)
+  getModerationList(
+    @Payload()
+    dto: GetModerationOrganizationCreationRequestsDto,
+  ): Promise<GetModerationOrganizationCreationRequestsResponse> {
+    return this.service.getModerationList(dto);
   }
 }
