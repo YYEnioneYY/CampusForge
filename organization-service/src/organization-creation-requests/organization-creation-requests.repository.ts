@@ -107,6 +107,13 @@ const moderationRequestListSelect = {
   updatedAt: true,
 } as const;
 
+const moderationRequestDetailsSelect = {
+  ...creationRequestSelect,
+
+  applicantUserId: true,
+  reviewedByUserId: true,
+} as const;
+
 @Injectable()
 export class OrganizationCreationRequestsRepository {
   constructor(
@@ -572,5 +579,26 @@ export class OrganizationCreationRequestsRepository {
       items,
       total,
     };
+  }
+
+  async findOneForModeration(
+    requestId: string,
+  ) {
+    return this.prisma
+      .organizationCreationRequest
+      .findFirst({
+        where: {
+          id:
+            requestId,
+        
+          status: {
+            not:
+              OrganizationCreationRequestStatus.DRAFT,
+          },
+        },
+      
+        select:
+          moderationRequestDetailsSelect,
+      });
   }
 }

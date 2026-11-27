@@ -13,4 +13,6 @@ export const ORGANIZATION_CREATION_REQUEST_PATTERNS = {
 
   //Admin
   GET_MODERATION_LIST: 'organization.creation_request.moderation.list',
+
+  GET_MODERATION_BY_ID: 'organization.creation_request.moderation.by_id',
 } as const;

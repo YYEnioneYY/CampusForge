@@ -82,6 +82,14 @@ import type {
   GetModerationOrganizationCreationRequestsResponse,
 } from './types/get-moderation-organization-creation-requests-response.type';
 
+import {
+  GetModerationOrganizationCreationRequestDto,
+} from './dto/get-moderation-organization-creation-request.dto';
+
+import type {
+  GetModerationOrganizationCreationRequestResponse,
+} from './types/get-moderation-organization-creation-request-response.type';
+
 @Injectable()
 export class OrganizationCreationRequestsService {
   constructor(
@@ -663,6 +671,49 @@ export class OrganizationCreationRequestsService {
 
         hasPreviousPage:
           page > 1,
+      },
+    };
+  }
+
+  async getModerationById(
+    dto: GetModerationOrganizationCreationRequestDto,
+  ): Promise<GetModerationOrganizationCreationRequestResponse> {
+    const request =
+      await this.repository
+        .findOneForModeration(
+          dto.requestId,
+        );
+      
+    if (!request) {
+      throwRpcError(
+        RpcErrorCode
+          .ORGANIZATION_CREATION_REQUEST_NOT_FOUND,
+      
+        'Organization creation request not found',
+      );
+    }
+  
+    return {
+      request: {
+        ...request,
+      
+        submittedAt:
+          request.submittedAt
+            ?.toISOString() ?? null,
+      
+        reviewedAt:
+          request.reviewedAt
+            ?.toISOString() ?? null,
+      
+        cancelledAt:
+          request.cancelledAt
+            ?.toISOString() ?? null,
+      
+        createdAt:
+          request.createdAt.toISOString(),
+      
+        updatedAt:
+          request.updatedAt.toISOString(),
       },
     };
   }

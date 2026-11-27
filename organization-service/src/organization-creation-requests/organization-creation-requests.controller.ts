@@ -61,6 +61,14 @@ import type {
   GetModerationOrganizationCreationRequestsResponse,
 } from './types/get-moderation-organization-creation-requests-response.type';
 
+import {
+  GetModerationOrganizationCreationRequestDto,
+} from './dto/get-moderation-organization-creation-request.dto';
+
+import type {
+  GetModerationOrganizationCreationRequestResponse,
+} from './types/get-moderation-organization-creation-request-response.type';
+
 @Controller()
 export class OrganizationCreationRequestsController {
   constructor(
@@ -128,5 +136,14 @@ export class OrganizationCreationRequestsController {
     dto: GetModerationOrganizationCreationRequestsDto,
   ): Promise<GetModerationOrganizationCreationRequestsResponse> {
     return this.service.getModerationList(dto);
+  }
+
+  @MessagePattern(ORGANIZATION_CREATION_REQUEST_PATTERNS.GET_MODERATION_BY_ID)
+  getModerationById(
+    @Payload()
+    dto:
+      GetModerationOrganizationCreationRequestDto,
+  ): Promise<GetModerationOrganizationCreationRequestResponse> {
+    return this.service.getModerationById(dto);
   }
 }
